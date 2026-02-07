@@ -6,6 +6,7 @@
 .import/
 export.cfg
 export_credentials.cfg
+*.tmp
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -14,3 +15,42 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+.vs/
