@@ -34,7 +34,11 @@ public partial class World : Node2D
 
                 _mapLayer.SetCell(coord, 0, atlasCoord);
 
-                GD.Print($"{_mapLayer.GetCellSourceId(new Vector2I(i, j))}");
+                var tileData = _mapLayer.GetCellTileData(coord);
+                if (tileData != null)
+                {
+                    tileData.Modulate = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+                }
             }
         }
     }
