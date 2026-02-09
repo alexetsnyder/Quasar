@@ -7,3 +7,5 @@
 script = ExtResource("1_o5qli")
 
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_0wfyh")]
+Rows = 192
+Cols = 192
