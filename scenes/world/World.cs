@@ -73,27 +73,6 @@ public partial class World : Node2D
                 _selectionRect.Visible = false;
             }
         }
-
-        //if (@event.IsActionPressed("LeftMouseClick"))
-        //    //@event is InputEventMouseButton inputEventMouseButton &&
-        //    //inputEventMouseButton.ButtonIndex == MouseButton.Left)
-        //{
-        //    _selectLayer.Clear();
-
-        //    var mousePos = GetLocalMousePosition();
-        //    var cellCoord = _selectLayer.LocalToMap(mousePos);
-        //    var atlasCoord = new Vector2I(7, 15);
-
-        //    _selectLayer.SetCell(cellCoord, 0, atlasCoord);
-
-        //    var tileData = _selectLayer.GetCellTileData(cellCoord);
-
-        //    if (tileData != null)
-        //    {
-        //        tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        //    }
-        //}
-
     }
 
     private void FillMap()
@@ -118,9 +97,37 @@ public partial class World : Node2D
 
     private void SelectArea()
     {
-        //start mouse position
-        //end mouse position
-        //Create rect from two positions
-        //Find all cells within area
+        _selectLayer.Clear();
+
+        var tileSize = _mapLayer.TileSet.TileSize;
+        var left = _selectionRect.Position.X;
+        var right = left + _selectionRect.Size.X;
+        var top = _selectionRect.Position.Y;
+        var bottom = top + _selectionRect.Size.Y;
+
+        var startingCol = Mathf.FloorToInt(left / tileSize.X);
+        var endingCol = Mathf.CeilToInt(right / tileSize.X);
+        var startingRow = Mathf.FloorToInt(top / tileSize.Y);
+        var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
+
+        GD.Print($"SCol: {startingCol}, ECol: {endingCol}, SRow: {startingRow}, ERow: {endingRow}");
+
+        for (int  i = startingRow; i < endingRow; i++)
+        {
+            for (int j = startingCol; j < endingCol; j++)
+            {
+                var cellCoord = new Vector2I(j, i);
+                var atlasCoord = new Vector2I(7, 15);
+
+                _selectLayer.SetCell(cellCoord, 0, atlasCoord);
+
+                var tileData = _selectLayer.GetCellTileData(cellCoord);
+
+                if (tileData != null)
+                {
+                    tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+                }
+            }
+        }
     }
 }
