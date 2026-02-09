@@ -541,3 +541,9 @@ tile_set = SubResource("TileSet_1fp7r")
 
 [node name="SelectLayer" type="TileMapLayer" parent="." unique_id=418157462]
 tile_set = SubResource("TileSet_6m72w")
+
+[node name="SelectionRect" type="ColorRect" parent="." unique_id=875267900]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.72156864, 0.05882353, 0.039215688, 0.23921569)
