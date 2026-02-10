@@ -2,43 +2,68 @@ using Godot;
 
 public partial class MapCamera2d : Camera2D
 {
-	[Export(PropertyHint.Range, "0, 1000")]
-	public float PanSpeed { get; set; } = 250.0f;
+	[Export]
+	public float ZoomFactor { get; set; } = 1.25f;
 
-    [Export(PropertyHint.Range, "0, 1000")]
-    public float PanMargin { get; set; } = 25.0f;
+	[Export]
+	public float ZoomSpeed { get; set; } = 10.0f;
 
-    [Export(PropertyHint.Range, "0, 1000")]
-    public float DragInertia { get; set; } = 0.1f;
+	private Vector2 _zoomTarget = Vector2.Zero;
 
-    [Export]
-	public bool CanDrag { get; set; } = true;
+	private Vector2 _dragStartMousePos = Vector2.Zero;
 
-	private Vector2 _panDir = Vector2.Zero;
+	private Vector2 _dragStartCameraPos = Vector2.Zero;
 
-    private Vector2 _dragMovement = Vector2.Zero;
+	private bool _isDragging = false;
+	
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
-
+		_zoomTarget = Zoom;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		CameraZoom(delta);
+		CameraPan();
 	}
 
-    public override void _PhysicsProcess(double delta)
-    {
-        if (_dragMovement != Vector2.Zero)
+	public void CameraZoom(double delta)
+	{
+		if (Input.IsActionJustPressed("ZoomIn"))
+		{
+			_zoomTarget *= ZoomFactor;
+		}
+
+        if (Input.IsActionJustPressed("ZoomOut"))
         {
-            _dragMovement *= (float)Mathf.Pow(DragInertia, delta); 
-            
-            if (_dragMovement.LengthSquared() < 0.01f)
-            {
-                SetPhysicsProcess(false);
-            }
+			_zoomTarget *= 1 / ZoomFactor;
         }
+
+		Zoom = Zoom.Slerp(_zoomTarget, (float)(ZoomSpeed * delta));
     }
+
+	public void CameraPan()
+	{
+		if (!_isDragging && Input.IsActionJustPressed("CameraPan"))
+		{
+			_dragStartMousePos = GetViewport().GetMousePosition();
+			_dragStartCameraPos = Position;
+			_isDragging = true;
+		}
+
+		if (_isDragging && Input.IsActionJustReleased("CameraPan"))
+		{
+			_isDragging = false;
+		}
+
+		if (_isDragging)
+		{
+			var currentMousePos = GetViewport().GetMousePosition();
+			var moveVector = currentMousePos - _dragStartMousePos;
+			Position = _dragStartCameraPos - moveVector * (1 / Zoom.X);
+		}
+	}
 }
