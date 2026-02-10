@@ -36,7 +36,7 @@ public partial class MapCamera2d : Camera2D
 		CameraPan();
 	}
 
-	public void CameraZoom(double delta)
+	private void CameraZoom(double delta)
 	{
 		if (Input.IsActionJustPressed("ZoomIn"))
 		{
@@ -55,7 +55,7 @@ public partial class MapCamera2d : Camera2D
         Zoom = Zoom.Slerp(_zoomTarget, (float)(ZoomSpeed * delta));
     }
 
-	public void CameraPan()
+	private void CameraPan()
 	{
 		if (!_isDragging && Input.IsActionJustPressed("CameraPan"))
 		{
@@ -76,4 +76,6 @@ public partial class MapCamera2d : Camera2D
 			Position = _dragStartCameraPos - moveVector * (1 / Zoom.X);
 		}
 	}
+
+	
 }
