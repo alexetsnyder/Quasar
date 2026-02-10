@@ -264,7 +264,7 @@ texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_1fp7r"]
-tile_size = Vector2i(18, 18)
+tile_size = Vector2i(14, 14)
 sources/0 = SubResource("TileSetAtlasSource_sl2e5")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1fp7r"]
@@ -528,7 +528,7 @@ texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_6m72w"]
-tile_size = Vector2i(18, 18)
+tile_size = Vector2i(14, 14)
 sources/0 = SubResource("TileSetAtlasSource_1fp7r")
 
 [node name="World" type="Node2D" unique_id=1915405860]

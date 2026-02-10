@@ -8,7 +8,13 @@ public partial class MapCamera2d : Camera2D
 	[Export]
 	public float ZoomSpeed { get; set; } = 10.0f;
 
-	private Vector2 _zoomTarget = Vector2.Zero;
+	[Export(PropertyHint.Range, "1.0, 2.0")]
+	public float ZoomInLimit { get; set; } = 2.0f;
+
+    [Export(PropertyHint.Range, "0.0, 1.0")]
+    public float ZoomOutLimit { get; set; } = 0.65f;
+
+    private Vector2 _zoomTarget = Vector2.Zero;
 
 	private Vector2 _dragStartMousePos = Vector2.Zero;
 
@@ -34,15 +40,19 @@ public partial class MapCamera2d : Camera2D
 	{
 		if (Input.IsActionJustPressed("ZoomIn"))
 		{
-			_zoomTarget *= ZoomFactor;
-		}
+			var tempTarget = _zoomTarget * ZoomFactor;
+			_zoomTarget.X = Mathf.Clamp(tempTarget.X, ZoomOutLimit, ZoomInLimit);
+            _zoomTarget.Y = Mathf.Clamp(tempTarget.Y, ZoomOutLimit, ZoomInLimit);
+        }
 
         if (Input.IsActionJustPressed("ZoomOut"))
         {
-			_zoomTarget *= 1 / ZoomFactor;
+			var tempTarget = _zoomTarget * 1 / ZoomFactor;
+            _zoomTarget.X = Mathf.Clamp(tempTarget.X, ZoomOutLimit, ZoomInLimit);
+            _zoomTarget.Y = Mathf.Clamp(tempTarget.Y, ZoomOutLimit, ZoomInLimit);
         }
 
-		Zoom = Zoom.Slerp(_zoomTarget, (float)(ZoomSpeed * delta));
+        Zoom = Zoom.Slerp(_zoomTarget, (float)(ZoomSpeed * delta));
     }
 
 	public void CameraPan()
