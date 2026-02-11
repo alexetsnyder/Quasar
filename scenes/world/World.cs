@@ -1,135 +1,136 @@
 using Godot;
 
-public partial class World : Node2D
+namespace Quasar.scenes.world
 {
-    [Export(PropertyHint.Range, "0,200")]
-    public int Rows { get; set; } = 10;
-
-    [Export(PropertyHint.Range, "0,200")]
-    public int Cols { get; set; } = 10;
-
-    private TileMapLayer _mapLayer;
-
-    private TileMapLayer _selectLayer;
-
-    private ColorRect _selectionRect;
-
-    private bool _isSelecting = false;
-
-    private Vector2 _selectionStart;
-
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-	{
-        _mapLayer = GetNode<TileMapLayer>("MapLayer");
-        _selectLayer = GetNode<TileMapLayer>("SelectLayer");
-        _selectionRect = GetNode<ColorRect>("SelectionRect");
-
-        FillMap();
-    }
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-        if (_isSelecting)
-        {
-            var currentMousePos = GetGlobalMousePosition();
-            var newSelectionRect = new Rect2(_selectionStart, currentMousePos - _selectionStart).Abs();
-            _selectionRect.Position = newSelectionRect.Position;
-            _selectionRect.Size = newSelectionRect.Size;
-        }
-	}
-
-    public override void _Input(InputEvent @event)
+    public partial class World : Node2D
     {
-        if (@event is InputEventMouseButton inputEventMouseButton &&
-            inputEventMouseButton.ButtonIndex == MouseButton.Left)
+        [Export(PropertyHint.Range, "0,200")]
+        public int Rows { get; set; } = 10;
+
+        [Export(PropertyHint.Range, "0,200")]
+        public int Cols { get; set; } = 10;
+
+        private TileMapLayer _mapLayer;
+
+        private TileMapLayer _selectLayer;
+
+        private ColorRect _selectionRect;
+
+        private bool _isSelecting = false;
+
+        private Vector2 _selectionStart;
+
+        // Called when the node enters the scene tree for the first time.
+        public override void _Ready()
         {
-            if (@event.IsPressed())
+            _mapLayer = GetNode<TileMapLayer>("MapLayer");
+            _selectLayer = GetNode<TileMapLayer>("SelectLayer");
+            _selectionRect = GetNode<ColorRect>("SelectionRect");
+
+            FillMap();
+        }
+
+        // Called every frame. 'delta' is the elapsed time since the previous frame.
+        public override void _Process(double delta)
+        {
+            if (_isSelecting)
             {
-                _isSelecting = true;
-                _selectionStart = GetGlobalMousePosition();
-                _selectionRect.Position = _selectionStart;
-                _selectionRect.Size = new Vector2();
+                var currentMousePos = GetGlobalMousePosition();
+                var newSelectionRect = new Rect2(_selectionStart, currentMousePos - _selectionStart).Abs();
+                _selectionRect.Position = newSelectionRect.Position;
+                _selectionRect.Size = newSelectionRect.Size;
             }
-            else
+        }
+
+        public override void _Input(InputEvent @event)
+        {
+            if (@event is InputEventMouseButton inputEventMouseButton &&
+                inputEventMouseButton.ButtonIndex == MouseButton.Left)
             {
-                if (_isSelecting)
+                if (@event.IsPressed())
                 {
-                    _isSelecting = false;
+                    _isSelecting = true;
+                    _selectionStart = GetGlobalMousePosition();
+                    _selectionRect.Position = _selectionStart;
+                    _selectionRect.Size = new Vector2();
+                }
+                else
+                {
+                    if (_isSelecting)
+                    {
+                        _isSelecting = false;
+                        _selectionRect.Visible = false;
+                        SelectArea();
+                    }
+                }
+            }
+            else if (@event is InputEventMouseMotion && _isSelecting)
+            {
+                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
+                {
+                    _selectionRect.Visible = true;
+                }
+                else
+                {
                     _selectionRect.Visible = false;
-                    SelectArea();
                 }
             }
         }
-        else if (@event is InputEventMouseMotion && _isSelecting)
+
+        private void FillMap()
         {
-            if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
+            for (int i = 0; i < Rows; i++)
             {
-                _selectionRect.Visible = true;
-            }
-            else
-            {
-                _selectionRect.Visible = false;
-            }
-        }
-    }
-
-    private void FillMap()
-    {
-        for (int i = 0; i < Rows; i++)
-        {
-            for (int j = 0; j < Cols; j++)
-            {
-                var coord = new Vector2I(i, j);
-                var atlasCoord = new Vector2I(7, 15);
-
-                _mapLayer.SetCell(coord, 0, atlasCoord);
-
-                var tileData = _mapLayer.GetCellTileData(coord);
-                if (tileData != null)
+                for (int j = 0; j < Cols; j++)
                 {
-                    tileData.Modulate = new Color(0.0f, 1.0f, 0.0f, 1.0f);
-                }
-            }
-        }
-    }
+                    var coord = new Vector2I(i, j);
+                    var atlasCoord = new Vector2I(7, 15);
 
-    private void SelectArea()
-    {
-        _selectLayer.Clear();
+                    _mapLayer.SetCell(coord, 0, atlasCoord);
 
-        var tileSize = _mapLayer.TileSet.TileSize;
-        var left = _selectionRect.Position.X;
-        var right = left + _selectionRect.Size.X;
-        var top = _selectionRect.Position.Y;
-        var bottom = top + _selectionRect.Size.Y;
-
-        var startingCol = Mathf.FloorToInt(left / tileSize.X);
-        var endingCol = Mathf.CeilToInt(right / tileSize.X);
-        var startingRow = Mathf.FloorToInt(top / tileSize.Y);
-        var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
-
-        GD.Print($"SCol: {startingCol}, ECol: {endingCol}, SRow: {startingRow}, ERow: {endingRow}");
-
-        for (int  i = startingRow; i < endingRow; i++)
-        {
-            for (int j = startingCol; j < endingCol; j++)
-            {
-                var cellCoord = new Vector2I(j, i);
-                var atlasCoord = new Vector2I(7, 15);
-
-                if (_mapLayer.GetCellSourceId(cellCoord) != -1)
-                {
-                    _selectLayer.SetCell(cellCoord, 0, atlasCoord);
-
-                    var tileData = _selectLayer.GetCellTileData(cellCoord);
-
+                    var tileData = _mapLayer.GetCellTileData(coord);
                     if (tileData != null)
                     {
-                        tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+                        tileData.Modulate = new Color(0.0f, 1.0f, 0.0f, 1.0f);
                     }
-                } 
+                }
+            }
+        }
+
+        private void SelectArea()
+        {
+            _selectLayer.Clear();
+
+            var tileSize = _mapLayer.TileSet.TileSize;
+            var left = _selectionRect.Position.X;
+            var right = left + _selectionRect.Size.X;
+            var top = _selectionRect.Position.Y;
+            var bottom = top + _selectionRect.Size.Y;
+
+            var startingCol = Mathf.FloorToInt(left / tileSize.X);
+            var endingCol = Mathf.CeilToInt(right / tileSize.X);
+            var startingRow = Mathf.FloorToInt(top / tileSize.Y);
+            var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
+
+            for (int i = startingRow; i < endingRow; i++)
+            {
+                for (int j = startingCol; j < endingCol; j++)
+                {
+                    var cellCoord = new Vector2I(j, i);
+                    var atlasCoord = new Vector2I(7, 15);
+
+                    if (_mapLayer.GetCellSourceId(cellCoord) != -1)
+                    {
+                        _selectLayer.SetCell(cellCoord, 0, atlasCoord);
+
+                        var tileData = _selectLayer.GetCellTileData(cellCoord);
+
+                        if (tileData != null)
+                        {
+                            tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+                        }
+                    }
+                }
             }
         }
     }
