@@ -90,14 +90,41 @@ namespace Quasar.scenes.world
                 {
                     var coord = new Vector2I(i, j);
 
+                    var color = new Color();
+                    var atlasCoord = AtlasTileCoords.GRASS;
                     var noiseVal = _noise.GetNoise(i, j);
+                    if (noiseVal < 25.0f)
+                    {
+                        atlasCoord = AtlasTileCoords.WATER;
+                        color = new Color(0.0f, 0.0f, 1.0f, 1.0f);
+                    }
+                    else if (noiseVal < 25.0f)
+                    {
+                        atlasCoord = AtlasTileCoords.GRASS;
+                        color = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+                    }
+                    else if (noiseVal < 40.0f)
+                    {
+                        atlasCoord = AtlasTileCoords.TREE;
+                        color = new Color(0.0f, 0.26f, 0.13f, 1.0f);
+                    }
+                    else if (noiseVal < 60.0f)
+                    {
+                        atlasCoord = AtlasTileCoords.HILL;
+                        color = new Color(0.0f, 0.20f, 0.13f, 1.0f);
+                    }
+                    else //(noiseVal < 100.0f
+                    {
+                        atlasCoord = AtlasTileCoords.MOUNTAIN;
+                        color = new Color(0.76f, 0.76f, 0.80f, 1.0f);
+                    }
 
-                    _mapLayer.SetCell(coord, 0, (noiseVal > 0) ? AtlasTileCoords.TREE : AtlasTileCoords.GRASS);
+                    _mapLayer.SetCell(coord, 0, atlasCoord);
 
                     var tileData = _mapLayer.GetCellTileData(coord);
                     if (tileData != null)
                     {
-                        tileData.Modulate = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+                        tileData.Modulate = color; 
                     }
                 }
             }

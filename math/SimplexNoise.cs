@@ -16,7 +16,9 @@ namespace Quasar.math
         public float GetNoise(float x, float y)
         {
             var noiseValue = _noise.GetNoise2D(x, y);
-            return noiseValue;
+            var remapNoise = Math.Remap(noiseValue, -0.7f, 0.7f, 0.0f, 100.0f);
+
+            return remapNoise;
         }
     }
 }
