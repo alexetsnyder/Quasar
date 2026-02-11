@@ -14,6 +14,12 @@ public partial class MapCamera2d : Camera2D
     [Export(PropertyHint.Range, "0.0, 1.0")]
     public float ZoomOutLimit { get; set; } = 0.65f;
 
+	[Export]
+	public Vector2 WorldSize { get; set; } = new Vector2(2688.0f, 2688.0f);
+
+	[Export]
+	public Vector4 WorldMargins { get; set; } = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
+
     private Vector2 _zoomTarget = Vector2.Zero;
 
 	private Vector2 _dragStartMousePos = Vector2.Zero;
@@ -71,11 +77,39 @@ public partial class MapCamera2d : Camera2D
 
 		if (_isDragging)
 		{
-			var currentMousePos = GetViewport().GetMousePosition();
-			var moveVector = currentMousePos - _dragStartMousePos;
-			Position = _dragStartCameraPos - moveVector * (1 / Zoom.X);
+			ClampCamera();
 		}
 	}
 
-	
+	private void ClampCamera()
+	{
+        var currentMousePos = GetViewport().GetMousePosition();
+        var moveVector = currentMousePos - _dragStartMousePos;
+
+		var newPosition = _dragStartCameraPos - moveVector * (1 / Zoom.X);
+
+        var cameraSize = GetViewportRect().Size / Zoom;
+		var leftCameraPoint = newPosition - cameraSize / 2.0f;
+		var rightCameraPoint = newPosition + cameraSize / 2.0f;
+
+		if (leftCameraPoint.X < -WorldMargins.X)
+		{
+			newPosition.X = -WorldMargins.X + cameraSize.X / 2.0f;
+		}
+		else if (rightCameraPoint.X > WorldSize.X + WorldMargins.Z)
+		{
+			newPosition.X = WorldSize.X + WorldMargins.X - cameraSize.X / 2.0f;
+		}
+
+        if (leftCameraPoint.Y < -WorldMargins.Y)
+        {
+            newPosition.Y = -WorldMargins.Y + cameraSize.Y / 2.0f;
+        }
+        else if (rightCameraPoint.Y > WorldSize.Y + WorldMargins.W)
+        {
+            newPosition.Y = WorldSize.Y + WorldMargins.W - cameraSize.Y / 2.0f;
+        }
+
+        Position = newPosition;
+    }
 }
