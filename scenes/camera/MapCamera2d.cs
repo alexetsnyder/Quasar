@@ -59,6 +59,7 @@ public partial class MapCamera2d : Camera2D
         }
 
         Zoom = Zoom.Slerp(_zoomTarget, (float)(ZoomSpeed * delta));
+		ClampCameraPos(Position);
     }
 
 	private void CameraPan()
@@ -77,39 +78,36 @@ public partial class MapCamera2d : Camera2D
 
 		if (_isDragging)
 		{
-			ClampCamera();
+            var currentMousePos = GetViewport().GetMousePosition();
+            var moveVector = currentMousePos - _dragStartMousePos;
+			ClampCameraPos(_dragStartCameraPos - moveVector * (1 / Zoom.X));
 		}
 	}
 
-	private void ClampCamera()
+	private void ClampCameraPos(Vector2 cameraPos)
 	{
-        var currentMousePos = GetViewport().GetMousePosition();
-        var moveVector = currentMousePos - _dragStartMousePos;
-
-		var newPosition = _dragStartCameraPos - moveVector * (1 / Zoom.X);
-
         var cameraSize = GetViewportRect().Size / Zoom;
-		var leftCameraPoint = newPosition - cameraSize / 2.0f;
-		var rightCameraPoint = newPosition + cameraSize / 2.0f;
+        var leftCameraPoint = cameraPos - cameraSize / 2.0f;
+        var rightCameraPoint = cameraPos + cameraSize / 2.0f;
 
-		if (leftCameraPoint.X < -WorldMargins.X)
-		{
-			newPosition.X = -WorldMargins.X + cameraSize.X / 2.0f;
-		}
-		else if (rightCameraPoint.X > WorldSize.X + WorldMargins.Z)
-		{
-			newPosition.X = WorldSize.X + WorldMargins.X - cameraSize.X / 2.0f;
-		}
+        if (leftCameraPoint.X < -WorldMargins.X)
+        {
+            cameraPos.X = -WorldMargins.X + cameraSize.X / 2.0f;
+        }
+        else if (rightCameraPoint.X > WorldSize.X + WorldMargins.Z)
+        {
+            cameraPos.X = WorldSize.X + WorldMargins.X - cameraSize.X / 2.0f;
+        }
 
         if (leftCameraPoint.Y < -WorldMargins.Y)
         {
-            newPosition.Y = -WorldMargins.Y + cameraSize.Y / 2.0f;
+            cameraPos.Y = -WorldMargins.Y + cameraSize.Y / 2.0f;
         }
         else if (rightCameraPoint.Y > WorldSize.Y + WorldMargins.W)
         {
-            newPosition.Y = WorldSize.Y + WorldMargins.W - cameraSize.Y / 2.0f;
+            cameraPos.Y = WorldSize.Y + WorldMargins.W - cameraSize.Y / 2.0f;
         }
 
-        Position = newPosition;
+        Position = cameraPos;
     }
 }
