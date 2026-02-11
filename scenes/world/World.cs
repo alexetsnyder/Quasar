@@ -92,7 +92,7 @@ namespace Quasar.scenes.world
 
                     var color = new Color();
                     var atlasCoord = AtlasTileCoords.GRASS;
-                    var noiseVal = _noise.GetNoise(i, j);
+                    var noiseVal = _noise.GetNoise(i, j) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
                     if (noiseVal < 25.0f)
                     {
                         atlasCoord = AtlasTileCoords.WATER;
