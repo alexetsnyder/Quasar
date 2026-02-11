@@ -1,4 +1,6 @@
 using Godot;
+using Quasar.data;
+using Quasar.math;
 
 namespace Quasar.scenes.world
 {
@@ -20,12 +22,15 @@ namespace Quasar.scenes.world
 
         private Vector2 _selectionStart;
 
+        private SimplexNoise _noise;
+
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
             _mapLayer = GetNode<TileMapLayer>("MapLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
+            _noise = new SimplexNoise();
 
             FillMap();
         }
@@ -84,9 +89,10 @@ namespace Quasar.scenes.world
                 for (int j = 0; j < Cols; j++)
                 {
                     var coord = new Vector2I(i, j);
-                    var atlasCoord = new Vector2I(7, 15);
 
-                    _mapLayer.SetCell(coord, 0, atlasCoord);
+                    var noiseVal = _noise.GetNoise(i, j);
+
+                    _mapLayer.SetCell(coord, 0, (noiseVal > 0) ? AtlasTileCoords.TREE : AtlasTileCoords.GRASS);
 
                     var tileData = _mapLayer.GetCellTileData(coord);
                     if (tileData != null)
@@ -117,10 +123,11 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
-                    var atlasCoord = new Vector2I(7, 15);
 
                     if (_mapLayer.GetCellSourceId(cellCoord) != -1)
                     {
+                        var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
                         _selectLayer.SetCell(cellCoord, 0, atlasCoord);
 
                         var tileData = _selectLayer.GetCellTileData(cellCoord);
