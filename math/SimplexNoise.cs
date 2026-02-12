@@ -11,7 +11,7 @@ namespace Quasar.math
         public SimplexNoise() 
         { 
             _noise = new FastNoiseLite();
-            _noise.NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth;
+            _noise.NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex;
             _noise.FractalType = FastNoiseLite.FractalTypeEnum.Fbm;
             int seed = _rng.RandiRange(int.MinValue, int.MaxValue);
             GD.Print(seed);
@@ -22,7 +22,7 @@ namespace Quasar.math
         public float GetNoise(float x, float y)
         {
             var noiseValue = _noise.GetNoise2D(x, y);
-            var remapNoise = Math.Remap(noiseValue, -0.7f, 0.7f, 0.0f, 100.0f);
+            var remapNoise = Math.Remap(noiseValue, -1.0f, 1.0f, 0.0f, 100.0f);
 
             return remapNoise;
         }

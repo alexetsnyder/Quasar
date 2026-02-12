@@ -13,5 +13,5 @@ Cols = 192
 
 [node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
 position = Vector2(576, 324)
-ZoomOutLimit = 0.5
+ZoomOutLimit = 0.25
 WorldSize = Vector2(3072, 3072)

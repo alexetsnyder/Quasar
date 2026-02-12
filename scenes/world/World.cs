@@ -149,27 +149,27 @@ namespace Quasar.scenes.world
             if (noiseVal < 25.0f)
             {
                 atlasCoord = AtlasTileCoords.WATER;
-                cellColor = ColorConstants.BLUE; // new Color(0.0f, 0.0f, 1.0f, 1.0f);
+                cellColor = ColorConstants.BLUE;
             }
-            else if (noiseVal < 25.0f)
+            else if (noiseVal < 35.0f)
             {
                 atlasCoord = AtlasTileCoords.GRASS;
-                cellColor = ColorConstants.GREEN; // new Color(0.0f, 1.0f, 0.0f, 1.0f);
+                cellColor = ColorConstants.GRASS_GREEN;
             }
             else if (noiseVal < 40.0f)
             {
                 atlasCoord = AtlasTileCoords.TREE;
-                cellColor = ColorConstants.FOREST_GREEN; // new Color(0.0f, 0.26f, 0.13f, 1.0f);
+                cellColor = ColorConstants.FOREST_GREEN; 
             }
             else if (noiseVal < 60.0f)
             {
                 atlasCoord = AtlasTileCoords.HILL;
-                cellColor = ColorConstants.DARK_GREEN; // new Color(0.0f, 0.20f, 0.13f, 1.0f);
+                cellColor = ColorConstants.EMERALD_GREEN;
             }
             else //(noiseVal < 100.0f
             {
                 atlasCoord = AtlasTileCoords.MOUNTAIN;
-                cellColor = ColorConstants.GREY; // new Color(0.76f, 0.76f, 0.80f, 1.0f);
+                cellColor = ColorConstants.GREY;
             }
         }
     }
