@@ -4,6 +4,8 @@ namespace Quasar.math
 {
     public partial class SimplexNoise
     {
+        private RandomNumberGenerator _rng = new();
+
         private readonly FastNoiseLite _noise;
 
         public SimplexNoise() 
@@ -11,6 +13,10 @@ namespace Quasar.math
             _noise = new FastNoiseLite();
             _noise.NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth;
             _noise.FractalType = FastNoiseLite.FractalTypeEnum.Fbm;
+            int seed = _rng.RandiRange(int.MinValue, int.MaxValue);
+            GD.Print(seed);
+            _noise.Seed = seed;
+
         }
 
         public float GetNoise(float x, float y)
