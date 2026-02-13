@@ -270,6 +270,9 @@ texture_region_size = Vector2i(18, 18)
 [sub_resource type="TileSet" id="TileSet_1fp7r"]
 sources/0 = SubResource("TileSetAtlasSource_sl2e5")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1fp7r"]
+shader = ExtResource("2_1fp7r")
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1fp7r"]
 texture = ExtResource("1_dphjl")
 texture_region_size = Vector2i(18, 18)
@@ -544,6 +547,8 @@ material = SubResource("ShaderMaterial_sl2e5")
 tile_set = SubResource("TileSet_1fp7r")
 
 [node name="SelectLayer" type="TileMapLayer" parent="." unique_id=418157462]
+texture_filter = 2
+material = SubResource("ShaderMaterial_1fp7r")
 tile_set = SubResource("TileSet_6m72w")
 
 [node name="SelectionRect" type="ColorRect" parent="." unique_id=875267900]
