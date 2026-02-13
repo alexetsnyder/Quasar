@@ -12,6 +12,9 @@ namespace Quasar.scenes.world
         [Export(PropertyHint.Range, "0,200")]
         public int Cols { get; set; } = 10;
 
+        [Export]
+        public bool AreaSelectEnabled { get; set; } = true;
+
         private TileMapLayer _mapLayer;
 
         private TileMapLayer _selectLayer;
@@ -52,33 +55,46 @@ namespace Quasar.scenes.world
             if (@event is InputEventMouseButton inputEventMouseButton &&
                 inputEventMouseButton.ButtonIndex == MouseButton.Left)
             {
-                if (@event.IsPressed())
+                if (AreaSelectEnabled)
                 {
-                    _isSelecting = true;
-                    _selectionStart = GetGlobalMousePosition();
-                    _selectionRect.Position = _selectionStart;
-                    _selectionRect.Size = new Vector2();
+                    if (@event.IsPressed())
+                    {
+                        _isSelecting = true;
+                        _selectionStart = GetGlobalMousePosition();
+                        _selectionRect.Position = _selectionStart;
+                        _selectionRect.Size = new Vector2();
+                    }
+                    else
+                    {
+                        if (_isSelecting)
+                        {
+                            _isSelecting = false;
+                            _selectionRect.Visible = false;
+                            SelectArea();
+                        }
+                    }
                 }
                 else
                 {
-                    if (_isSelecting)
+                    if (@event.IsPressed())
                     {
-                        _isSelecting = false;
-                        _selectionRect.Visible = false;
-                        SelectArea();
+                        SelectCell();
                     }
                 }
             }
             else if (@event is InputEventMouseMotion && _isSelecting)
             {
-                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
+                if (AreaSelectEnabled)
                 {
-                    _selectionRect.Visible = true;
-                }
-                else
-                {
-                    _selectionRect.Visible = false;
-                }
+                    if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
+                    {
+                        _selectionRect.Visible = true;
+                    }
+                    else
+                    {
+                        _selectionRect.Visible = false;
+                    }
+                } 
             }
         }
 
@@ -140,6 +156,31 @@ namespace Quasar.scenes.world
                             tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
                         }
                     }
+                }
+            }
+        }
+
+        private void SelectCell()
+        {
+            _selectLayer.Clear();
+
+            var tileSize = _mapLayer.TileSet.TileSize;
+            var mousePos = GetLocalMousePosition();
+            var col = Mathf.FloorToInt(mousePos.X / tileSize.X);
+            var row = Mathf.FloorToInt(mousePos.Y / tileSize.Y);
+            var cellCoord = new Vector2I(col, row);
+
+            if (_mapLayer.GetCellSourceId(cellCoord) != -1)
+            {
+                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
+                _selectLayer.SetCell(cellCoord, 0, atlasCoord);
+
+                var tileData = _selectLayer.GetCellTileData(cellCoord);
+
+                if (tileData != null)
+                {
+                    tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
                 }
             }
         }

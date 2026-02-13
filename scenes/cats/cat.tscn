@@ -5,6 +5,8 @@
 [node name="Cat" type="Node2D" unique_id=1361943199]
 
 [node name="CatSprite" type="Sprite2D" parent="." unique_id=723545853]
+self_modulate = Color(1, 1, 0, 1)
+scale = Vector2(0.889, 0.889)
 texture = ExtResource("1_4q30y")
 region_enabled = true
 region_rect = Rect2(54, 72, 18, 18)
