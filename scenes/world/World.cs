@@ -15,6 +15,9 @@ namespace Quasar.scenes.world
         [Export]
         public bool AreaSelectEnabled { get; set; } = true;
 
+        [Signal]
+        public delegate void TileSelectedEventHandler();
+
         private TileMapLayer _mapLayer;
 
         private TileMapLayer _selectLayer;
@@ -27,6 +30,10 @@ namespace Quasar.scenes.world
 
         private SimplexNoise _noise;
 
+        private AStarGrid2D _aStarGrid2d = new();
+
+        private Vector2I _selectedCell;
+
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
@@ -36,6 +43,13 @@ namespace Quasar.scenes.world
             _noise = new SimplexNoise();
 
             FillMap();
+
+            _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
+            _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
+            _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
+            _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
+            _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
+            _aStarGrid2d.Update();
         }
 
         // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -79,6 +93,8 @@ namespace Quasar.scenes.world
                     if (@event.IsPressed())
                     {
                         SelectCell();
+
+                        EmitSignal(SignalName.TileSelected);
                     }
                 }
             }
@@ -172,6 +188,8 @@ namespace Quasar.scenes.world
 
             if (_mapLayer.GetCellSourceId(cellCoord) != -1)
             {
+                _selectedCell = new(cellCoord.X, cellCoord.Y);
+
                 var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
                 _selectLayer.SetCell(cellCoord, 0, atlasCoord);
@@ -181,6 +199,36 @@ namespace Quasar.scenes.world
                 if (tileData != null)
                 {
                     tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+                }
+            }
+        }
+
+        public void FindPath(Vector2 startPos)
+        {
+            GD.Print($"SelectedCell: {_selectedCell}");
+
+            var start = _mapLayer.LocalToMap(startPos);
+            var end = _selectedCell; // _mapLayer.LocalToMap(_selectedCell);
+
+            GD.Print($"Start: {start}, End: {end}");
+
+            var path = _aStarGrid2d.GetPointPath(start, end);
+
+            foreach (var point in path)
+            {
+                var cellCoord =  _mapLayer.LocalToMap(point);
+
+                GD.Print($"cellCoord: {cellCoord}");
+
+                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
+                _selectLayer.SetCell(cellCoord, 0, atlasCoord);
+
+                var tileData = _selectLayer.GetCellTileData(cellCoord);
+
+                if (tileData != null)
+                {
+                    tileData.Modulate = new Color(1.0f, 0.0f, 1.0f, 1.0f);
                 }
             }
         }

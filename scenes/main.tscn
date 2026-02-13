@@ -11,7 +11,6 @@ script = ExtResource("1_o5qli")
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_0wfyh")]
 Rows = 192
 Cols = 192
-AreaSelectEnabled = false
 
 [node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
 position = Vector2(576, 324)
@@ -20,3 +19,5 @@ WorldSize = Vector2(3072, 3072)
 
 [node name="Cat" parent="." unique_id=1361943199 instance=ExtResource("4_jyhfs")]
 position = Vector2(1592, 1608)
+
+[connection signal="TileSelected" from="World" to="." method="OnTileSelected"]
