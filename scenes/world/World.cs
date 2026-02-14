@@ -2,11 +2,14 @@ using Godot;
 using Quasar.data;
 using Quasar.math;
 using Quasar.scenes.cats;
+using System.Collections.Generic;
 
 namespace Quasar.scenes.world
 {
     public partial class World : Node2D
     {
+        #region Variables
+
         [Export(PropertyHint.Range, "0,200")]
         public int Rows { get; set; } = 10;
 
@@ -29,13 +32,23 @@ namespace Quasar.scenes.world
 
         private Vector2 _selectionStart;
 
-        private SimplexNoise _noise;
+        private SimplexNoise _heightNoise;
+
+        private SimplexNoise _varianceNoise;
 
         private AStarGrid2D _aStarGrid2d = new();
 
         private Cat _cat;
 
         private RandomNumberGenerator _rng = new();
+
+        private List<Vector2I> _grassAlts = [AtlasTileCoords.GRASS_01, AtlasTileCoords.GRASS_02, AtlasTileCoords.GRASS_03];
+
+        private List<Vector2I> _treeAlts = [AtlasTileCoords.TREE_01, AtlasTileCoords.TREE_02, AtlasTileCoords.TREE_03];
+
+        private List<Vector2I> _hillAlts = [AtlasTileCoords.HILL_01, AtlasTileCoords.HILL_02];
+
+        #endregion
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -44,7 +57,8 @@ namespace Quasar.scenes.world
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
             _cat = GetNode<Cat>("Cat");
-            _noise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
+            _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
+            _varianceNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             FillMap();
             PlaceCat();
@@ -116,9 +130,10 @@ namespace Quasar.scenes.world
                     var coord = new Vector2I(i, j);
 
                     var color = ColorConstants.GREEN;
-                    var atlasCoords = AtlasTileCoords.GRASS;
-                    var noiseVal = _noise.GetNoise(i, j) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
-                    GetAtlasCoordsAndColor(noiseVal, ref atlasCoords, ref color);
+                    var atlasCoords = AtlasTileCoords.GRASS_01;
+                    var noiseVal = _heightNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
+                    var varyNoiseVal = _varianceNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows); ;
+                    GetAtlasCoordsAndColor(noiseVal, varyNoiseVal, ref atlasCoords, ref color);
 
                     _mapLayer.SetCell(coord, 0, atlasCoords);
 
@@ -232,33 +247,54 @@ namespace Quasar.scenes.world
             }
         }
 
-        private void GetAtlasCoordsAndColor(float noiseVal, ref Vector2I atlasCoord, ref Color cellColor)
+        private void GetAtlasCoordsAndColor(float heightNoiseVal, float varyNoiseVal, ref Vector2I atlasCoord, ref Color cellColor)
         {
-            if (noiseVal < 25.0f)
+            if (heightNoiseVal < 30.0f)
             {
                 atlasCoord = AtlasTileCoords.WATER;
                 cellColor = ColorConstants.BLUE;
             }
-            else if (noiseVal < 35.0f)
+            else if (heightNoiseVal < 60.0f)
             {
-                atlasCoord = AtlasTileCoords.GRASS;
-                cellColor = ColorConstants.GRASS_GREEN;
-            }
-            else if (noiseVal < 40.0f)
-            {
-                atlasCoord = AtlasTileCoords.TREE;
-                cellColor = ColorConstants.FOREST_GREEN; 
-            }
-            else if (noiseVal < 60.0f)
-            {
-                atlasCoord = AtlasTileCoords.HILL;
-                cellColor = ColorConstants.EMERALD_GREEN;
+                if (varyNoiseVal < 45.0f)
+                {
+                    atlasCoord = VaryTiles(_grassAlts);
+                    cellColor = ColorConstants.GRASS_GREEN;
+                }
+                else //(varyNoiseVal < 100.0f
+                {
+                    atlasCoord = VaryTiles(_treeAlts);
+                    cellColor = ColorConstants.FOREST_GREEN;
+                }
             }
             else //(noiseVal < 100.0f
             {
-                atlasCoord = AtlasTileCoords.MOUNTAIN;
-                cellColor = ColorConstants.GREY;
+                if (varyNoiseVal < 45.0f)
+                {
+                    atlasCoord = VaryTiles(_hillAlts);
+                    cellColor = ColorConstants.EMERALD_GREEN;
+                }
+                else if (varyNoiseVal < 75.0f)
+                {
+                    atlasCoord = AtlasTileCoords.MOUNTAIN;
+                    cellColor = ColorConstants.GREY;
+                }
+                else //(varyNoiseVal < 100.0f
+                {
+                    atlasCoord = AtlasTileCoords.TALLER_MOUNTAIN;
+                    cellColor = ColorConstants.GREY;
+                }
             }
+        }
+
+        private Vector2I VaryTiles(List<Vector2I> alts)
+        {
+            if (alts.Count <= 0)
+            {
+                return new();
+            }
+
+            return alts[_rng.RandiRange(0, alts.Count - 1)];
         }
     }
 }
