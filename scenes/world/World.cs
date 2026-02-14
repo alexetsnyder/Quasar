@@ -1,6 +1,7 @@
 using Godot;
 using Quasar.data;
 using Quasar.math;
+using Quasar.scenes.cats;
 
 namespace Quasar.scenes.world
 {
@@ -11,9 +12,6 @@ namespace Quasar.scenes.world
 
         [Export(PropertyHint.Range, "0,200")]
         public int Cols { get; set; } = 10;
-
-        [Signal]
-        public delegate void TileSelectedEventHandler();
 
         private TileMapLayer _mapLayer;
 
@@ -29,7 +27,7 @@ namespace Quasar.scenes.world
 
         private AStarGrid2D _aStarGrid2d = new();
 
-        private Vector2I _selectedCell;
+        private Cat _cat;
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -37,9 +35,16 @@ namespace Quasar.scenes.world
             _mapLayer = GetNode<TileMapLayer>("MapLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
+            _cat = GetNode<Cat>("Cat");
             _noise = new SimplexNoise();
 
             FillMap();
+
+            var tileSize = _mapLayer.TileSet.TileSize;
+            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
+            _cat.Position = new(Cols / 2.0f * tileSize.X + _cat.Width / 2.0f - 1.0f, Rows / 2.0f * tileSize.Y + _cat.Height / 2.0f - 1.0f);
+
+            _mapLayer.SetCell(_mapLayer.LocalToMap(_cat.Position));
 
             _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
             _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
@@ -88,9 +93,7 @@ namespace Quasar.scenes.world
                 {
                     if (@event.IsPressed())
                     {
-                        SelectCell();
-
-                        EmitSignal(SignalName.TileSelected);
+                        FindPath(_cat.Position, GetLocalMousePosition());
                     }
                 }
             }
@@ -125,7 +128,7 @@ namespace Quasar.scenes.world
                     var tileData = _mapLayer.GetCellTileData(coord);
                     if (tileData != null)
                     {
-                        tileData.Modulate = color; 
+                        tileData.Modulate = color;
                     }
                 }
             }
@@ -151,20 +154,9 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
+                    var modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
-                    if (_mapLayer.GetCellSourceId(cellCoord) != -1)
-                    {
-                        var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
-
-                        _selectLayer.SetCell(cellCoord, 0, atlasCoord);
-
-                        var tileData = _selectLayer.GetCellTileData(cellCoord);
-
-                        if (tileData != null)
-                        {
-                            tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-                        }
-                    }
+                    SelectCell(cellCoord, modulate);
                 }
             }
         }
@@ -178,35 +170,33 @@ namespace Quasar.scenes.world
             var col = Mathf.FloorToInt(mousePos.X / tileSize.X);
             var row = Mathf.FloorToInt(mousePos.Y / tileSize.Y);
             var cellCoord = new Vector2I(col, row);
+            var modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
-            if (_mapLayer.GetCellSourceId(cellCoord) != -1)
-            {
-                _selectedCell = new(cellCoord.X, cellCoord.Y);
-
-                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
-
-                _selectLayer.SetCell(cellCoord, 0, atlasCoord);
-
-                var tileData = _selectLayer.GetCellTileData(cellCoord);
-
-                if (tileData != null)
-                {
-                    tileData.Modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-                }
-            }
+            SelectCell(cellCoord, modulate);
         }
 
-        public void FindPath(Vector2 startPos)
+        public void FindPath(Vector2 startPos, Vector2 endPos)
         {
+            _selectLayer.Clear();
+
             var start = _mapLayer.LocalToMap(startPos);
-            var end = _selectedCell;
+            var end = _mapLayer.LocalToMap(endPos);
 
             var path = _aStarGrid2d.GetPointPath(start, end);
 
             foreach (var point in path)
             {
                 var cellCoord =  _mapLayer.LocalToMap(point);
+                var modulate = new Color(1.0f, 0.0f, 1.0f, 1.0f);
 
+                SelectCell(cellCoord, modulate);
+            }
+        }
+
+        private void SelectCell(Vector2I cellCoord, Color modulate)
+        {
+            if (_mapLayer.GetCellSourceId(cellCoord) != -1)
+            {
                 var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
                 _selectLayer.SetCell(cellCoord, 0, atlasCoord);
@@ -215,7 +205,7 @@ namespace Quasar.scenes.world
 
                 if (tileData != null)
                 {
-                    tileData.Modulate = new Color(1.0f, 0.0f, 1.0f, 1.0f);
+                    tileData.Modulate = modulate;
                 }
             }
         }
