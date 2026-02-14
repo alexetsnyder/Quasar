@@ -35,6 +35,8 @@ namespace Quasar.scenes.world
 
         private Cat _cat;
 
+        private RandomNumberGenerator _rng = new();
+
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
@@ -42,7 +44,7 @@ namespace Quasar.scenes.world
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
             _cat = GetNode<Cat>("Cat");
-            _noise = new SimplexNoise();
+            _noise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             FillMap();
             PlaceCat();

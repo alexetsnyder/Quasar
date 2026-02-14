@@ -4,18 +4,17 @@ namespace Quasar.math
 {
     public partial class SimplexNoise
     {
-        private RandomNumberGenerator _rng = new();
+        public int Seed { get => _noise.Seed; set => _noise.Seed = value; }
 
         private readonly FastNoiseLite _noise;
 
-        public SimplexNoise() 
+        public SimplexNoise(int seed = 0) 
         { 
             _noise = new FastNoiseLite();
             _noise.NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex;
             _noise.FractalType = FastNoiseLite.FractalTypeEnum.Fbm;
-            int seed = _rng.RandiRange(int.MinValue, int.MaxValue);
-            GD.Print(seed);
-            _noise.Seed = seed;
+            Seed = seed;
+            GD.Print($"Seed: {Seed}");
 
         }
 
