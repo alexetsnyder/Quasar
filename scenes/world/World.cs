@@ -178,7 +178,9 @@ namespace Quasar.scenes.world
             {
                 var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-                if (atlasCoord == AtlasTileCoords.WATER || atlasCoord == AtlasTileCoords.MOUNTAIN)
+                if (atlasCoord == AtlasTileCoords.WATER || 
+                    atlasCoord == AtlasTileCoords.MOUNTAIN || 
+                    atlasCoord == AtlasTileCoords.TALLER_MOUNTAIN)
                 {
                     _aStarGrid2d.SetPointSolid(cellCoord);
                 }
@@ -205,9 +207,8 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
-                    //var modulate = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
-                    SelectCell(cellCoord, SelectionColor); // modulate);
+                    SelectCell(cellCoord, SelectionColor);
                 }
             }
         }
@@ -224,9 +225,8 @@ namespace Quasar.scenes.world
             foreach (var point in path)
             {
                 var cellCoord =  _mapLayer.LocalToMap(point);
-                //var modulate = new Color(1.0f, 0.0f, 1.0f, 1.0f);
 
-                SelectCell(cellCoord, PathColor); // modulate);
+                SelectCell(cellCoord, PathColor);
             }
         }
 
