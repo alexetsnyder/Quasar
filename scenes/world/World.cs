@@ -12,9 +12,6 @@ namespace Quasar.scenes.world
         [Export(PropertyHint.Range, "0,200")]
         public int Cols { get; set; } = 10;
 
-        [Export]
-        public bool AreaSelectEnabled { get; set; } = true;
-
         [Signal]
         public delegate void TileSelectedEventHandler();
 
@@ -64,12 +61,11 @@ namespace Quasar.scenes.world
             }
         }
 
-        public override void _Input(InputEvent @event)
+        public override void _UnhandledInput(InputEvent @event)
         {
-            if (@event is InputEventMouseButton inputEventMouseButton &&
-                inputEventMouseButton.ButtonIndex == MouseButton.Left)
+            if (@event is InputEventMouseButton inputEventMouseButton)
             {
-                if (AreaSelectEnabled)
+                if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
                 {
                     if (@event.IsPressed())
                     {
@@ -88,7 +84,7 @@ namespace Quasar.scenes.world
                         }
                     }
                 }
-                else
+                else if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
                 {
                     if (@event.IsPressed())
                     {
@@ -100,17 +96,14 @@ namespace Quasar.scenes.world
             }
             else if (@event is InputEventMouseMotion && _isSelecting)
             {
-                if (AreaSelectEnabled)
+                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
                 {
-                    if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
-                    {
-                        _selectionRect.Visible = true;
-                    }
-                    else
-                    {
-                        _selectionRect.Visible = false;
-                    }
-                } 
+                    _selectionRect.Visible = true;
+                }
+                else
+                {
+                    _selectionRect.Visible = false;
+                }
             }
         }
 
@@ -205,20 +198,14 @@ namespace Quasar.scenes.world
 
         public void FindPath(Vector2 startPos)
         {
-            GD.Print($"SelectedCell: {_selectedCell}");
-
             var start = _mapLayer.LocalToMap(startPos);
-            var end = _selectedCell; // _mapLayer.LocalToMap(_selectedCell);
-
-            GD.Print($"Start: {start}, End: {end}");
+            var end = _selectedCell;
 
             var path = _aStarGrid2d.GetPointPath(start, end);
 
             foreach (var point in path)
             {
                 var cellCoord =  _mapLayer.LocalToMap(point);
-
-                GD.Print($"cellCoord: {cellCoord}");
 
                 var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 

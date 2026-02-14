@@ -13,12 +13,12 @@ offset_left = -20.0
 offset_top = -20.0
 offset_right = 3092.0
 offset_bottom = 3092.0
+mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_0wfyh")]
 Rows = 192
 Cols = 192
-AreaSelectEnabled = false
 
 [node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
 position = Vector2(576, 324)
