@@ -45,19 +45,8 @@ namespace Quasar.scenes.world
             _noise = new SimplexNoise();
 
             FillMap();
-
-            var tileSize = _mapLayer.TileSet.TileSize;
-            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
-            _cat.Position = new(Cols / 2.0f * tileSize.X + _cat.Width / 2.0f - 1.0f, Rows / 2.0f * tileSize.Y + _cat.Height / 2.0f - 1.0f);
-
-            _mapLayer.SetCell(_mapLayer.LocalToMap(_cat.Position));
-
-            _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
-            _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
-            _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
-            _aStarGrid2d.Update();
+            PlaceCat();
+            SetUpAStar();
         }
 
         // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -115,7 +104,7 @@ namespace Quasar.scenes.world
                 }
             }
         }
-
+  
         private void FillMap()
         {
             for (int i = 0; i < Rows; i++)
@@ -136,6 +125,45 @@ namespace Quasar.scenes.world
                     {
                         tileData.Modulate = color;
                     }
+                }
+            }
+        }
+
+        private void PlaceCat()
+        {
+            var tileSize = _mapLayer.TileSet.TileSize;
+            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
+
+            foreach (var cellCoord in _mapLayer.GetUsedCellsById())
+            {
+                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
+                if (atlasCoord != AtlasTileCoords.WATER && atlasCoord != AtlasTileCoords.MOUNTAIN)
+                {
+                    var localPos = _mapLayer.MapToLocal(cellCoord);
+                    _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
+                    _mapLayer.SetCell(cellCoord);
+                    break;
+                }
+            }
+        }
+
+        private void SetUpAStar()
+        {
+            _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
+            _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
+            _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
+            _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
+            _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
+            _aStarGrid2d.Update();
+
+            foreach (var cellCoord in _mapLayer.GetUsedCellsById())
+            {
+                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
+                if (atlasCoord == AtlasTileCoords.WATER || atlasCoord == AtlasTileCoords.MOUNTAIN)
+                {
+                    _aStarGrid2d.SetPointSolid(cellCoord);
                 }
             }
         }
