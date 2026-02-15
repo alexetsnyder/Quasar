@@ -1,14 +1,15 @@
-[gd_scene format=3 uid="uid://ctqci7bute52l"]
+[gd_scene format=3 uid="uid://uep13x6deauq"]
 
-[ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="1_dphjl"]
-[ext_resource type="Script" uid="uid://dmp2wbf3a1lq1" path="res://scenes/world/World.cs" id="1_sl2e5"]
-[ext_resource type="Shader" uid="uid://b0rqxtga7g767" path="res://assets/shaders/world.gdshader" id="2_1fp7r"]
+[ext_resource type="Script" uid="uid://83xho0ucmx3g" path="res://scenes/map/Map.cs" id="1_ph54e"]
+[ext_resource type="Shader" uid="uid://b0rqxtga7g767" path="res://assets/shaders/world.gdshader" id="2_fcby6"]
+[ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="3_jcaow"]
+[ext_resource type="PackedScene" uid="uid://idq7d15684ps" path="res://scenes/cats/cat.tscn" id="4_04w0f"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sl2e5"]
-shader = ExtResource("2_1fp7r")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sqgf4"]
+shader = ExtResource("2_fcby6")
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sl2e5"]
-texture = ExtResource("1_dphjl")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vvrx0"]
+texture = ExtResource("3_jcaow")
 texture_region_size = Vector2i(18, 18)
 1:0/0 = 0
 2:0/0 = 0
@@ -267,14 +268,14 @@ texture_region_size = Vector2i(18, 18)
 15:15/0 = 0
 0:0/0 = 0
 
-[sub_resource type="TileSet" id="TileSet_1fp7r"]
-sources/0 = SubResource("TileSetAtlasSource_sl2e5")
+[sub_resource type="TileSet" id="TileSet_f17u5"]
+sources/0 = SubResource("TileSetAtlasSource_vvrx0")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_1fp7r"]
-shader = ExtResource("2_1fp7r")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_b56te"]
+shader = ExtResource("2_fcby6")
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1fp7r"]
-texture = ExtResource("1_dphjl")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_x2kg6"]
+texture = ExtResource("3_jcaow")
 texture_region_size = Vector2i(18, 18)
 1:0/0 = 0
 2:0/0 = 0
@@ -533,25 +534,25 @@ texture_region_size = Vector2i(18, 18)
 15:15/0 = 0
 0:0/0 = 0
 
-[sub_resource type="TileSet" id="TileSet_6m72w"]
-sources/0 = SubResource("TileSetAtlasSource_1fp7r")
+[sub_resource type="TileSet" id="TileSet_cumk7"]
+sources/0 = SubResource("TileSetAtlasSource_x2kg6")
 
-[node name="World" type="Node2D" unique_id=1915405860]
-script = ExtResource("1_sl2e5")
-Rows = 20
-Cols = 20
+[node name="Map" type="Node2D" unique_id=692249368]
+script = ExtResource("1_ph54e")
 
-[node name="MapLayer" type="TileMapLayer" parent="." unique_id=1875384796]
+[node name="MapLayer" type="TileMapLayer" parent="." unique_id=44149103]
 texture_filter = 2
-material = SubResource("ShaderMaterial_sl2e5")
-tile_set = SubResource("TileSet_1fp7r")
+material = SubResource("ShaderMaterial_sqgf4")
+tile_set = SubResource("TileSet_f17u5")
 
-[node name="SelectLayer" type="TileMapLayer" parent="." unique_id=418157462]
+[node name="SelectLayer" type="TileMapLayer" parent="." unique_id=1293104229]
 texture_filter = 2
-material = SubResource("ShaderMaterial_1fp7r")
-tile_set = SubResource("TileSet_6m72w")
+material = SubResource("ShaderMaterial_b56te")
+tile_set = SubResource("TileSet_cumk7")
 
-[node name="SelectionRect" type="ColorRect" parent="." unique_id=875267900]
+[node name="Cat" parent="." unique_id=1361943199 instance=ExtResource("4_04w0f")]
+
+[node name="SelectionRect" type="ColorRect" parent="." unique_id=980334045]
 visible = false
 offset_right = 40.0
 offset_bottom = 40.0

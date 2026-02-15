@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://clc5m506xj8oh"]
 
 [ext_resource type="Script" uid="uid://c7l5pqfwe54us" path="res://scenes/Main.cs" id="1_o5qli"]
-[ext_resource type="PackedScene" uid="uid://ctqci7bute52l" path="res://scenes/world/world.tscn" id="2_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="2_sugp2"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
 
 [node name="Main" type="Node2D" unique_id=1898491804]
@@ -15,7 +15,7 @@ offset_bottom = 3092.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_0wfyh")]
+[node name="Map" parent="." unique_id=692249368 instance=ExtResource("2_sugp2")]
 Rows = 192
 Cols = 192
 
