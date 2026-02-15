@@ -29,5 +29,7 @@ namespace Quasar.data
         public static Color GREY { get => new("#808080"); }
 
         public static Color GRASS_GREEN { get => new("#7CFC00"); }
+
+        public static Color WALL_PURPLE { get => new("#8361E0"); }
     }
 }

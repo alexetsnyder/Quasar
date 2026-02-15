@@ -240,6 +240,7 @@ texture_region_size = Vector2i(18, 18)
 8:13/0 = 0
 9:13/0 = 0
 10:13/0 = 0
+11:13/next_alternative_id = 2
 11:13/0 = 0
 12:13/0 = 0
 13:13/0 = 0

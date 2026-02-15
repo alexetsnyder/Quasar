@@ -6,6 +6,8 @@ namespace Quasar.data
     {
         public static Vector2I SOLID { get => new(11, 13); }
 
+        public static Vector2I SOLID_WALL { get => new(1, 11); }
+
         public static Vector2I WATER { get => new(7, 15); }
 
         public static Vector2I GRASSLAND_01 { get => new(2, 2); }
