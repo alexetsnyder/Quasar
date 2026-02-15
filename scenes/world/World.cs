@@ -132,7 +132,7 @@ namespace Quasar.scenes.world
                     var color = ColorConstants.GREEN;
                     var atlasCoords = AtlasTileCoords.GRASS_01;
                     var noiseVal = _heightNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
-                    var varyNoiseVal = _varianceNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows); ;
+                    var varyNoiseVal = _varianceNoise.GetNoise(j, i);
                     GetAtlasCoordsAndColor(noiseVal, varyNoiseVal, ref atlasCoords, ref color);
 
                     _mapLayer.SetCell(coord, 0, atlasCoords);
@@ -249,14 +249,14 @@ namespace Quasar.scenes.world
 
         private void GetAtlasCoordsAndColor(float heightNoiseVal, float varyNoiseVal, ref Vector2I atlasCoord, ref Color cellColor)
         {
-            if (heightNoiseVal < 30.0f)
+            if (heightNoiseVal < 25.0f)
             {
                 atlasCoord = AtlasTileCoords.WATER;
                 cellColor = ColorConstants.BLUE;
             }
-            else if (heightNoiseVal < 60.0f)
+            else if (heightNoiseVal < 50.0f)
             {
-                if (varyNoiseVal < 45.0f)
+                if (varyNoiseVal < 40.0f)
                 {
                     atlasCoord = VaryTiles(_grassAlts);
                     cellColor = ColorConstants.GRASS_GREEN;
@@ -267,19 +267,19 @@ namespace Quasar.scenes.world
                     cellColor = ColorConstants.FOREST_GREEN;
                 }
             }
-            else //(noiseVal < 100.0f
+            else if (heightNoiseVal < 70.0f)
             {
-                if (varyNoiseVal < 45.0f)
-                {
-                    atlasCoord = VaryTiles(_hillAlts);
-                    cellColor = ColorConstants.EMERALD_GREEN;
-                }
-                else if (varyNoiseVal < 75.0f)
+                atlasCoord = VaryTiles(_hillAlts);
+                cellColor = ColorConstants.EMERALD_GREEN;
+            }
+            else //(heightNoiseVal < 100.0f
+            {
+                if (heightNoiseVal < 80.0f)
                 {
                     atlasCoord = AtlasTileCoords.MOUNTAIN;
                     cellColor = ColorConstants.GREY;
                 }
-                else //(varyNoiseVal < 100.0f
+                else //(heightNoiseVal < 100.0f
                 {
                     atlasCoord = AtlasTileCoords.TALLER_MOUNTAIN;
                     cellColor = ColorConstants.GREY;
