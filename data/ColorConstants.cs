@@ -4,9 +4,23 @@ namespace Quasar.data
 {
     public static partial class ColorConstants
     {
+        public static Color WHITE { get => new("#FFFFFF"); }
+
+        public static Color BLACK { get => new("#000000"); }
+
+        public static Color RED { get => new("#FF0000"); }
+
         public static Color BLUE { get => new("#0000FF"); }
 
-        public static Color GREEN { get => new("#008000"); }
+        public static Color GREEN { get => new("#00FF00"); }
+
+        public static Color YELLOW { get => new("#FFFF00"); }
+
+        public static Color LAVENDER { get => new("#E6E6FA"); }
+
+        public static Color ORANGE { get => new("#FFA500"); }
+
+        public static Color AMBER { get => new("#FFBF00"); }
 
         public static Color FOREST_GREEN { get => new("#228B22"); }
 
