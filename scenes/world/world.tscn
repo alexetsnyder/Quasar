@@ -3,6 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="1_dphjl"]
 [ext_resource type="Script" uid="uid://dmp2wbf3a1lq1" path="res://scenes/world/World.cs" id="1_sl2e5"]
 [ext_resource type="Shader" uid="uid://b0rqxtga7g767" path="res://assets/shaders/world.gdshader" id="2_1fp7r"]
+[ext_resource type="PackedScene" uid="uid://idq7d15684ps" path="res://scenes/cats/cat.tscn" id="4_6m72w"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sl2e5"]
 shader = ExtResource("2_1fp7r")
@@ -578,6 +579,8 @@ tile_set = SubResource("TileSet_1fp7r")
 texture_filter = 2
 material = SubResource("ShaderMaterial_1fp7r")
 tile_set = SubResource("TileSet_6m72w")
+
+[node name="Cat" parent="." unique_id=1361943199 instance=ExtResource("4_6m72w")]
 
 [node name="SelectionRect" type="ColorRect" parent="." unique_id=875267900]
 visible = false

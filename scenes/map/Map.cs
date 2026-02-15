@@ -37,8 +37,6 @@ namespace Quasar.scenes.map
 
         private AStarGrid2D _aStarGrid2d = new();
 
-        //private Cat _cat;
-
         private RandomNumberGenerator _rng = new();
 
         private List<Vector2I> _grassAlts = [AtlasTileCoords.GRASSLAND_01, AtlasTileCoords.GRASSLAND_02, AtlasTileCoords.GRASSLAND_03];
@@ -55,12 +53,10 @@ namespace Quasar.scenes.map
             _mapLayer = GetNode<TileMapLayer>("MapLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
-            //_cat = GetNode<Cat>("Cat");
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
             _varianceNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             FillMap();
-            //PlaceCat();
             SetUpAStar();
         }
 
@@ -99,13 +95,6 @@ namespace Quasar.scenes.map
                         }
                     }
                 }
-                else if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
-                {
-                    if (@event.IsPressed())
-                    {
-                        //FindPath(_cat.Position, GetLocalMousePosition());
-                    }
-                }
             }
             else if (@event is InputEventMouseMotion && _isSelecting)
             {
@@ -141,7 +130,6 @@ namespace Quasar.scenes.map
             return "NONE";
         }
 
-
         private void FillMap()
         {
             for (int i = 0; i < Rows; i++)
@@ -167,29 +155,10 @@ namespace Quasar.scenes.map
             }
         }
 
-        //private void PlaceCat()
-        //{
-        //    var tileSize = _mapLayer.TileSet.TileSize;
-        //    _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
-
-        //    foreach (var cellCoord in _mapLayer.GetUsedCellsById())
-        //    {
-        //        var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
-
-        //        if (atlasCoord != AtlasTileCoords.WATER && atlasCoord != AtlasTileCoords.MOUNTAINS)
-        //        {
-        //            var localPos = _mapLayer.MapToLocal(cellCoord);
-        //            _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
-        //            _mapLayer.SetCell(cellCoord);
-        //            break;
-        //        }
-        //    }
-        //}
-
         private void SetUpAStar()
         {
             _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
-            _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
+            _aStarGrid2d.CellSize = _mapLayer.TileSet.TileSize;
             _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
             _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
             _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;

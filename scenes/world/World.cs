@@ -1,6 +1,7 @@
 using Godot;
 using Quasar.data;
 using Quasar.math;
+using Quasar.scenes.cats;
 using System.Collections.Generic;
 
 namespace Quasar.scenes.world
@@ -26,6 +27,8 @@ namespace Quasar.scenes.world
         private TileMapLayer _selectLayer;
 
         private ColorRect _selectionRect;
+
+        private Cat _cat;
 
         private bool _isSelecting = false;
 
@@ -55,6 +58,7 @@ namespace Quasar.scenes.world
             _worldLayer = GetNode<TileMapLayer>("WorldLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
+            _cat = GetNode<Cat>("Cat");
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             _worldArray = new Vector2I[Rows, Cols];
@@ -62,6 +66,7 @@ namespace Quasar.scenes.world
             GenerateWorld();
             FillMap();
             SetUpAStar();
+            PlaceCat();
         }
 
         // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -103,7 +108,7 @@ namespace Quasar.scenes.world
                 {
                     if (@event.IsPressed())
                     {
-                        //FindPath(_cat.Position, GetLocalMousePosition());
+                        FindPath(_cat.Position, GetLocalMousePosition());
                     }
                 }
             }
@@ -247,7 +252,7 @@ namespace Quasar.scenes.world
         private void SetUpAStar()
         {
             _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
-            _aStarGrid2d.CellSize = new Vector2(16.0f, 16.0f);
+            _aStarGrid2d.CellSize = _worldLayer.TileSet.TileSize;
             _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
             _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
             _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
@@ -268,6 +273,28 @@ namespace Quasar.scenes.world
             return (atlasCoord == AtlasTileCoords.SOLID || 
                     atlasCoord == AtlasTileCoords.SOLID_WALL || 
                     atlasCoord == AtlasTileCoords.WATER);
+        }
+
+        private void PlaceCat()
+        {
+            var tileSize = _worldLayer.TileSet.TileSize;
+            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
+
+            List<Vector2I> possibleCells = [];
+
+            foreach (var cellCoord in _worldLayer.GetUsedCellsById())
+            {
+                if (!IsImpassable(cellCoord))
+                {
+                    possibleCells.Add(cellCoord);
+                }
+            }
+
+            var selectedCellCoord = RandomChoice(possibleCells, out _);
+            var localPos = _worldLayer.MapToLocal(selectedCellCoord);
+
+            _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
+            _worldLayer.SetCell(selectedCellCoord);
         }
 
         private void SelectArea()
