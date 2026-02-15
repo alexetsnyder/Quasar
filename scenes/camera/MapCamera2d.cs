@@ -36,16 +36,16 @@ namespace Quasar.scenes.camera
             _zoomTarget = Zoom;
         }
 
-        public void OnResized()
-        {
-
-        }
-
         // Called every frame. 'delta' is the elapsed time since the previous frame.
         public override void _Process(double delta)
         {
             CameraZoom(delta);
             CameraPan();
+        }
+
+        public void UpdateZoom(Vector2 zoom)
+        {
+            Zoom = _zoomTarget = zoom;
         }
 
         private void CameraZoom(double delta)

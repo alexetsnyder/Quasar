@@ -123,54 +123,22 @@ namespace Quasar.scenes.world
         public string GetTileType(Vector2 localPos)
         {
             var cellCoord = _worldLayer.LocalToMap(localPos);
+            var atlasCoord = _worldLayer.GetCellAtlasCoords(cellCoord);
+
+            return AtlasTileCoords.GetTileType(atlasCoord);
+        }
+
+        public string GetTileColor(Vector2 localPos)
+        {
+            var cellCoord = _worldLayer.LocalToMap(localPos);
 
             if (_worldLayer.GetCellSourceId(cellCoord) != -1)
             {
                 var tileData = _worldLayer.GetCellTileData(cellCoord);
-
-                if (tileData.Modulate == ColorConstants.BLUE)
-                {
-                    return "Blue";
-                }
-                else if (tileData.Modulate == ColorConstants.BLACK)
-                {
-                    return "Black";
-                }
-                else if (tileData.Modulate == ColorConstants.LAVENDER)
-                {
-                    return "Lavender";
-                }
-                else if (tileData.Modulate == ColorConstants.WALL_PURPLE)
-                {
-                    return "Wall Purple";
-                }
-                else if (tileData.Modulate == ColorConstants.RED)
-                {
-                    return "Red";
-                }
-                else if (tileData.Modulate == ColorConstants.GREEN)
-                {
-                    return "Green";
-                }
-                else if (tileData.Modulate == ColorConstants.GRASS_GREEN)
-                {
-                    return "Grass Green";
-                }
-                else if (tileData.Modulate == ColorConstants.YELLOW)
-                {
-                    return "Yellow";
-                }
-                else if (tileData.Modulate == ColorConstants.ORANGE)
-                {
-                    return "Orange";
-                }
-                else if (tileData.Modulate == ColorConstants.AMBER)
-                {
-                    return "Amber";
-                }
+                return ColorConstants.GetColorType(tileData.Modulate);
             }
 
-            return "";
+            return "NONE";
         }
 
         private void GenerateWorld()

@@ -1,7 +1,6 @@
 using Godot;
 using Quasar.data;
 using Quasar.math;
-using Quasar.scenes.cats;
 using System.Collections.Generic;
 
 namespace Quasar.scenes.map
@@ -38,7 +37,7 @@ namespace Quasar.scenes.map
 
         private AStarGrid2D _aStarGrid2d = new();
 
-        private Cat _cat;
+        //private Cat _cat;
 
         private RandomNumberGenerator _rng = new();
 
@@ -56,12 +55,12 @@ namespace Quasar.scenes.map
             _mapLayer = GetNode<TileMapLayer>("MapLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
-            _cat = GetNode<Cat>("Cat");
+            //_cat = GetNode<Cat>("Cat");
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
             _varianceNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             FillMap();
-            PlaceCat();
+            //PlaceCat();
             SetUpAStar();
         }
 
@@ -104,7 +103,7 @@ namespace Quasar.scenes.map
                 {
                     if (@event.IsPressed())
                     {
-                        FindPath(_cat.Position, GetLocalMousePosition());
+                        //FindPath(_cat.Position, GetLocalMousePosition());
                     }
                 }
             }
@@ -120,6 +119,28 @@ namespace Quasar.scenes.map
                 }
             }
         }
+
+        public string GetTileType(Vector2 localPos)
+        {
+            var cellCoord = _mapLayer.LocalToMap(localPos);
+            var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+
+            return AtlasTileCoords.GetTileType(atlasCoord);
+        }
+
+        public string GetTileColor(Vector2 localPos)
+        {
+            var cellCoord = _mapLayer.LocalToMap(localPos);
+
+            if (_mapLayer.GetCellSourceId(cellCoord) != -1)
+            {
+                var tileData = _mapLayer.GetCellTileData(cellCoord);
+                return ColorConstants.GetColorType(tileData.Modulate);
+            }
+
+            return "NONE";
+        }
+
 
         private void FillMap()
         {
@@ -146,24 +167,24 @@ namespace Quasar.scenes.map
             }
         }
 
-        private void PlaceCat()
-        {
-            var tileSize = _mapLayer.TileSet.TileSize;
-            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
+        //private void PlaceCat()
+        //{
+        //    var tileSize = _mapLayer.TileSet.TileSize;
+        //    _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
 
-            foreach (var cellCoord in _mapLayer.GetUsedCellsById())
-            {
-                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
+        //    foreach (var cellCoord in _mapLayer.GetUsedCellsById())
+        //    {
+        //        var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-                if (atlasCoord != AtlasTileCoords.WATER && atlasCoord != AtlasTileCoords.MOUNTAINS)
-                {
-                    var localPos = _mapLayer.MapToLocal(cellCoord);
-                    _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
-                    _mapLayer.SetCell(cellCoord);
-                    break;
-                }
-            }
-        }
+        //        if (atlasCoord != AtlasTileCoords.WATER && atlasCoord != AtlasTileCoords.MOUNTAINS)
+        //        {
+        //            var localPos = _mapLayer.MapToLocal(cellCoord);
+        //            _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
+        //            _mapLayer.SetCell(cellCoord);
+        //            break;
+        //        }
+        //    }
+        //}
 
         private void SetUpAStar()
         {
