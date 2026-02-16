@@ -83,46 +83,49 @@ namespace Quasar.scenes.world
 
         public override void _UnhandledInput(InputEvent @event)
         {
-            if (@event is InputEventMouseButton inputEventMouseButton)
+            if (Visible)
             {
-                if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
+                if (@event is InputEventMouseButton inputEventMouseButton)
                 {
-                    if (@event.IsPressed())
+                    if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
                     {
-                        _isSelecting = true;
-                        _selectionStart = GetGlobalMousePosition();
-                        _selectionRect.Position = _selectionStart;
-                        _selectionRect.Size = new Vector2();
-                    }
-                    else
-                    {
-                        if (_isSelecting)
+                        if (@event.IsPressed())
                         {
-                            _isSelecting = false;
-                            _selectionRect.Visible = false;
-                            SelectArea();
+                            _isSelecting = true;
+                            _selectionStart = GetGlobalMousePosition();
+                            _selectionRect.Position = _selectionStart;
+                            _selectionRect.Size = new Vector2();
+                        }
+                        else
+                        {
+                            if (_isSelecting)
+                            {
+                                _isSelecting = false;
+                                _selectionRect.Visible = false;
+                                SelectArea();
+                            }
+                        }
+                    }
+                    else if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
+                    {
+                        if (@event.IsPressed())
+                        {
+                            FindPath(_cat.Position, GetLocalMousePosition());
                         }
                     }
                 }
-                else if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
+                else if (@event is InputEventMouseMotion && _isSelecting)
                 {
-                    if (@event.IsPressed())
+                    if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
                     {
-                        FindPath(_cat.Position, GetLocalMousePosition());
+                        _selectionRect.Visible = true;
+                    }
+                    else
+                    {
+                        _selectionRect.Visible = false;
                     }
                 }
-            }
-            else if (@event is InputEventMouseMotion && _isSelecting)
-            {
-                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
-                {
-                    _selectionRect.Visible = true;
-                }
-                else
-                {
-                    _selectionRect.Visible = false;
-                }
-            }
+            }  
         }
 
         public string GetTileType(Vector2 localPos)
