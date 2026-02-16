@@ -11,6 +11,8 @@ public partial class Main : Node2D
 
 	private MapCamera2d _camera;
 
+	private CanvasLayer _debugGUI;
+
 	private Label _tileTypeLabel;
 
 	private Label _tileColorLabel;
@@ -22,11 +24,12 @@ public partial class Main : Node2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		_debugGUI = GetNode<CanvasLayer>("DebugGUI");
 		_map = GetNode<Map>("Map");
 		_world = GetNode<World>("World");
 		_camera = GetNode<MapCamera2d>("MapCamera2D");
-		_tileTypeLabel = GetNode<Label>("GUI/TileTypeMargin/TileType");
-		_tileColorLabel = GetNode<Label>("GUI/TileColorMargin/TileColor");
+		_tileTypeLabel = GetNode<Label>("DebugGUI/TileTypeMargin/TileType");
+		_tileColorLabel = GetNode<Label>("DebugGUI/TileColorMargin/TileColor");
 
 		_camera.Position = new Vector2(_camera.WorldSize.X / 2.0f, _camera.WorldSize.Y / 2.0f);
 
@@ -50,6 +53,14 @@ public partial class Main : Node2D
 		else if (@event.IsActionPressed("Map"))
 		{
 			ToggleMap();
+		}
+		else if (@event.IsActionPressed("DebugUI"))
+		{
+			_debugGUI.Visible = !_debugGUI.Visible;
+		}
+		else if (@event.IsActionPressed("FindCat") && _world.Visible)
+		{
+			_camera.Position = _world.CatPosition;
 		}
     }
 

@@ -17,10 +17,20 @@ namespace Quasar.scenes.world
         public int Cols { get; set; } = 10;
 
         [Export]
+        public int CatSpeed { get; set; } = 10;
+
+        [Export]
+        public bool ShowGrid { get; set; } = false;
+
+        [Export]
         public Color SelectionColor { get; set; } = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
         [Export]
         public Color PathColor { get; set; } = new Color(1.0f, 0.0f, 1.0f, 1.0f);
+
+        public Vector2 CatPosition { get => _cat.Position; }
+
+        private TileMapLayer _gridLayer;
 
         private TileMapLayer _worldLayer;
 
@@ -29,6 +39,12 @@ namespace Quasar.scenes.world
         private ColorRect _selectionRect;
 
         private Cat _cat;
+
+        private Queue<Vector2> _path = [];
+
+        private bool _isCatMoving = false;
+
+        private Vector2 _nextCatPos = new();
 
         private bool _isSelecting = false;
 
@@ -55,6 +71,7 @@ namespace Quasar.scenes.world
         {
             _rng.Randomize();
 
+            _gridLayer = GetNode<TileMapLayer>("GridLayer");
             _worldLayer = GetNode<TileMapLayer>("WorldLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
@@ -67,6 +84,8 @@ namespace Quasar.scenes.world
             FillMap();
             SetUpAStar();
             PlaceCat();
+
+            _gridLayer.Visible = ShowGrid;
         }
 
         // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -79,6 +98,8 @@ namespace Quasar.scenes.world
                 _selectionRect.Position = newSelectionRect.Position;
                 _selectionRect.Size = newSelectionRect.Size;
             }
+
+            MoveCat(delta);
         }
 
         public override void _UnhandledInput(InputEvent @event)
@@ -201,11 +222,12 @@ namespace Quasar.scenes.world
                     var modulate = GetTileColor(atlasCoord, out int colorIndex);
 
                     SetCell(cellCoord, atlasCoord, modulate, colorIndex);
+                    _gridLayer.SetCell(cellCoord, 1, new(0, 0));
 
-                    var tileData = _worldLayer.GetCellTileData(cellCoord);
+                    var tileData = _gridLayer.GetCellTileData(cellCoord);
                     if (tileData != null)
                     {
-                        tileData.Modulate = modulate;
+                        tileData.Modulate = ColorConstants.GREY;
                     }
                 }
             }
@@ -309,7 +331,28 @@ namespace Quasar.scenes.world
             var localPos = _worldLayer.MapToLocal(selectedCellCoord);
 
             _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
-            _worldLayer.SetCell(selectedCellCoord);
+            //_worldLayer.SetCell(selectedCellCoord);
+        }
+
+        private void MoveCat(double delta)
+        { 
+            if (!_isCatMoving && _path.Count > 0)
+            {
+                _isCatMoving = true;
+
+                var cellLocalPos = _path.Dequeue();
+                _nextCatPos = new(cellLocalPos.X + _cat.Width / 2.0f - 1.0f, cellLocalPos.Y + _cat.Height / 2.0f - 1.0f);
+            }
+
+            if (_isCatMoving)
+            {
+                _cat.Position = _cat.Position.Lerp(_nextCatPos, (float)(delta * CatSpeed));
+
+                if (_cat.Position.IsEqualApprox(_nextCatPos))
+                {
+                    _isCatMoving = false;
+                }
+            }
         }
 
         private void SelectArea()
@@ -341,6 +384,7 @@ namespace Quasar.scenes.world
         private void FindPath(Vector2 startPos, Vector2 endPos)
         {
             _selectLayer.Clear();
+            _path.Clear();
 
             var start = _worldLayer.LocalToMap(startPos);
             var end = _worldLayer.LocalToMap(endPos);
@@ -349,6 +393,8 @@ namespace Quasar.scenes.world
 
             foreach (var point in path)
             {
+                _path.Enqueue(point);
+
                 var cellCoord =  _worldLayer.LocalToMap(point);
 
                 SelectCell(cellCoord, PathColor);

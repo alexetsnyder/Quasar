@@ -7,7 +7,7 @@
 script = ExtResource("1_3xrku")
 
 [node name="CatSprite" type="Sprite2D" parent="." unique_id=723545853]
-self_modulate = Color(1, 1, 0, 1)
+self_modulate = Color(0.8, 0.33333334, 0, 1)
 texture = ExtResource("1_4q30y")
 region_enabled = true
 region_rect = Rect2(54, 72, 18, 18)
