@@ -50,7 +50,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="TileTypeBackground" type="ColorRect" parent="GUI/TileTypeMargin" unique_id=1351138778]
 layout_mode = 2
-color = Color(0, 0, 0, 1)
+color = Color(0, 0.19215687, 0.31764707, 1)
 
 [node name="TileType" type="Label" parent="GUI/TileTypeMargin" unique_id=28583246]
 layout_mode = 2
@@ -71,7 +71,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="TileColorBackground" type="ColorRect" parent="GUI/TileColorMargin" unique_id=232503983]
 layout_mode = 2
-color = Color(0, 0, 0, 1)
+color = Color(0, 0.19215687, 0.31764707, 1)
 
 [node name="TileColor" type="Label" parent="GUI/TileColorMargin" unique_id=495664138]
 layout_mode = 2

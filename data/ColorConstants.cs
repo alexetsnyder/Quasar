@@ -32,68 +32,20 @@ namespace Quasar.data
 
         public static Color WALL_PURPLE { get => new("#8361E0"); }
 
-        public static string GetColorType(Color color)
+        public static string GetColorStrReflection(Color color)
         {
-            if (color == WHITE)
+            var type = typeof(ColorConstants);
+
+            foreach (var property in type.GetProperties())
             {
-                return "WHITE";
+                var getter = property.GetGetMethod();
+                if (getter != null && (Color)getter.Invoke(null, null) == color)
+                {
+                    return property.Name;
+                }
             }
-            else if (color == BLACK)
-            {
-                return "BLACK";
-            }
-            else if (color == RED)
-            {
-                return "RED";
-            }
-            else if (color == BLUE)
-            {
-                return "BLUE";
-            }
-            else if (color == GREEN)
-            {
-                return "GREEN";
-            }
-            else if (color == YELLOW)
-            {
-                return "YELLOW";
-            }
-            else if (color == LAVENDER)
-            {
-                return "LAVENDER";
-            }
-            else if (color == ORANGE)
-            {
-                return "ORANGE";
-            }
-            else if (color == AMBER)
-            {
-                return "AMBER";
-            }
-            else if (color == FOREST_GREEN)
-            {
-                return "FOREST GREEN";
-            }
-            else if (color == EMERALD_GREEN)
-            {
-                return "EMERALD GREEN";
-            }
-            else if (color == GREY)
-            {
-                return "GREY";
-            }
-            else if (color == WALL_PURPLE)
-            {
-                return "WALL PURPLE";
-            }
-            else if (color == GRASS_GREEN)
-            {
-                return "GRASS GREEN";
-            }
-            else
-            {
-                return "NONE";
-            }
+
+            return "NONE";
         }
     }
 }

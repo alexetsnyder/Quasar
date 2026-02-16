@@ -57,34 +57,42 @@ public partial class Main : Node2D
 	{
         var mousePos = GetLocalMousePosition();
 
-        string tyleType;
+        string tileType;
+		Color tileColor;
         if (_map.Visible)
         {
-            tyleType = _map.GetTileType(mousePos);
+            tileType = _map.GetTileTypeStr(mousePos);
+			tileColor = _map.GetTileColor(mousePos);
         }
         else
         {
-            tyleType = _world.GetTileType(mousePos);
+            tileType = _world.GetTileTypeStr(mousePos);
+			tileColor = _world.GetTileColor(mousePos);
         }
 
-        _tileTypeLabel.Text = tyleType;
+        _tileTypeLabel.Text = tileType;
+		_tileTypeLabel.AddThemeColorOverride("font_color", tileColor);
     }
 
     public void SetTyleColorLabel()
     {
         var mousePos = GetLocalMousePosition();
 
-        string tyleColor;
+        string tileColorStr;
+        Color tileColor;
         if (_map.Visible)
         {
-            tyleColor = _map.GetTileColor(mousePos);
+            tileColorStr = _map.GetTileColorStr(mousePos);
+			tileColor = _map.GetTileColor(mousePos);
         }
         else
         {
-            tyleColor = _world.GetTileColor(mousePos);
+            tileColorStr = _world.GetTileColorStr(mousePos);
+			tileColor = _world.GetTileColor(mousePos);
         }
 
-        _tileColorLabel.Text = tyleColor;
+        _tileColorLabel.Text = tileColorStr;
+		_tileColorLabel.AddThemeColorOverride("font_color", tileColor);
     }
 
     private void ToggleMap()

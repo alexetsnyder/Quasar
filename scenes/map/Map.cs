@@ -112,25 +112,37 @@ namespace Quasar.scenes.map
             }
         }
 
-        public string GetTileType(Vector2 localPos)
+        public string GetTileTypeStr(Vector2 localPos)
         {
             var cellCoord = _mapLayer.LocalToMap(localPos);
             var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-            return AtlasTileCoords.GetTileType(atlasCoord);
+            return AtlasTileCoords.GetTileStrReflection(atlasCoord);
         }
 
-        public string GetTileColor(Vector2 localPos)
+        public string GetTileColorStr(Vector2 localPos)
+        {
+            var color = GetTileColor(localPos);
+
+            if (color == ColorConstants.WHITE)
+            {
+                return "NONE";
+            }
+
+            return ColorConstants.GetColorStrReflection(color);
+        }
+
+        public Color GetTileColor(Vector2 localPos)
         {
             var cellCoord = _mapLayer.LocalToMap(localPos);
 
             if (_mapLayer.GetCellSourceId(cellCoord) != -1)
             {
                 var tileData = _mapLayer.GetCellTileData(cellCoord);
-                return ColorConstants.GetColorType(tileData.Modulate);
+                return tileData.Modulate;
             }
 
-            return "NONE";
+            return ColorConstants.WHITE;
         }
 
         private void FillMap()

@@ -128,25 +128,37 @@ namespace Quasar.scenes.world
             }  
         }
 
-        public string GetTileType(Vector2 localPos)
+        public string GetTileTypeStr(Vector2 localPos)
         {
             var cellCoord = _worldLayer.LocalToMap(localPos);
             var atlasCoord = _worldLayer.GetCellAtlasCoords(cellCoord);
 
-            return AtlasTileCoords.GetTileType(atlasCoord);
+            return AtlasTileCoords.GetTileStrReflection(atlasCoord);
         }
 
-        public string GetTileColor(Vector2 localPos)
+        public string GetTileColorStr(Vector2 localPos)
+        {
+            var color = GetTileColor(localPos);
+
+            if (color == ColorConstants.WHITE)
+            {
+                return "NONE";
+            }
+
+            return ColorConstants.GetColorStrReflection(color);
+        }
+
+        public Color GetTileColor(Vector2 localPos)
         {
             var cellCoord = _worldLayer.LocalToMap(localPos);
 
             if (_worldLayer.GetCellSourceId(cellCoord) != -1)
             {
                 var tileData = _worldLayer.GetCellTileData(cellCoord);
-                return ColorConstants.GetColorType(tileData.Modulate);
+                return tileData.Modulate;
             }
 
-            return "NONE";
+            return ColorConstants.WHITE;
         }
 
         private void GenerateWorld()
