@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DateTime" format=3 uid="uid://w8hdkdyi2thw"]
+
+[ext_resource type="Script" uid="uid://ca4vxy50xa2qk" path="res://data/resources/DateTime.cs" id="1_m7ljl"]
+
+[resource]
+script = ExtResource("1_m7ljl")
+metadata/_custom_type_script = "uid://ca4vxy50xa2qk"

@@ -2,8 +2,11 @@
 
 [ext_resource type="Script" uid="uid://c7l5pqfwe54us" path="res://scenes/Main.cs" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://ctqci7bute52l" path="res://scenes/world/world.tscn" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://bmike0ws8p5co" path="res://scenes/time/TimeSystem.cs" id="2_tefeu"]
 [ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="3_jyhfs"]
+[ext_resource type="Resource" uid="uid://w8hdkdyi2thw" path="res://data/resources/DateTime.tres" id="3_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/time_display_control.tscn" id="7_o6xl0"]
 
 [node name="Main" type="Node2D" unique_id=1898491804]
 script = ExtResource("1_o5qli")
@@ -15,6 +18,11 @@ offset_right = 3476.0
 offset_bottom = 3476.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
+
+[node name="TimeSystem" type="Node" parent="." unique_id=882428465]
+script = ExtResource("2_tefeu")
+DateTime = ExtResource("3_o6xl0")
+metadata/_custom_type_script = "uid://bmike0ws8p5co"
 
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_sugp2")]
 Rows = 192
@@ -32,6 +40,8 @@ ZoomOutLimit = 0.25
 WorldSize = Vector2(3456, 3456)
 
 [node name="GUI" type="CanvasLayer" parent="." unique_id=780521924]
+
+[node name="TimeDisplayControl" parent="GUI" unique_id=1343151648 instance=ExtResource("7_o6xl0")]
 
 [node name="TileTypeMargin" type="MarginContainer" parent="GUI" unique_id=728405047]
 anchors_preset = 3
@@ -77,3 +87,5 @@ color = Color(0, 0.19215687, 0.31764707, 1)
 layout_mode = 2
 size_flags_horizontal = 4
 vertical_alignment = 2
+
+[connection signal="TimeChange" from="TimeSystem" to="GUI/TimeDisplayControl" method="OnTimeChange"]
