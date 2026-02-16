@@ -28,6 +28,10 @@ window/dpi/allow_hidpi=false
 
 project/assembly_name="Quasar"
 
+[gui]
+
+theme/custom_font="uid://ctpt4hk2ex8x0"
+
 [input]
 
 Quit={
