@@ -221,14 +221,8 @@ namespace Quasar.scenes.world
                     var atlasCoord = _worldArray[i, j];
                     var modulate = GetTileColor(atlasCoord, out int colorIndex);
 
-                    SetCell(cellCoord, atlasCoord, modulate, colorIndex);
-                    _gridLayer.SetCell(cellCoord, 1, new(0, 0));
-
-                    var tileData = _gridLayer.GetCellTileData(cellCoord);
-                    if (tileData != null)
-                    {
-                        tileData.Modulate = ColorConstants.GREY;
-                    }
+                    SetCell(_worldLayer, cellCoord, 0, atlasCoord, modulate, colorIndex);
+                    SetCell(_gridLayer, cellCoord, 1, new(0, 0), ColorConstants.GREY);
                 }
             }
         }
@@ -272,18 +266,18 @@ namespace Quasar.scenes.world
             return (atlasCoord == AtlasTileCoords.SOLID || atlasCoord == AtlasTileCoords.SOLID_WALL);
         }
 
-        private void SetCell(Vector2I cellCoord, Vector2I? atlasCoord = null, Color? modulate = null, int alternateTile = 0)
+        private void SetCell(TileMapLayer tileMapLayer, Vector2I cellCoord, int sourceId = -1, Vector2I? atlasCoord = null, Color? modulate = null, int alternateTile = 0)
         {
-            _worldLayer.SetCell(cellCoord, 0, atlasCoord, alternateTile);
+            tileMapLayer.SetCell(cellCoord, sourceId,  atlasCoord, alternateTile);
 
-            if (modulate != null)
+            if (modulate.HasValue)
             {
-                var tileData = _worldLayer.GetCellTileData(cellCoord);
+                var tileData = tileMapLayer.GetCellTileData(cellCoord);
                 if (tileData != null)
                 {
                     tileData.Modulate = modulate.Value;
                 }
-            }   
+            }
         }
 
         private void SetUpAStar()
@@ -407,14 +401,7 @@ namespace Quasar.scenes.world
             {
                 var atlasCoord = _worldLayer.GetCellAtlasCoords(cellCoord);
 
-                _selectLayer.SetCell(cellCoord, 0, atlasCoord);
-
-                var tileData = _selectLayer.GetCellTileData(cellCoord);
-
-                if (tileData != null)
-                {
-                    tileData.Modulate = modulate;
-                }
+                SetCell(_selectLayer, cellCoord, 0, atlasCoord, modulate);
             }
         }
 
