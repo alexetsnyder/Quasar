@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bkup6f2wl4k50"]
+
+[ext_resource type="Script" uid="uid://dhk3alc3vosmw" path="res://scenes/gui/BasicLabelDisplay.cs" id="1_3bk21"]
+
+[node name="BasicLabelMargin" type="MarginContainer" unique_id=839488856]
+offset_right = 73.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+script = ExtResource("1_3bk21")
+
+[node name="BasicLabelBackground" type="ColorRect" parent="." unique_id=1544268672]
+layout_mode = 2
+color = Color(0, 0.19215687, 0.31764707, 1)
+
+[node name="BasicLabel" type="Label" parent="." unique_id=866256574]
+layout_mode = 2
+size_flags_horizontal = 4
+vertical_alignment = 2

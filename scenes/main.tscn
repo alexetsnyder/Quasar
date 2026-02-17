@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://w8hdkdyi2thw" path="res://data/resources/DateTime.tres" id="3_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/time_display_control.tscn" id="7_o6xl0"]
+[ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/basic_label_display.tscn" id="8_tipki"]
 
 [node name="Main" type="Node2D" unique_id=1898491804]
 script = ExtResource("1_o5qli")
@@ -45,7 +46,7 @@ WorldMargins = Vector4(80, 80, 80, 80)
 
 [node name="TimeDisplayControl" parent="DebugGUI" unique_id=1343151648 instance=ExtResource("7_o6xl0")]
 
-[node name="TileTypeMargin" type="MarginContainer" parent="DebugGUI" unique_id=728405047]
+[node name="TileTypeDisplay" parent="DebugGUI" unique_id=839488856 instance=ExtResource("8_tipki")]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -53,41 +54,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -73.0
 offset_top = -40.0
+offset_right = 0.0
+offset_bottom = 0.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
 
-[node name="TileTypeBackground" type="ColorRect" parent="DebugGUI/TileTypeMargin" unique_id=1351138778]
-layout_mode = 2
-color = Color(0, 0.19215687, 0.31764707, 1)
-
-[node name="TileType" type="Label" parent="DebugGUI/TileTypeMargin" unique_id=28583246]
-layout_mode = 2
-size_flags_horizontal = 4
-vertical_alignment = 2
-
-[node name="TileColorMargin" type="MarginContainer" parent="DebugGUI" unique_id=401541415]
+[node name="TileColorDisplay" parent="DebugGUI" unique_id=1034868359 instance=ExtResource("8_tipki")]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -40.0
-offset_right = 73.0
+offset_bottom = 0.0
 grow_vertical = 0
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="TileColorBackground" type="ColorRect" parent="DebugGUI/TileColorMargin" unique_id=232503983]
-layout_mode = 2
-color = Color(0, 0.19215687, 0.31764707, 1)
-
-[node name="TileColor" type="Label" parent="DebugGUI/TileColorMargin" unique_id=495664138]
-layout_mode = 2
-size_flags_horizontal = 4
-vertical_alignment = 2
 
 [connection signal="TimeChange" from="TimeSystem" to="DebugGUI/TimeDisplayControl" method="OnTimeChange"]

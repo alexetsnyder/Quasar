@@ -30,13 +30,11 @@ namespace Quasar.scenes.camera
 
         private bool _isDragging = false;
 
-        // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
             _zoomTarget = Zoom;
         }
 
-        // Called every frame. 'delta' is the elapsed time since the previous frame.
         public override void _Process(double delta)
         {
             CameraZoom(delta);
