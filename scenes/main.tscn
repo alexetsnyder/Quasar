@@ -28,7 +28,7 @@ metadata/_custom_type_script = "uid://bmike0ws8p5co"
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_sugp2")]
 Rows = 192
 Cols = 192
-CatSpeed = 20
+CatSpeed = 40
 
 [node name="Map" parent="." unique_id=692249368 instance=ExtResource("3_jyhfs")]
 visible = false
