@@ -1,13 +1,10 @@
 [gd_scene format=3 uid="uid://idq7d15684ps"]
 
 [ext_resource type="Script" uid="uid://la4tgj2gtf1y" path="res://scenes/cats/Cat.cs" id="1_3xrku"]
-[ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="1_4q30y"]
+[ext_resource type="Texture2D" uid="uid://cjhhn8cuuvft8" path="res://assets/textures/CatFace.png" id="2_3xrku"]
 
 [node name="Cat" type="Node2D" unique_id=1361943199]
 script = ExtResource("1_3xrku")
 
 [node name="CatSprite" type="Sprite2D" parent="." unique_id=723545853]
-self_modulate = Color(0.8, 0.33333334, 0, 1)
-texture = ExtResource("1_4q30y")
-region_enabled = true
-region_rect = Rect2(54, 72, 18, 18)
+texture = ExtResource("2_3xrku")

@@ -331,10 +331,9 @@ namespace Quasar.scenes.world
             var selectedCellCoord = RandomChoice(possibleCells, out _);
             var localPos = _worldLayer.MapToLocal(selectedCellCoord);
 
-            _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
+            _cat.Position = new(localPos.X, localPos.Y);
             _cat.ID = _worldManager.Register(selectedCellCoord);
             HideCell(selectedCellCoord);
-            //SetCell(_worldLayer, selectedCellCoord);
         }
 
         private void MoveCat(double delta)
@@ -351,7 +350,7 @@ namespace Quasar.scenes.world
 
                 var cellLocalPos = _path.Dequeue();
                 HideCell(_worldLayer.LocalToMap(cellLocalPos));
-                _nextCatPos = new(cellLocalPos.X + _cat.Width / 2.0f - 1.0f, cellLocalPos.Y + _cat.Height / 2.0f - 1.0f);
+                _nextCatPos = new(cellLocalPos.X + _cat.Width / 2.0f, cellLocalPos.Y + _cat.Height / 2.0f);
             }
 
             if (_isCatMoving)
