@@ -3,6 +3,7 @@ using Quasar.scenes.camera;
 using Quasar.scenes.map;
 using Quasar.scenes.world;
 using Quasar.scenes.gui;
+using Quasar.data.enums;
 
 namespace Quasar.scenes
 {
@@ -133,6 +134,16 @@ namespace Quasar.scenes
 
             SetTyleTypeLabel();
             SetTyleColorLabel();
+        }
+
+        private void OnToolBarDigPressed()
+        {
+            _world.SetSelectionState(SelectionState.DIGGING);
+        }
+
+        private void OnToolBarSelectPressed()
+        {
+            _world.SetSelectionState(SelectionState.SELECTING);
         }
     }
 }

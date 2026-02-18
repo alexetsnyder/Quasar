@@ -7,11 +7,11 @@
 [node name="ToolBarMargin" type="MarginContainer" unique_id=1173881308]
 offset_right = 56.0
 offset_bottom = 34.0
+script = ExtResource("1_g5gns")
 
 [node name="ToolBarContainer" type="HBoxContainer" parent="." unique_id=1946687116]
 layout_mode = 2
 theme_override_constants/separation = 4
-script = ExtResource("1_g5gns")
 
 [node name="SelectButton" type="Button" parent="ToolBarContainer" unique_id=1100485162]
 layout_mode = 2
@@ -21,5 +21,5 @@ icon = ExtResource("2_njpgj")
 layout_mode = 2
 icon = ExtResource("1_a25xm")
 
-[connection signal="pressed" from="ToolBarContainer/SelectButton" to="ToolBarContainer" method="OnSelectButtonPressed"]
-[connection signal="pressed" from="ToolBarContainer/DigButton" to="ToolBarContainer" method="OnDigButtonPressed"]
+[connection signal="pressed" from="ToolBarContainer/SelectButton" to="." method="OnSelectButtonPressed"]
+[connection signal="pressed" from="ToolBarContainer/DigButton" to="." method="OnDigButtonPressed"]

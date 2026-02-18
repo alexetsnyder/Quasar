@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class ToolBarControl : HBoxContainer
+public partial class ToolBarControl : MarginContainer
 {
 	[Signal]
 	public delegate void DigPressedEventHandler();
@@ -14,8 +14,8 @@ public partial class ToolBarControl : HBoxContainer
 
 	public override void _Ready()
 	{
-		_selectButton = GetNode<Button>("SelectButton");
-		_digButton = GetNode<Button>("DigButton");
+		_selectButton = GetNode<Button>("ToolBarContainer/SelectButton");
+		_digButton = GetNode<Button>("ToolBarContainer/DigButton");
 	}
 
 	public override void _Process(double delta)
@@ -29,6 +29,6 @@ public partial class ToolBarControl : HBoxContainer
 
     private void OnDigButtonPressed()
 	{
-		EmitSignal(SignalName.DigPressed);
+        EmitSignal(SignalName.DigPressed);
 	}
 }

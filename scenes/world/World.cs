@@ -51,7 +51,7 @@ namespace Quasar.scenes.world
 
         #region Private Variables
 
-        private SelectionState _selectionState = SelectionState.NONE;
+        private SelectionState _selectionState = SelectionState.SELECTING;
 
         private WorldManager _worldManager = new();
 
@@ -139,7 +139,7 @@ namespace Quasar.scenes.world
                         {
                             _isSelecting = false;
                             _selectionRect.Visible = false;
-                            SelectArea(SelectionState.SELECTING);
+                            SelectArea(_selectionState);
                         }
                     }
                 }
@@ -203,6 +203,7 @@ namespace Quasar.scenes.world
 
         public void SetSelectionState(SelectionState selectionState)
         {
+            GD.Print($"{selectionState}");
             _selectionState = selectionState;
         }
 
@@ -467,9 +468,17 @@ namespace Quasar.scenes.world
                 {
                     var cellCoord = new Vector2I(j, i);
 
-                    Vector2I atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                    Vector2I atlasCoord;
+                    if (selectionState == SelectionState.SELECTING)
+                    {
+                        atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                    }
+                    else
+                    {
+                        atlasCoord = AtlasCoordSelection.DIG;
+                    }
 
-                    SelectCell(_selectLayer, cellCoord, atlasCoord, SelectionColor);
+                    SelectCell(_selectLayer, cellCoord, atlasCoord, (selectionState == SelectionState.SELECTING) ? SelectionColor : ColorConstants.WHITE);
                 }
             }
         }

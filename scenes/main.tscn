@@ -77,3 +77,6 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_bottom = 4
+
+[connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]
+[connection signal="SelectPressed" from="GUI/ToolBarControl" to="." method="OnToolBarSelectPressed"]
