@@ -11,7 +11,7 @@ namespace Quasar.scenes.world
 {
     public partial class World : Node2D
     {
-        #region Variables
+        #region Exports
 
         [Export(PropertyHint.Range, "0,200")]
         public int Rows { get; set; } = 10;
@@ -31,6 +31,10 @@ namespace Quasar.scenes.world
         [Export]
         public Color PathColor { get; set; } = new Color(1.0f, 0.0f, 1.0f, 1.0f);
 
+        #endregion
+
+        #region Children
+
         private TileMapLayer _gridLayer;
 
         private TileMapLayer _worldLayer;
@@ -39,7 +43,13 @@ namespace Quasar.scenes.world
 
         private TileMapLayer _selectLayer;
 
+        private TileMapLayer _pathLayer;
+
         private ColorRect _selectionRect;
+
+        #endregion
+
+        #region Private Variables
 
         private SelectionState _selectionState = SelectionState.NONE;
 
@@ -71,6 +81,8 @@ namespace Quasar.scenes.world
 
         #endregion
 
+        #region Public Methods
+
         public override void _Ready()
         {
             _rng.Randomize();
@@ -79,6 +91,7 @@ namespace Quasar.scenes.world
             _worldLayer = GetNode<TileMapLayer>("WorldLayer");
             _hideLayer = GetNode<TileMapLayer>("HideLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
+            _pathLayer = GetNode<TileMapLayer>("PathLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
             _worldManager.Register(GetNode<Cat>("Cat"), new(0, 0));
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
@@ -192,6 +205,10 @@ namespace Quasar.scenes.world
         {
             _selectionState = selectionState;
         }
+
+        #endregion
+
+        #region Private Methods
 
         private void GenerateWorld()
         {
@@ -450,14 +467,14 @@ namespace Quasar.scenes.world
                 {
                     var cellCoord = new Vector2I(j, i);
 
-                    SelectCell(cellCoord, SelectionColor);
+                    SelectCell(_selectLayer, cellCoord, SelectionColor);
                 }
             }
         }
 
         private void FindPath(Vector2 startPos, Vector2 endPos)
         {
-            _selectLayer.Clear();
+            _pathLayer.Clear();
             _path.Clear();
 
             var start = _worldLayer.LocalToMap(startPos);
@@ -471,15 +488,15 @@ namespace Quasar.scenes.world
 
                 var cellCoord =  _worldLayer.LocalToMap(point);
 
-                SelectCell(cellCoord, PathColor);
+                SelectCell(_pathLayer, cellCoord, PathColor);
             }
         }
 
-        private void SelectCell(Vector2I cellCoord, Color modulate)
+        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Color modulate)
         {
             if (_worldLayer.GetCellSourceId(cellCoord) != -1)
             {
-                SetCell(_selectLayer, cellCoord, 0, new(0, 0), 0, modulate);
+                SetCell(tileMapLayer, cellCoord, 0, new(0, 0), 0, modulate);
             }
         }
 
@@ -534,5 +551,7 @@ namespace Quasar.scenes.world
             index = _rng.RandiRange(0, alts.Count - 1);
             return alts[index];
         }
+
+        #endregion
     }
 }

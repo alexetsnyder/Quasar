@@ -330,6 +330,15 @@ texture_region_size = Vector2i(18, 18)
 tile_size = Vector2i(18, 18)
 sources/0 = SubResource("TileSetAtlasSource_v5dby")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j2gmx"]
+texture = ExtResource("2_v5dby")
+texture_region_size = Vector2i(18, 18)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_1yooq"]
+tile_size = Vector2i(18, 18)
+sources/0 = SubResource("TileSetAtlasSource_j2gmx")
+
 [node name="World" type="Node2D" unique_id=1915405860]
 script = ExtResource("1_sl2e5")
 Rows = 20
@@ -351,6 +360,9 @@ tile_set = SubResource("TileSet_j2gmx")
 texture_filter = 2
 material = SubResource("ShaderMaterial_1fp7r")
 tile_set = SubResource("TileSet_t5ptc")
+
+[node name="PathLayer" type="TileMapLayer" parent="." unique_id=2006823847]
+tile_set = SubResource("TileSet_1yooq")
 
 [node name="Cat" parent="." unique_id=1361943199 instance=ExtResource("4_6m72w")]
 
