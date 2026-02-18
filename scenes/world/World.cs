@@ -34,6 +34,8 @@ namespace Quasar.scenes.world
 
         private TileMapLayer _worldLayer;
 
+        private TileMapLayer _hideLayer;
+
         private TileMapLayer _selectLayer;
 
         private ColorRect _selectionRect;
@@ -74,6 +76,7 @@ namespace Quasar.scenes.world
 
             _gridLayer = GetNode<TileMapLayer>("GridLayer");
             _worldLayer = GetNode<TileMapLayer>("WorldLayer");
+            _hideLayer = GetNode<TileMapLayer>("HideLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
             _cat = GetNode<Cat>("Cat");
@@ -330,7 +333,8 @@ namespace Quasar.scenes.world
 
             _cat.Position = new(localPos.X - 1.0f, localPos.Y - 1.0f);
             _cat.ID = _worldManager.Register(selectedCellCoord);
-            SetCell(_worldLayer, selectedCellCoord);
+            HideCell(selectedCellCoord);
+            //SetCell(_worldLayer, selectedCellCoord);
         }
 
         private void MoveCat(double delta)
@@ -342,10 +346,11 @@ namespace Quasar.scenes.world
                 var lastCatPos = _worldManager.GetCellCoord(_cat.ID);
                 if (lastCatPos != null)
                 {
-                    ResetWorldCell(lastCatPos.Value);
+                    ShowCell(lastCatPos.Value);
                 }
 
                 var cellLocalPos = _path.Dequeue();
+                HideCell(_worldLayer.LocalToMap(cellLocalPos));
                 _nextCatPos = new(cellLocalPos.X + _cat.Width / 2.0f - 1.0f, cellLocalPos.Y + _cat.Height / 2.0f - 1.0f);
             }
 
@@ -356,33 +361,46 @@ namespace Quasar.scenes.world
                 if (_cat.Position.IsEqualApprox(_nextCatPos))
                 {
                     _isCatMoving = false;
-                    
-                    var catCellCoord = _worldLayer.LocalToMap(_nextCatPos);
-                    _worldManager.UpdateCellCoord(_cat.ID, catCellCoord);
-
-                    SetCell(_worldLayer, catCellCoord);
+                    _worldManager.UpdateCellCoord(_cat.ID, _worldLayer.LocalToMap(_nextCatPos));
                 }
             }
         }
 
-        private void ResetWorldCell(Vector2I cellCoord)
+        private void HideCell(Vector2I cellCoord)
         {
-            var worldCell = GetWorldCell(cellCoord);
-            if (worldCell != null)
+            if (IsInBounds(cellCoord))
             {
-                SetCell(_worldLayer, cellCoord, 0, worldCell.AtlasCoord, worldCell.AlternateTile);
+                SetCell(_hideLayer, cellCoord, 0, new(0, 0));
+            }
+        }
+
+        private void ShowCell(Vector2I cellCoord)
+        {
+            if (IsInBounds(cellCoord))
+            {
+                SetCell(_hideLayer, cellCoord);
             }
         }
 
         private WorldCell GetWorldCell(Vector2I cellCoord)
         {
-            if (cellCoord.X < 0 || cellCoord.Y < 0 ||
-                cellCoord.X >= Rows || cellCoord.Y >= Cols)
+            if (!IsInBounds(cellCoord))
             {
                 return null;
             }
 
             return _worldCellArray[cellCoord.X, cellCoord.Y];
+        }
+
+        private bool IsInBounds(Vector2I cellCoord)
+        {
+            if (cellCoord.X < 0 || cellCoord.Y < 0 ||
+                cellCoord.X >= Rows || cellCoord.Y >= Cols)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void SelectArea()

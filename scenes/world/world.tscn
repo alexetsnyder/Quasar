@@ -5,6 +5,7 @@
 [ext_resource type="Shader" uid="uid://b0rqxtga7g767" path="res://assets/shaders/world.gdshader" id="2_1fp7r"]
 [ext_resource type="Texture2D" uid="uid://0fsebdvgvsxi" path="res://assets/textures/CellBorder.png" id="2_v5dby"]
 [ext_resource type="PackedScene" uid="uid://idq7d15684ps" path="res://scenes/cats/cat.tscn" id="4_6m72w"]
+[ext_resource type="Texture2D" uid="uid://cpwhx5ndiim55" path="res://assets/textures/SolidCell.png" id="5_t5ptc"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t5ptc"]
 texture = ExtResource("2_v5dby")
@@ -308,6 +309,15 @@ texture_region_size = Vector2i(18, 18)
 tile_size = Vector2i(18, 18)
 sources/0 = SubResource("TileSetAtlasSource_sl2e5")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bq33v"]
+texture = ExtResource("5_t5ptc")
+texture_region_size = Vector2i(18, 18)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_j2gmx"]
+tile_size = Vector2i(18, 18)
+sources/0 = SubResource("TileSetAtlasSource_bq33v")
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1fp7r"]
 shader = ExtResource("2_1fp7r")
 
@@ -332,6 +342,10 @@ tile_set = SubResource("TileSet_v5dby")
 texture_filter = 2
 material = SubResource("ShaderMaterial_sl2e5")
 tile_set = SubResource("TileSet_1fp7r")
+
+[node name="HideLayer" type="TileMapLayer" parent="." unique_id=901763232]
+modulate = Color(0, 0, 0, 1)
+tile_set = SubResource("TileSet_j2gmx")
 
 [node name="SelectLayer" type="TileMapLayer" parent="." unique_id=418157462]
 texture_filter = 2
