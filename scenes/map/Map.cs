@@ -72,40 +72,37 @@ namespace Quasar.scenes.map
 
         public override void _UnhandledInput(InputEvent @event)
         {
-            if (Visible)
+            if (@event is InputEventMouseButton inputEventMouseButton)
             {
-                if (@event is InputEventMouseButton inputEventMouseButton)
+                if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
                 {
-                    if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
+                    if (@event.IsPressed())
                     {
-                        if (@event.IsPressed())
-                        {
-                            _isSelecting = true;
-                            _selectionStart = GetGlobalMousePosition();
-                            _selectionRect.Position = _selectionStart;
-                            _selectionRect.Size = new Vector2();
-                        }
-                        else
-                        {
-                            if (_isSelecting)
-                            {
-                                _isSelecting = false;
-                                _selectionRect.Visible = false;
-                                SelectArea();
-                            }
-                        }
-                    }
-                }
-                else if (@event is InputEventMouseMotion && _isSelecting)
-                {
-                    if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
-                    {
-                        _selectionRect.Visible = true;
+                        _isSelecting = true;
+                        _selectionStart = GetGlobalMousePosition();
+                        _selectionRect.Position = _selectionStart;
+                        _selectionRect.Size = new Vector2();
                     }
                     else
                     {
-                        _selectionRect.Visible = false;
+                        if (_isSelecting)
+                        {
+                            _isSelecting = false;
+                            _selectionRect.Visible = false;
+                            SelectArea();
+                        }
                     }
+                }
+            }
+            else if (@event is InputEventMouseMotion && _isSelecting)
+            {
+                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
+                {
+                    _selectionRect.Visible = true;
+                }
+                else
+                {
+                    _selectionRect.Visible = false;
                 }
             }
         }

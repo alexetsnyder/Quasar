@@ -33,6 +33,8 @@ namespace Quasar.scenes
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
 
+            _map.SetProcessUnhandledInput(false);
+
             _camera.Position = new Vector2(_camera.WorldSize.X / 2.0f, _camera.WorldSize.Y / 2.0f);
 
             _prevCameraZoom = _camera.Zoom;
@@ -117,12 +119,16 @@ namespace Quasar.scenes
             if (!_map.Visible)
             {
                 _map.Visible = true;
+                _map.SetProcessUnhandledInput(true);
                 _world.Visible = false;
+                _world.SetProcessUnhandledInput(false);
             }
             else
             {
                 _map.Visible = false;
+                _map.SetProcessUnhandledInput(false);
                 _world.Visible = true;
+                _world.SetProcessUnhandledInput(true);
             }
 
             SetTyleTypeLabel();
