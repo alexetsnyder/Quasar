@@ -1,17 +1,14 @@
 using Godot;
+using Quasar.scenes.common.interfaces;
 
 namespace Quasar.scenes.world
 {
-    public partial class WorldObject
+    public partial class WorldObject(int id, IGameObject gameObject, Vector2I cellCoord)
     {
-        public int ID { get; set; }
+        public int ID { get; set; } = id;
 
-        public Vector2I CellCoord { get; set; }
+        public IGameObject GameObject {  get; set; } = gameObject;
 
-        public WorldObject(int id, Vector2I cellCoord) 
-        {
-            ID = id;
-            CellCoord = cellCoord;
-        }
+        public Vector2I CellCoord { get; set; } = cellCoord;
     }
 }

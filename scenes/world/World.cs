@@ -3,6 +3,7 @@ using Quasar.data;
 using Quasar.math;
 using Quasar.scenes.cats;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.scenes.world
 {
@@ -28,8 +29,6 @@ namespace Quasar.scenes.world
         [Export]
         public Color PathColor { get; set; } = new Color(1.0f, 0.0f, 1.0f, 1.0f);
 
-        public Vector2 CatPosition { get => _cat.Position; }
-
         private TileMapLayer _gridLayer;
 
         private TileMapLayer _worldLayer;
@@ -41,8 +40,6 @@ namespace Quasar.scenes.world
         private ColorRect _selectionRect;
 
         private WorldManager _worldManager = new();
-
-        private Cat _cat;
 
         private Queue<Vector2> _path = [];
 
@@ -79,7 +76,7 @@ namespace Quasar.scenes.world
             _hideLayer = GetNode<TileMapLayer>("HideLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
-            _cat = GetNode<Cat>("Cat");
+            _worldManager.Register(GetNode<Cat>("Cat"), new(0, 0));
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             _worldCellArray = new WorldCell[Rows, Cols];
@@ -134,7 +131,11 @@ namespace Quasar.scenes.world
                     {
                         if (@event.IsPressed())
                         {
-                            FindPath(_cat.Position, GetLocalMousePosition());
+                            var cat = GetCat();
+                            if (cat != null)
+                            {
+                                FindPath(cat.Position, GetLocalMousePosition());
+                            } 
                         }
                     }
                 }
@@ -315,34 +316,46 @@ namespace Quasar.scenes.world
 
         private void PlaceCat()
         {
-            var tileSize = _worldLayer.TileSet.TileSize;
-            _cat.Scale = new(tileSize.X / _cat.Width, tileSize.Y / _cat.Height);
+            var cat = GetCat();
 
-            List<Vector2I> possibleCells = [];
-
-            foreach (var cellCoord in _worldLayer.GetUsedCellsById())
+            if (cat != null)
             {
-                if (!IsImpassable(cellCoord))
+                var tileSize = _worldLayer.TileSet.TileSize;
+                cat.Scale = new(tileSize.X / cat.Width, tileSize.Y / cat.Height);
+
+                List<Vector2I> possibleCells = [];
+
+                foreach (var cellCoord in _worldLayer.GetUsedCellsById())
                 {
-                    possibleCells.Add(cellCoord);
+                    if (!IsImpassable(cellCoord))
+                    {
+                        possibleCells.Add(cellCoord);
+                    }
                 }
-            }
 
-            var selectedCellCoord = RandomChoice(possibleCells, out _);
-            var localPos = _worldLayer.MapToLocal(selectedCellCoord);
+                var selectedCellCoord = RandomChoice(possibleCells, out _);
+                var localPos = _worldLayer.MapToLocal(selectedCellCoord);
 
-            _cat.Position = new(localPos.X, localPos.Y);
-            _cat.ID = _worldManager.Register(selectedCellCoord);
-            HideCell(selectedCellCoord);
+                cat.Position = new(localPos.X, localPos.Y);
+                _worldManager.UpdateCellCoord(cat.ID, selectedCellCoord);
+                HideCell(selectedCellCoord);
+            } 
         }
 
         private void MoveCat(double delta)
-        { 
+        {
+            var cat = GetCat();
+
+            if (cat == null)
+            {
+                return;
+            }
+
             if (!_isCatMoving && _path.Count > 0)
             {
                 _isCatMoving = true;
 
-                var lastCatPos = _worldManager.GetCellCoord(_cat.ID);
+                var lastCatPos = _worldManager.GetCellCoord(cat.ID);
                 if (lastCatPos != null)
                 {
                     ShowCell(lastCatPos.Value);
@@ -350,19 +363,26 @@ namespace Quasar.scenes.world
 
                 var cellLocalPos = _path.Dequeue();
                 HideCell(_worldLayer.LocalToMap(cellLocalPos));
-                _nextCatPos = new(cellLocalPos.X + _cat.Width / 2.0f, cellLocalPos.Y + _cat.Height / 2.0f);
+                _nextCatPos = new(cellLocalPos.X + cat.Width / 2.0f, cellLocalPos.Y + cat.Height / 2.0f);
             }
 
             if (_isCatMoving)
             {
-                _cat.Position = _cat.Position.Lerp(_nextCatPos, (float)(delta * CatSpeed));
+                cat.Position = cat.Position.Lerp(_nextCatPos, (float)(delta * CatSpeed));
 
-                if (_cat.Position.IsEqualApprox(_nextCatPos))
+                if (cat.Position.IsEqualApprox(_nextCatPos))
                 {
                     _isCatMoving = false;
-                    _worldManager.UpdateCellCoord(_cat.ID, _worldLayer.LocalToMap(_nextCatPos));
+                    _worldManager.UpdateCellCoord(cat.ID, _worldLayer.LocalToMap(_nextCatPos));
                 }
             }
+        }
+
+        private Cat GetCat()
+        {
+            var cat = _worldManager.GetAllGameObjects().FirstOrDefault();
+
+            return (cat != null) ? cat as Cat : null;
         }
 
         private void HideCell(Vector2I cellCoord)

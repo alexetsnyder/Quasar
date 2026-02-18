@@ -59,10 +59,6 @@ namespace Quasar.scenes
             {
                 _debugGUI.Visible = !_debugGUI.Visible;
             }
-            else if (@event.IsActionPressed("FindCat") && _world.Visible)
-            {
-                _camera.Position = _world.CatPosition;
-            }
         }
 
         public void SetTyleTypeLabel()

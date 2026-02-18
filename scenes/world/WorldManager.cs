@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.scenes.common.interfaces;
 using System.Collections.Generic;
 
 namespace Quasar.scenes.world
@@ -9,9 +10,9 @@ namespace Quasar.scenes.world
 
         private int _nextId = 0;
 
-        public int Register(Vector2I cellCoord)
+        public int Register(IGameObject gameObject, Vector2I cellCoord)
         {
-            _worldObjects.Add(_nextId, new(_nextId, cellCoord));
+            _worldObjects.Add(_nextId, new(_nextId, gameObject, cellCoord));
             return _nextId++;
         }
 
@@ -33,6 +34,18 @@ namespace Quasar.scenes.world
         public void UpdateCellCoord(int id, Vector2I cellCoord)
         {
             _worldObjects[id].CellCoord = cellCoord;
+        }
+
+        public List<IGameObject> GetAllGameObjects()
+        {
+            List<IGameObject> gameObjects = [];
+
+            foreach (var worldObject in  _worldObjects.Values)
+            {
+                gameObjects.Add(worldObject.GameObject);
+            }
+
+            return gameObjects;
         }
     }
 }
