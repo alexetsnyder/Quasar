@@ -358,4 +358,4 @@ tile_set = SubResource("TileSet_t5ptc")
 visible = false
 offset_right = 40.0
 offset_bottom = 40.0
-color = Color(0.72156864, 0.05882353, 0.039215688, 0.23921569)
+color = Color(0, 0.31764707, 1, 0.4745098)

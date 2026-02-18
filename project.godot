@@ -15,6 +15,10 @@ run/main_scene="uid://clc5m506xj8oh"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+TimeSystem="*uid://bmike0ws8p5co"
+
 [display]
 
 window/size/viewport_width=640

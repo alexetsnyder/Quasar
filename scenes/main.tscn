@@ -2,12 +2,11 @@
 
 [ext_resource type="Script" uid="uid://c7l5pqfwe54us" path="res://scenes/Main.cs" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://ctqci7bute52l" path="res://scenes/world/world.tscn" id="2_sugp2"]
-[ext_resource type="Script" uid="uid://bmike0ws8p5co" path="res://scenes/time/TimeSystem.cs" id="2_tefeu"]
 [ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="3_jyhfs"]
-[ext_resource type="Resource" uid="uid://w8hdkdyi2thw" path="res://data/resources/DateTime.tres" id="3_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/time_display_control.tscn" id="7_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/basic_label_display.tscn" id="8_tipki"]
+[ext_resource type="PackedScene" uid="uid://bcw53ty62uig7" path="res://scenes/gui/tool_bar_control.tscn" id="9_85g3d"]
 
 [node name="Main" type="Node2D" unique_id=1898491804]
 script = ExtResource("1_o5qli")
@@ -20,15 +19,10 @@ offset_bottom = 3536.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="TimeSystem" type="Node" parent="." unique_id=882428465]
-script = ExtResource("2_tefeu")
-DateTime = ExtResource("3_o6xl0")
-metadata/_custom_type_script = "uid://bmike0ws8p5co"
-
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_sugp2")]
 Rows = 192
 Cols = 192
-CatSpeed = 40
+CatSpeed = 8
 
 [node name="Map" parent="." unique_id=692249368 instance=ExtResource("3_jyhfs")]
 visible = false
@@ -67,4 +61,19 @@ offset_top = -40.0
 offset_bottom = 0.0
 grow_vertical = 0
 
-[connection signal="TimeChange" from="TimeSystem" to="DebugGUI/TimeDisplayControl" method="OnTimeChange"]
+[node name="GUI" type="CanvasLayer" parent="." unique_id=316006123]
+
+[node name="ToolBarControl" parent="GUI" unique_id=1173881308 instance=ExtResource("9_85g3d")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_top = -34.0
+offset_right = 28.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_bottom = 4

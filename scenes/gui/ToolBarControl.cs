@@ -1,0 +1,34 @@
+using Godot;
+
+public partial class ToolBarControl : HBoxContainer
+{
+	[Signal]
+	public delegate void DigPressedEventHandler();
+
+	[Signal]
+	public delegate void SelectPressedEventHandler();
+
+	private Button _digButton;
+
+	private Button _selectButton;
+
+	public override void _Ready()
+	{
+		_selectButton = GetNode<Button>("SelectButton");
+		_digButton = GetNode<Button>("DigButton");
+	}
+
+	public override void _Process(double delta)
+	{
+	}
+
+    private void OnSelectButtonPressed()
+    {
+        EmitSignal(SignalName.SelectPressed);
+    }
+
+    private void OnDigButtonPressed()
+	{
+		EmitSignal(SignalName.DigPressed);
+	}
+}

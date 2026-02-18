@@ -3,9 +3,10 @@ using Quasar.data.resources;
 
 namespace Quasar.scenes.time
 {
-    [GlobalClass]
     public partial class TimeSystem : Node
     {
+        public static TimeSystem Instance { get; private set; }
+
         [Export]
         public DateTime DateTime { get; set; }
 
@@ -17,6 +18,8 @@ namespace Quasar.scenes.time
 
         public override void _Ready()
         {
+            DateTime = GD.Load<DateTime>("res://data/resources/DateTime.tres");
+            Instance = this;
         }
 
         public override void _Process(double delta)

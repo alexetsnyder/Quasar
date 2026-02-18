@@ -1,7 +1,9 @@
 using Godot;
 using Quasar.data;
+using Quasar.data.enums;
 using Quasar.math;
 using Quasar.scenes.cats;
+using Quasar.scenes.time;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,6 +40,8 @@ namespace Quasar.scenes.world
         private TileMapLayer _selectLayer;
 
         private ColorRect _selectionRect;
+
+        private SelectionState _selectionState = SelectionState.NONE;
 
         private WorldManager _worldManager = new();
 
@@ -97,9 +101,10 @@ namespace Quasar.scenes.world
                 var newSelectionRect = new Rect2(_selectionStart, currentMousePos - _selectionStart).Abs();
                 _selectionRect.Position = newSelectionRect.Position;
                 _selectionRect.Size = newSelectionRect.Size;
+                SelectArea();
             }
 
-            MoveCat(delta);
+            MoveCat(TimeSystem.Instance.TicksPerSecond * delta);
         }
 
         public override void _UnhandledInput(InputEvent @event)
@@ -184,6 +189,11 @@ namespace Quasar.scenes.world
             }
 
             return ColorConstants.WHITE;
+        }
+
+        public void SetSelectionState(SelectionState selectionState)
+        {
+            _selectionState = selectionState;
         }
 
         private void GenerateWorld()
