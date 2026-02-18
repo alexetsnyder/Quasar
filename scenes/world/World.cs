@@ -73,8 +73,8 @@ namespace Quasar.scenes.world
 
         private WorldCell[,] _worldCellArray;
 
-        private readonly List<Vector2I> _groundVariance = [AtlasTileCoords.DIRT, AtlasTileCoords.GRASS_01, 
-                                                           AtlasTileCoords.GRASS_02, AtlasTileCoords.GRASS_03];
+        private readonly List<Vector2I> _groundVariance = [AtlasCoordWorld.DIRT, AtlasCoordWorld.GRASS_01, 
+                                                           AtlasCoordWorld.GRASS_02, AtlasCoordWorld.GRASS_03];
 
         private readonly List<Color> _colorVariance = [ColorConstants.RED, ColorConstants.GREEN, ColorConstants.GRASS_GREEN, 
                                                        ColorConstants.YELLOW, ColorConstants.ORANGE, ColorConstants.AMBER];
@@ -114,7 +114,7 @@ namespace Quasar.scenes.world
                 var newSelectionRect = new Rect2(_selectionStart, currentMousePos - _selectionStart).Abs();
                 _selectionRect.Position = newSelectionRect.Position;
                 _selectionRect.Size = newSelectionRect.Size;
-                SelectArea();
+                SelectArea(SelectionState.SELECTING);
             }
 
             MoveCat(TimeSystem.Instance.TicksPerSecond * delta);
@@ -139,7 +139,7 @@ namespace Quasar.scenes.world
                         {
                             _isSelecting = false;
                             _selectionRect.Visible = false;
-                            SelectArea();
+                            SelectArea(SelectionState.SELECTING);
                         }
                     }
                 }
@@ -173,7 +173,7 @@ namespace Quasar.scenes.world
             var cellCoord = _worldLayer.LocalToMap(localPos);
             var atlasCoord = _worldLayer.GetCellAtlasCoords(cellCoord);
 
-            return AtlasTileCoords.GetTileStrReflection(atlasCoord);
+            return AtlasCoordWorld.GetTileStrReflection(atlasCoord);
         }
 
         public string GetTileColorStr(Vector2 localPos)
@@ -235,7 +235,7 @@ namespace Quasar.scenes.world
                     var cellCoord = new Vector2I(i, j);
                     if (IsEdge(cellCoord))
                     {
-                        var atlasCoord = AtlasTileCoords.SOLID_WALL;
+                        var atlasCoord = AtlasCoordWorld.SOLID_WALL;
                         var modulate = GetTileColor(atlasCoord, out int colorIndex);
                         _worldCellArray[i, j] = new(atlasCoord, modulate, colorIndex);
                     }
@@ -286,7 +286,7 @@ namespace Quasar.scenes.world
 
             if (worldCell == null)
             {
-                return AtlasTileCoords.SOLID;
+                return AtlasCoordWorld.SOLID;
             }
 
             return worldCell.AtlasCoord;
@@ -295,10 +295,10 @@ namespace Quasar.scenes.world
         private bool IsSolid(Vector2I cellCoord)
         {
             var atlasCoord = GetAtlasCoord(cellCoord);
-            return (atlasCoord == AtlasTileCoords.SOLID || atlasCoord == AtlasTileCoords.SOLID_WALL);
+            return (atlasCoord == AtlasCoordWorld.SOLID || atlasCoord == AtlasCoordWorld.SOLID_WALL);
         }
 
-        private void SetCell(TileMapLayer tileMapLayer, Vector2I cellCoord, int sourceId = -1, Vector2I? atlasCoord = null, int alternateTile = 0, Color? modulate = null)
+        private static void SetCell(TileMapLayer tileMapLayer, Vector2I cellCoord, int sourceId = -1, Vector2I? atlasCoord = null, int alternateTile = 0, Color? modulate = null)
         {
             tileMapLayer.SetCell(cellCoord, sourceId,  atlasCoord, alternateTile);
 
@@ -333,9 +333,9 @@ namespace Quasar.scenes.world
         private bool IsImpassable(Vector2I cellCoord)
         {
             var atlasCoord = _worldLayer.GetCellAtlasCoords(cellCoord);
-            return (atlasCoord == AtlasTileCoords.SOLID || 
-                    atlasCoord == AtlasTileCoords.SOLID_WALL || 
-                    atlasCoord == AtlasTileCoords.WATER);
+            return (atlasCoord == AtlasCoordWorld.SOLID || 
+                    atlasCoord == AtlasCoordWorld.SOLID_WALL || 
+                    atlasCoord == AtlasCoordWorld.WATER);
         }
 
         private void PlaceCat()
@@ -446,7 +446,7 @@ namespace Quasar.scenes.world
             return true;
         }
 
-        private void SelectArea()
+        private void SelectArea(SelectionState selectionState)
         {
             _selectLayer.Clear();
 
@@ -467,9 +467,55 @@ namespace Quasar.scenes.world
                 {
                     var cellCoord = new Vector2I(j, i);
 
-                    SelectCell(_selectLayer, cellCoord, SelectionColor);
+                    Vector2I atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+
+                    SelectCell(_selectLayer, cellCoord, atlasCoord, SelectionColor);
                 }
             }
+        }
+
+        private static Vector2I GetAtlasCoordForSelection(int i, int j, int startingRow, int endingRow, int startingCol, int endingCol)
+        {
+            Vector2I atlasCoord;
+
+            if (i == startingRow && j == startingCol)
+            {
+                atlasCoord = AtlasCoordSelection.LEFT_TOP_SELECTION;
+            }
+            else if (i == startingRow && j == endingCol - 1)
+            {
+                atlasCoord = AtlasCoordSelection.RIGHT_TOP_SELECTION;
+            }
+            else if (i == endingRow - 1 && j == startingCol)
+            {
+                atlasCoord = AtlasCoordSelection.LEFT_BOTTOM_SELECTION;
+            }
+            else if (i == endingRow - 1 && j == endingCol - 1)
+            {
+                atlasCoord = AtlasCoordSelection.RIGHT_BOTTOM_SELECTION;
+            }
+            else if (i == startingRow)
+            {
+                atlasCoord = AtlasCoordSelection.TOP_SELECTION;
+            }
+            else if (i == endingRow - 1)
+            {
+                atlasCoord = AtlasCoordSelection.BOTTOM_SELECTION;
+            }
+            else if (j == startingCol)
+            {
+                atlasCoord = AtlasCoordSelection.LEFT_SELECTION;
+            }
+            else if (j == endingCol - 1)
+            {
+                atlasCoord = AtlasCoordSelection.RIGHT_SELECTION;
+            }
+            else
+            {
+                atlasCoord = AtlasCoordSelection.MIDDLE_SELECTION;
+            }
+
+            return atlasCoord;
         }
 
         private void FindPath(Vector2 startPos, Vector2 endPos)
@@ -488,15 +534,15 @@ namespace Quasar.scenes.world
 
                 var cellCoord =  _worldLayer.LocalToMap(point);
 
-                SelectCell(_pathLayer, cellCoord, PathColor);
+                SelectCell(_pathLayer, cellCoord, new(0, 0), PathColor);
             }
         }
 
-        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Color modulate)
+        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Vector2I atlasCoord, Color modulate)
         {
             if (_worldLayer.GetCellSourceId(cellCoord) != -1)
             {
-                SetCell(tileMapLayer, cellCoord, 0, new(0, 0), 0, modulate);
+                SetCell(tileMapLayer, cellCoord, 0, atlasCoord, 0, modulate);
             }
         }
 
@@ -504,7 +550,7 @@ namespace Quasar.scenes.world
         {
             if (heightNoiseVal < 25.0f)
             {
-                return AtlasTileCoords.WATER;
+                return AtlasCoordWorld.WATER;
             }
             else if (heightNoiseVal < 65.0f)
             {
@@ -512,25 +558,25 @@ namespace Quasar.scenes.world
             }
             else //(heightNoiseVal < 100.0f)
             {
-                return AtlasTileCoords.SOLID;
+                return AtlasCoordWorld.SOLID;
             }
         }
 
         private Color GetTileColor(Vector2I atlasCoord, out int colorIndex)
         {
             colorIndex = 0;
-            if (atlasCoord == AtlasTileCoords.WATER)
+            if (atlasCoord == AtlasCoordWorld.WATER)
             {
                 return ColorConstants.BLUE;
             }
-            else if (atlasCoord == AtlasTileCoords.DIRT ||
-                     atlasCoord == AtlasTileCoords.GRASS_01 ||
-                     atlasCoord == AtlasTileCoords.GRASS_02 ||
-                     atlasCoord == AtlasTileCoords.GRASS_03)
+            else if (atlasCoord == AtlasCoordWorld.DIRT ||
+                     atlasCoord == AtlasCoordWorld.GRASS_01 ||
+                     atlasCoord == AtlasCoordWorld.GRASS_02 ||
+                     atlasCoord == AtlasCoordWorld.GRASS_03)
             {
                 return RandomChoice(_colorVariance, out colorIndex);
             }
-            else if (atlasCoord == AtlasTileCoords.SOLID_WALL)
+            else if (atlasCoord == AtlasCoordWorld.SOLID_WALL)
             {
                 return ColorConstants.WALL_PURPLE;
             }

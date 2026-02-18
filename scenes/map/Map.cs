@@ -39,11 +39,11 @@ namespace Quasar.scenes.map
 
         private RandomNumberGenerator _rng = new();
 
-        private List<Vector2I> _grassAlts = [AtlasTileCoords.GRASSLAND_01, AtlasTileCoords.GRASSLAND_02, AtlasTileCoords.GRASSLAND_03];
+        private List<Vector2I> _grassAlts = [AtlasCoordWorld.GRASSLAND_01, AtlasCoordWorld.GRASSLAND_02, AtlasCoordWorld.GRASSLAND_03];
 
-        private List<Vector2I> _treeAlts = [AtlasTileCoords.FOREST_01, AtlasTileCoords.FOREST_02, AtlasTileCoords.FOREST_03];
+        private List<Vector2I> _treeAlts = [AtlasCoordWorld.FOREST_01, AtlasCoordWorld.FOREST_02, AtlasCoordWorld.FOREST_03];
 
-        private List<Vector2I> _hillAlts = [AtlasTileCoords.HILLS_01, AtlasTileCoords.HILLS_02];
+        private List<Vector2I> _hillAlts = [AtlasCoordWorld.HILLS_01, AtlasCoordWorld.HILLS_02];
 
         #endregion
 
@@ -112,7 +112,7 @@ namespace Quasar.scenes.map
             var cellCoord = _mapLayer.LocalToMap(localPos);
             var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-            return AtlasTileCoords.GetTileStrReflection(atlasCoord);
+            return AtlasCoordWorld.GetTileStrReflection(atlasCoord);
         }
 
         public string GetTileColorStr(Vector2 localPos)
@@ -149,7 +149,7 @@ namespace Quasar.scenes.map
                     var coord = new Vector2I(i, j);
 
                     var color = ColorConstants.GREEN;
-                    var atlasCoords = AtlasTileCoords.GRASSLAND_01;
+                    var atlasCoords = AtlasCoordWorld.GRASSLAND_01;
                     var noiseVal = _heightNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
                     var varyNoiseVal = _varianceNoise.GetNoise(j, i);
                     GetAtlasCoordsAndColor(noiseVal, varyNoiseVal, ref atlasCoords, ref color);
@@ -178,9 +178,9 @@ namespace Quasar.scenes.map
             {
                 var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-                if (atlasCoord == AtlasTileCoords.WATER ||
-                    atlasCoord == AtlasTileCoords.MOUNTAINS ||
-                    atlasCoord == AtlasTileCoords.TALLER_MOUNTAINS)
+                if (atlasCoord == AtlasCoordWorld.WATER ||
+                    atlasCoord == AtlasCoordWorld.MOUNTAINS ||
+                    atlasCoord == AtlasCoordWorld.TALLER_MOUNTAINS)
                 {
                     _aStarGrid2d.SetPointSolid(cellCoord);
                 }
@@ -251,7 +251,7 @@ namespace Quasar.scenes.map
         {
             if (heightNoiseVal < 25.0f)
             {
-                atlasCoord = AtlasTileCoords.WATER;
+                atlasCoord = AtlasCoordWorld.WATER;
                 cellColor = ColorConstants.BLUE;
             }
             else if (heightNoiseVal < 50.0f)
@@ -276,12 +276,12 @@ namespace Quasar.scenes.map
             {
                 if (heightNoiseVal < 80.0f)
                 {
-                    atlasCoord = AtlasTileCoords.MOUNTAINS;
+                    atlasCoord = AtlasCoordWorld.MOUNTAINS;
                     cellColor = ColorConstants.GREY;
                 }
                 else //(heightNoiseVal < 100.0f
                 {
-                    atlasCoord = AtlasTileCoords.TALLER_MOUNTAINS;
+                    atlasCoord = AtlasCoordWorld.TALLER_MOUNTAINS;
                     cellColor = ColorConstants.GREY;
                 }
             }

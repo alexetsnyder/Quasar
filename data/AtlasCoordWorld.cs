@@ -2,7 +2,7 @@ using Godot;
 
 namespace Quasar.data
 {
-    public static partial class AtlasTileCoords
+    public static partial class AtlasCoordWorld
     {
         public static Vector2I SOLID { get => new(11, 13); }
 
@@ -40,7 +40,7 @@ namespace Quasar.data
 
         public static string GetTileStrReflection(Vector2I atlasCoord)
         {
-            var type = typeof(AtlasTileCoords);
+            var type = typeof(AtlasCoordWorld);
 
             foreach (var property in type.GetProperties())
             {
