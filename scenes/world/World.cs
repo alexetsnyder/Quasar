@@ -155,17 +155,6 @@ namespace Quasar.scenes.world
                     }
                 }
             }
-            else if (@event is InputEventMouseMotion && _isSelecting)
-            {
-                if (_selectionRect.Size.X >= 1.0f && _selectionRect.Size.Y >= 1.0f)
-                {
-                    _selectionRect.Visible = true;
-                }
-                else
-                {
-                    _selectionRect.Visible = false;
-                }
-            }
         }
 
         public string GetTileTypeStr(Vector2 localPos)

@@ -2,7 +2,36 @@
 
 [ext_resource type="Texture2D" uid="uid://d2jsk5fx4ih24" path="res://assets/textures/PickAxe.png" id="1_a25xm"]
 [ext_resource type="Script" uid="uid://bvusg0slgvcpx" path="res://scenes/gui/ToolBarControl.cs" id="1_g5gns"]
+[ext_resource type="ButtonGroup" uid="uid://dy3bmshci2j1u" path="res://data/resources/tool_bar_button_group.tres" id="2_akbxs"]
 [ext_resource type="Texture2D" uid="uid://b2my7kca52op1" path="res://assets/textures/Arrow.png" id="2_njpgj"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_akbxs"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.8117647, 0.078431375, 0.16862746, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0fro"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.8117647, 0.078431375, 0.16862746, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5j5p6"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.8117647, 0.078431375, 0.16862746, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nvv0r"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.8117647, 0.078431375, 0.16862746, 1)
 
 [node name="ToolBarMargin" type="MarginContainer" unique_id=1173881308]
 offset_right = 56.0
@@ -15,11 +44,26 @@ theme_override_constants/separation = 4
 
 [node name="SelectButton" type="Button" parent="ToolBarContainer" unique_id=1100485162]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/pressed = SubResource("StyleBoxFlat_akbxs")
+theme_override_styles/hover = SubResource("StyleBoxFlat_c0fro")
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("2_akbxs")
 icon = ExtResource("2_njpgj")
+icon_alignment = 1
 
 [node name="DigButton" type="Button" parent="ToolBarContainer" unique_id=1192215528]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5j5p6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_nvv0r")
+toggle_mode = true
+button_group = ExtResource("2_akbxs")
 icon = ExtResource("1_a25xm")
+icon_alignment = 1
 
 [connection signal="pressed" from="ToolBarContainer/SelectButton" to="." method="OnSelectButtonPressed"]
 [connection signal="pressed" from="ToolBarContainer/DigButton" to="." method="OnDigButtonPressed"]

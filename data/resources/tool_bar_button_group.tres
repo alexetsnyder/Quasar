@@ -1,0 +1,4 @@
+[gd_resource type="ButtonGroup" format=3 uid="uid://dy3bmshci2j1u"]
+
+[resource]
+resource_name = "tool_bar_button_group"
