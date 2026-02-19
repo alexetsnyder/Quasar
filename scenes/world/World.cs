@@ -457,17 +457,18 @@ namespace Quasar.scenes.world
                 {
                     var cellCoord = new Vector2I(j, i);
 
-                    Vector2I atlasCoord;
                     if (selectionState == SelectionState.SELECTING)
                     {
-                        atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                        var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                        SelectCell(_selectLayer, cellCoord, atlasCoord, SelectionColor);
                     }
                     else
                     {
-                        atlasCoord = AtlasCoordSelection.DIG;
-                    }
-
-                    SelectCell(_selectLayer, cellCoord, atlasCoord, (selectionState == SelectionState.SELECTING) ? SelectionColor : ColorConstants.WHITE);
+                        if (IsSolid(cellCoord))
+                        {
+                            SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.WHITE);
+                        } 
+                    }   
                 }
             }
         }
