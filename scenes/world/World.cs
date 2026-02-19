@@ -3,6 +3,7 @@ using Quasar.data;
 using Quasar.data.enums;
 using Quasar.math;
 using Quasar.scenes.cats;
+using Quasar.scenes.gui;
 using Quasar.scenes.time;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,13 @@ namespace Quasar.scenes.world
 
         [Export]
         public Color PathColor { get; set; } = new Color(1.0f, 0.0f, 1.0f, 1.0f);
+
+        #endregion
+
+        #region Signals
+
+        [Signal]
+        public delegate void CatClickedOnEventHandler(Cat cat);
 
         #endregion
 
@@ -147,11 +155,21 @@ namespace Quasar.scenes.world
                 {
                     if (@event.IsPressed())
                     {
+                        GD.Print("Mouse Left Button Pressed!");
+
                         var cat = GetCat();
-                        if (cat != null)
+                        //if (cat != null)
+                        //{
+                        //    FindPath(cat.Position, GetLocalMousePosition());
+                        //} 
+                        var mousePos = GetGlobalMousePosition();
+                        var cellCoord = _worldLayer.LocalToMap(mousePos);
+                        if (_worldManager.GetCellCoord(cat.ID) == cellCoord)
                         {
-                            FindPath(cat.Position, GetLocalMousePosition());
-                        } 
+                            GD.Print("Cat Found!");
+                            EmitSignal(SignalName.CatClickedOn, cat);
+                        }
+
                     }
                 }
             }

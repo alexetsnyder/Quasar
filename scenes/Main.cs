@@ -4,6 +4,7 @@ using Quasar.scenes.map;
 using Quasar.scenes.world;
 using Quasar.scenes.gui;
 using Quasar.data.enums;
+using Quasar.scenes.cats;
 
 namespace Quasar.scenes
 {
@@ -17,9 +18,13 @@ namespace Quasar.scenes
 
         private CanvasLayer _debugGUI;
 
+        private CanvasLayer _gui;
+
         private BasicLabelDisplay _tileTypeDisplay;
 
         private BasicLabelDisplay _tileColorDisplay;
+
+        private CharacterDisplay _characterDisplay;
 
         private Vector2 _prevCameraZoom;
 
@@ -28,11 +33,20 @@ namespace Quasar.scenes
         public override void _Ready()
         {
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
+            _gui = GetNode<CanvasLayer>("GUI");
             _map = GetNode<Map>("Map");
             _world = GetNode<World>("World");
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
+
+            var sceneResource = ResourceLoader.Load<PackedScene>("res://scenes/gui/character_display.tscn");
+            if (sceneResource != null)
+            {
+                _characterDisplay = sceneResource.Instantiate<CharacterDisplay>();
+                _gui.AddChild(_characterDisplay);
+                _characterDisplay.Visible = false;
+            }
 
             _map.SetProcessUnhandledInput(false);
 
@@ -144,6 +158,12 @@ namespace Quasar.scenes
         private void OnToolBarSelectPressed()
         {
             _world.SetSelectionState(SelectionState.SELECTING);
+        }
+
+        public void OnCatClickedOn(Cat cat)
+        {
+            _characterDisplay.FillUI(cat.CatData);
+            _characterDisplay.Visible = true;
         }
     }
 }
