@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://0fsebdvgvsxi" path="res://assets/textures/CellBorder.png" id="2_v5dby"]
 [ext_resource type="PackedScene" uid="uid://idq7d15684ps" path="res://scenes/cats/cat.tscn" id="4_6m72w"]
 [ext_resource type="Texture2D" uid="uid://cpwhx5ndiim55" path="res://assets/textures/SolidCell.png" id="5_t5ptc"]
-[ext_resource type="Texture2D" uid="uid://dhkbmflq8qip1" path="res://assets/textures/SelectionTileSet.png" id="6_bq33v"]
+[ext_resource type="Texture2D" uid="uid://f6ykgwtma0of" path="res://assets/textures/SelectionTileSet.png" id="6_bq33v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t5ptc"]
 texture = ExtResource("2_v5dby")

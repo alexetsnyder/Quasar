@@ -484,7 +484,7 @@ namespace Quasar.scenes.world
                     {
                         if (IsSolid(cellCoord))
                         {
-                            SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.WHITE);
+                            SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
                         } 
                     }   
                 }
@@ -555,7 +555,7 @@ namespace Quasar.scenes.world
             }
         }
 
-        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Vector2I atlasCoord, Color modulate)
+        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Vector2I atlasCoord, Color? modulate = null)
         {
             if (_worldLayer.GetCellSourceId(cellCoord) != -1)
             {
