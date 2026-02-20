@@ -4,6 +4,7 @@ using Quasar.data.enums;
 using Quasar.math;
 using Quasar.scenes.cats;
 using Quasar.scenes.time;
+using Quasar.scenes.world.work;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -63,6 +64,8 @@ namespace Quasar.scenes.world
         private SelectionState _selectionState = SelectionState.SINGLE;
 
         private WorldManager _worldManager = new();
+
+        private WorkManager _workManager = new();
 
         private Queue<Vector2> _path = [];
 
