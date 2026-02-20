@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://0fsebdvgvsxi" path="res://assets/textures/CellBorder.png" id="2_v5dby"]
 [ext_resource type="PackedScene" uid="uid://idq7d15684ps" path="res://scenes/cats/cat.tscn" id="4_6m72w"]
 [ext_resource type="Texture2D" uid="uid://cpwhx5ndiim55" path="res://assets/textures/SolidCell.png" id="5_t5ptc"]
-[ext_resource type="Texture2D" uid="uid://f6ykgwtma0of" path="res://assets/textures/SelectionTileSet.png" id="6_bq33v"]
+[ext_resource type="Texture2D" uid="uid://c0eryavt17ey3" path="res://assets/textures/SelectionTileSet.png" id="6_bq33v"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t5ptc"]
 texture = ExtResource("2_v5dby")
@@ -319,11 +319,12 @@ texture_region_size = Vector2i(18, 18)
 tile_size = Vector2i(18, 18)
 sources/0 = SubResource("TileSetAtlasSource_bq33v")
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gb53w"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1yooq"]
 texture = ExtResource("6_bq33v")
 texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
 1:0/0 = 0
+2:0/0 = 0
 0:1/0 = 0
 1:1/0 = 0
 0:2/0 = 0
@@ -335,16 +336,17 @@ texture_region_size = Vector2i(18, 18)
 
 [sub_resource type="TileSet" id="TileSet_5qq27"]
 tile_size = Vector2i(18, 18)
-sources/0 = SubResource("TileSetAtlasSource_gb53w")
+sources/0 = SubResource("TileSetAtlasSource_1yooq")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1fp7r"]
 shader = ExtResource("2_1fp7r")
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1yooq"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gb53w"]
 texture = ExtResource("6_bq33v")
 texture_region_size = Vector2i(18, 18)
 0:0/0 = 0
 1:0/0 = 0
+2:0/0 = 0
 0:1/0 = 0
 1:1/0 = 0
 0:2/0 = 0
@@ -356,7 +358,7 @@ texture_region_size = Vector2i(18, 18)
 
 [sub_resource type="TileSet" id="TileSet_t5ptc"]
 tile_size = Vector2i(18, 18)
-sources/0 = SubResource("TileSetAtlasSource_1yooq")
+sources/0 = SubResource("TileSetAtlasSource_gb53w")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j2gmx"]
 texture = ExtResource("2_v5dby")

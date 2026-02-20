@@ -154,14 +154,14 @@ namespace Quasar.scenes.world
                                 }
                                 break;
                             case SelectionState.DIGGING:
+                            case SelectionState.CANCEL:
                                 _isSelecting = true;
                                 _selectionStart = GetGlobalMousePosition();
                                 _selectionRect.Position = _selectionStart;
                                 _selectionRect.Size = new Vector2();
                                 break;
-                            case SelectionState.CANCEL:
-                                break;
                             default:
+                                GD.Print($"Selection State {_selectionState} set incorrectly.");
                                 break;
                         }
                     }
@@ -171,7 +171,7 @@ namespace Quasar.scenes.world
                         {
                             _isSelecting = false;
                             _selectionRect.Visible = false;
-                            SelectArea(_selectionState);
+                            SelectArea();
                         }
                     }
                 }
@@ -213,7 +213,6 @@ namespace Quasar.scenes.world
 
         public void SetSelectionState(SelectionState selectionState)
         {
-            GD.Print($"{selectionState}");
             _selectionState = selectionState;
         }
 
@@ -477,13 +476,21 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
-                    var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
-                    SelectCell(_selectingLayer, cellCoord, atlasCoord, SelectionColor);
+
+                    if (_selectionState == SelectionState.CANCEL)
+                    {
+                        SelectCell(_selectingLayer, cellCoord, AtlasCoordSelection.CANCEL, ColorConstants.WARNING_RED);
+                    }
+                    else
+                    {
+                        var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                        SelectCell(_selectingLayer, cellCoord, atlasCoord, SelectionColor);
+                    }  
                 }
             }
         }
 
-        private void SelectArea(SelectionState selectionState)
+        private void SelectArea()
         {
             _selectingLayer.Clear();
 
@@ -503,10 +510,21 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
-                    if (IsSolid(cellCoord) && _selectingLayer.GetCellSourceId(cellCoord) == -1)
+                    
+                    if (_selectionState == SelectionState.DIGGING)
                     {
-                        SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                    }  
+                        if (IsSolid(cellCoord) && _selectLayer.GetCellSourceId(cellCoord) == -1)
+                        {
+                            SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
+                        }
+                    }
+                    else
+                    {
+                        if (_selectLayer.GetCellSourceId(cellCoord) != -1)
+                        {
+                            SetCell(_selectLayer, cellCoord);
+                        }
+                    }
                 }
             }
         }

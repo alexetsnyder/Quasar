@@ -34,6 +34,8 @@ namespace Quasar.data
 
         public static Color BURNT_ORANGE { get => new("#CC5500"); }
 
+        public static Color WARNING_RED { get => new("#D0342C"); }
+
         public static string GetColorStrReflection(Color color)
         {
             var type = typeof(ColorConstants);

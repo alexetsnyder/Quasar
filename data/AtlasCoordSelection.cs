@@ -6,6 +6,8 @@ namespace Quasar.data
     {
         public static Vector2I DIG { get => new(0, 0); }
 
+        public static Vector2I CANCEL {  get => new(2, 0); }
+
         public static Vector2I MIDDLE_SELECTION { get => new(1, 0); }
 
         public static Vector2I LEFT_SELECTION { get => new(0, 1); }
