@@ -319,6 +319,24 @@ texture_region_size = Vector2i(18, 18)
 tile_size = Vector2i(18, 18)
 sources/0 = SubResource("TileSetAtlasSource_bq33v")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gb53w"]
+texture = ExtResource("6_bq33v")
+texture_region_size = Vector2i(18, 18)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+0:4/0 = 0
+1:4/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_5qq27"]
+tile_size = Vector2i(18, 18)
+sources/0 = SubResource("TileSetAtlasSource_gb53w")
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1fp7r"]
 shader = ExtResource("2_1fp7r")
 
@@ -365,6 +383,9 @@ tile_set = SubResource("TileSet_1fp7r")
 [node name="HideLayer" type="TileMapLayer" parent="." unique_id=901763232]
 modulate = Color(0, 0, 0, 1)
 tile_set = SubResource("TileSet_j2gmx")
+
+[node name="SelectingLayer" type="TileMapLayer" parent="." unique_id=435792029]
+tile_set = SubResource("TileSet_5qq27")
 
 [node name="SelectLayer" type="TileMapLayer" parent="." unique_id=418157462]
 texture_filter = 2

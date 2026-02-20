@@ -8,6 +8,9 @@ public partial class ToolBarControl : MarginContainer
 	[Signal]
 	public delegate void SelectPressedEventHandler();
 
+	[Signal]
+	public delegate void CancelPressedEventHandler();
+
 	private Button _digButton;
 
 	private Button _selectButton;
@@ -30,5 +33,10 @@ public partial class ToolBarControl : MarginContainer
     private void OnDigButtonPressed()
 	{
         EmitSignal(SignalName.DigPressed);
+	}
+
+	public void OnCancelButtonPressed()
+	{
+		EmitSignal(SignalName.CancelPressed);
 	}
 }

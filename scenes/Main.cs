@@ -157,7 +157,12 @@ namespace Quasar.scenes
 
         private void OnToolBarSelectPressed()
         {
-            _world.SetSelectionState(SelectionState.SELECTING);
+            _world.SetSelectionState(SelectionState.SINGLE);
+        }
+
+        private void OnToolBarCancelPressed()
+        {
+            _world.SetSelectionState(SelectionState.CANCEL);
         }
 
         public void OnCatClickedOn(Cat cat)

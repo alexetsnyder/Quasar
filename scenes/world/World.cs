@@ -3,7 +3,6 @@ using Quasar.data;
 using Quasar.data.enums;
 using Quasar.math;
 using Quasar.scenes.cats;
-using Quasar.scenes.gui;
 using Quasar.scenes.time;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,13 +52,15 @@ namespace Quasar.scenes.world
 
         private TileMapLayer _pathLayer;
 
+        private TileMapLayer _selectingLayer;
+
         private ColorRect _selectionRect;
 
         #endregion
 
         #region Private Variables
 
-        private SelectionState _selectionState = SelectionState.SELECTING;
+        private SelectionState _selectionState = SelectionState.SINGLE;
 
         private WorldManager _worldManager = new();
 
@@ -98,6 +99,7 @@ namespace Quasar.scenes.world
             _gridLayer = GetNode<TileMapLayer>("GridLayer");
             _worldLayer = GetNode<TileMapLayer>("WorldLayer");
             _hideLayer = GetNode<TileMapLayer>("HideLayer");
+            _selectingLayer = GetNode<TileMapLayer>("SelectingLayer");
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _pathLayer = GetNode<TileMapLayer>("PathLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
@@ -122,7 +124,7 @@ namespace Quasar.scenes.world
                 var newSelectionRect = new Rect2(_selectionStart, currentMousePos - _selectionStart).Abs();
                 _selectionRect.Position = newSelectionRect.Position;
                 _selectionRect.Size = newSelectionRect.Size;
-                SelectArea(SelectionState.SELECTING);
+                SetSelectingArea();
             }
 
             MoveCat(TimeSystem.Instance.TicksPerSecond * delta);
@@ -132,14 +134,36 @@ namespace Quasar.scenes.world
         {
             if (@event is InputEventMouseButton inputEventMouseButton)
             {
-                if (inputEventMouseButton.ButtonIndex == MouseButton.Right)
+                if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
                 {
                     if (@event.IsPressed())
                     {
-                        _isSelecting = true;
-                        _selectionStart = GetGlobalMousePosition();
-                        _selectionRect.Position = _selectionStart;
-                        _selectionRect.Size = new Vector2();
+                        switch (_selectionState)
+                        {
+                            case SelectionState.SINGLE:
+                                var cat = GetCat();
+                                var mousePos = GetGlobalMousePosition();
+                                var cellCoord = _worldLayer.LocalToMap(mousePos);
+                                if (_worldManager.GetCellCoord(cat.ID) == cellCoord)
+                                {
+                                    EmitSignal(SignalName.CatClickedOn, cat);
+                                }
+                                else
+                                {
+                                    FindPath(cat.Position, GetLocalMousePosition());
+                                }
+                                break;
+                            case SelectionState.DIGGING:
+                                _isSelecting = true;
+                                _selectionStart = GetGlobalMousePosition();
+                                _selectionRect.Position = _selectionStart;
+                                _selectionRect.Size = new Vector2();
+                                break;
+                            case SelectionState.CANCEL:
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     else
                     {
@@ -149,27 +173,6 @@ namespace Quasar.scenes.world
                             _selectionRect.Visible = false;
                             SelectArea(_selectionState);
                         }
-                    }
-                }
-                else if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
-                {
-                    if (@event.IsPressed())
-                    {
-                        GD.Print("Mouse Left Button Pressed!");
-
-                        var cat = GetCat();
-                        //if (cat != null)
-                        //{
-                        //    FindPath(cat.Position, GetLocalMousePosition());
-                        //} 
-                        var mousePos = GetGlobalMousePosition();
-                        var cellCoord = _worldLayer.LocalToMap(mousePos);
-                        if (_worldManager.GetCellCoord(cat.ID) == cellCoord)
-                        {
-                            GD.Print("Cat Found!");
-                            EmitSignal(SignalName.CatClickedOn, cat);
-                        }
-
                     }
                 }
             }
@@ -454,9 +457,9 @@ namespace Quasar.scenes.world
             return true;
         }
 
-        private void SelectArea(SelectionState selectionState)
+        private void SetSelectingArea()
         {
-            _selectLayer.Clear();
+            _selectingLayer.Clear();
 
             var tileSize = _worldLayer.TileSet.TileSize;
             var left = _selectionRect.Position.X;
@@ -474,19 +477,36 @@ namespace Quasar.scenes.world
                 for (int j = startingCol; j < endingCol; j++)
                 {
                     var cellCoord = new Vector2I(j, i);
+                    var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                    SelectCell(_selectingLayer, cellCoord, atlasCoord, SelectionColor);
+                }
+            }
+        }
 
-                    if (selectionState == SelectionState.SELECTING)
+        private void SelectArea(SelectionState selectionState)
+        {
+            _selectingLayer.Clear();
+
+            var tileSize = _worldLayer.TileSet.TileSize;
+            var left = _selectionRect.Position.X;
+            var right = left + _selectionRect.Size.X;
+            var top = _selectionRect.Position.Y;
+            var bottom = top + _selectionRect.Size.Y;
+
+            var startingCol = Mathf.FloorToInt(left / tileSize.X);
+            var endingCol = Mathf.CeilToInt(right / tileSize.X);
+            var startingRow = Mathf.FloorToInt(top / tileSize.Y);
+            var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
+
+            for (int i = startingRow; i < endingRow; i++)
+            {
+                for (int j = startingCol; j < endingCol; j++)
+                {
+                    var cellCoord = new Vector2I(j, i);
+                    if (IsSolid(cellCoord) && _selectingLayer.GetCellSourceId(cellCoord) == -1)
                     {
-                        var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
-                        SelectCell(_selectLayer, cellCoord, atlasCoord, SelectionColor);
-                    }
-                    else
-                    {
-                        if (IsSolid(cellCoord))
-                        {
-                            SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                        } 
-                    }   
+                        SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
+                    }  
                 }
             }
         }
