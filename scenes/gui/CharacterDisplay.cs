@@ -19,6 +19,8 @@ namespace Quasar.scenes.gui
 
         private Label _feelingsLabelValue;
 
+        private Label _workLabelValue;
+
         public override void _Ready()
         {
             _nameTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/NameTab");
@@ -28,6 +30,7 @@ namespace Quasar.scenes.gui
             _catDescriptionLabel = GetNode<Label>("TabsAndContent/PanelContainer/NameTab/Description");
             _healthLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/HealthLabelValue");
             _feelingsLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/FeelingsLabelValue");
+            _workLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkLabelValue");
         }
 
         public void FillUI(CatData catData)
@@ -36,6 +39,7 @@ namespace Quasar.scenes.gui
             _catDescriptionLabel.Text = catData.Description;
             _healthLabelValue.Text = catData.Health.ToString();
             _feelingsLabelValue.Text = catData.Feelings;
+            _workLabelValue.Text = catData.Work;
         }
 
         public void OnNameTabButtonPressed()

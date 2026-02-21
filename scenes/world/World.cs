@@ -39,6 +39,9 @@ namespace Quasar.scenes.world
         [Signal]
         public delegate void CatClickedOnEventHandler(Cat cat);
 
+        [Signal]
+        public delegate void CatChangedEventHandler(Cat cat);
+
         #endregion
 
         #region Children
@@ -418,6 +421,11 @@ namespace Quasar.scenes.world
                     {
                         FindPath(cat.Position, _worldLayer.MapToLocal(nearestCellCoord.Value));
                         _isWorking = _path.Count > 0;
+                        if (_isWorking)
+                        {
+                            cat.SetWork(WorkType.DIG);
+                            EmitSignal(SignalName.CatChanged, cat);
+                        }
                     }
                 }
             }

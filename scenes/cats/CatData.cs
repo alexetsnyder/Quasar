@@ -1,6 +1,6 @@
 namespace Quasar.scenes.cats
 {
-    public partial class CatData(string name, string description, string feelings, int health)
+    public partial class CatData(string name, string description, string feelings, int health, string work)
     {
         public string Name { get; set; } = name;
 
@@ -9,5 +9,7 @@ namespace Quasar.scenes.cats
         public string Feelings { get; set; } = feelings;
 
         public int Health { get; set; } = health;
+
+        public string Work { get; set; } = work;
     }
 }

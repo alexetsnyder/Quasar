@@ -78,6 +78,7 @@ grow_vertical = 0
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_bottom = 4
 
+[connection signal="CatChanged" from="World" to="." method="OnCatChanged"]
 [connection signal="CatClickedOn" from="World" to="." method="OnCatClickedOn"]
 [connection signal="CancelPressed" from="GUI/ToolBarControl" to="." method="OnToolBarCancelPressed"]
 [connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]

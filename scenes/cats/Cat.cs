@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.data.enums;
 using Quasar.scenes.common.interfaces;
 
 namespace Quasar.scenes.cats
@@ -18,12 +19,17 @@ namespace Quasar.scenes.cats
         public override void _Ready()
         {
             _catSprite = GetNode<Sprite2D>("CatSprite");
-            CatData = new("Fern", "Stinky Cat", "Uncomfortable", 100);
+            CatData = new("Fern", "Stinky Cat", "Uncomfortable", 100, WorkType.NONE.ToString());
         }
 
         public override void _Process(double delta)
         {
 
+        }
+
+        public void SetWork(WorkType workType)
+        {
+            CatData.Work = workType.ToString();
         }
     }
 }

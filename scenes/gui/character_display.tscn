@@ -81,6 +81,13 @@ text = "Feelings: "
 [node name="FeelingsLabelValue" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=1925952315]
 layout_mode = 2
 
+[node name="WorkLabel" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=513226217]
+layout_mode = 2
+text = "Work: "
+
+[node name="WorkLabelValue" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=724405433]
+layout_mode = 2
+
 [node name="InventoryTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=871570406]
 visible = false
 layout_mode = 2

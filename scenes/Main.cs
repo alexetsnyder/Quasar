@@ -165,10 +165,15 @@ namespace Quasar.scenes
             _world.SetSelectionState(SelectionState.CANCEL);
         }
 
-        public void OnCatClickedOn(Cat cat)
+        private void OnCatClickedOn(Cat cat)
         {
             _characterDisplay.FillUI(cat.CatData);
             _characterDisplay.Visible = true;
+        }
+
+        private void OnCatChanged(Cat cat)
+        {
+            _characterDisplay.FillUI(cat.CatData);
         }
     }
 }
