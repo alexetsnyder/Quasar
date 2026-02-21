@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 namespace Quasar.math
 {
@@ -40,6 +41,24 @@ namespace Quasar.math
             float yDiff = y2 - y1;
 
             return ((xDiff * xDiff) + (yDiff * yDiff));
+        }
+
+        public static Vector2I? MinDistanceToPoint(List<Vector2I> fromPoints, Vector2I toPoint)
+        {
+            float minDistance = float.MaxValue;
+            Vector2I? minDistCellCoord = null;
+
+            foreach (var point in fromPoints)
+            {
+                var d = Distance(point, toPoint);
+                if (d < minDistance)
+                {
+                    minDistance = d;
+                    minDistCellCoord = point;
+                }
+            }
+
+            return minDistCellCoord;
         }
     }
 }

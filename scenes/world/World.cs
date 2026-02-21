@@ -268,7 +268,7 @@ namespace Quasar.scenes.world
         {
             if (IsSolid(cellCoord))
             {
-                foreach (var adjCellCoord in GetAdjacentCells(cellCoord))
+                foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
                 {
                     if (!IsSolid(adjCellCoord))
                     {
@@ -280,14 +280,24 @@ namespace Quasar.scenes.world
             return false;
         }
 
-        private static List<Vector2I> GetAdjacentCells(Vector2I cellCoord)
+        private static List<Vector2I> GetAdjacentCells(Vector2I cellCoord, bool includeDiagonals = false)
         {
-            List<Vector2I> neighbors = [new(1, 0), new(1, 1),
-                                        new(1, -1), new(0, 1),
-                                        new(-1, 1), new(0, -1),
-                                        new(-1, -1), new(-1, 0)];
+            List<Vector2I> adjDirs = [];
 
-            return [.. neighbors.Select(n => cellCoord + n)];
+            if (includeDiagonals)
+            {
+                adjDirs.AddRange([new(1, 0), new(1, 1),
+                                  new(1, -1), new(0, 1),
+                                  new(-1, 1), new(0, -1),
+                                  new(-1, -1), new(-1, 0)]);
+            }
+            else
+            {
+                adjDirs.AddRange([new(1, 0), new(0, 1),
+                                  new(-1, 0), new(0, -1)]);
+            }
+
+            return [.. adjDirs.Select(n => cellCoord + n)];
         }
 
         private void FillMap()
@@ -372,23 +382,82 @@ namespace Quasar.scenes.world
                 var tileSize = _worldLayer.TileSet.TileSize;
                 cat.Scale = new(tileSize.X / cat.Width, tileSize.Y / cat.Height);
 
-                List<Vector2I> possibleCells = [];
+                var largestArea = GetLargestConnectedArea();
 
-                foreach (var cellCoord in _worldLayer.GetUsedCellsById())
+                Vector2I center = new(Rows / 2, Cols / 2);
+
+                var cellCoord = Math.MinDistanceToPoint(largestArea, center);
+
+                if (cellCoord != null)
                 {
-                    if (!IsImpassable(cellCoord))
+                    var localPos = _worldLayer.MapToLocal(cellCoord.Value);
+                    cat.Position = new(localPos.X, localPos.Y);
+                    _worldManager.UpdateCellCoord(cat.ID, cellCoord.Value);
+                    HideCell(cellCoord.Value);
+                }
+            } 
+        }
+
+        private List<Vector2I> GetLargestConnectedArea()
+        {
+            var allPoints = GetAllPoints();
+            Dictionary<Vector2I, bool> visited = allPoints.ToDictionary(p => p, _ => false);
+
+            List<Vector2I> largestArea = [];
+
+            foreach (var cellCoord in allPoints)
+            {
+                if (visited[cellCoord])
+                {
+                    continue;
+                }
+
+                Queue<Vector2I> queue = [];
+                List<Vector2I> connectedArea = [];
+
+                queue.Enqueue(cellCoord);
+
+                while (queue.Count > 0)
+                {
+                    var nextCoord = queue.Dequeue();
+
+                    if (!IsInBounds(nextCoord) || IsImpassable(nextCoord) || visited[nextCoord])
                     {
-                        possibleCells.Add(cellCoord);
+                        continue;
+                    }
+
+                    visited[nextCoord] = true;
+
+                    connectedArea.Add(nextCoord);
+
+                    foreach (var adjCoord in GetAdjacentCells(nextCoord))
+                    {
+                        queue.Enqueue(adjCoord);
                     }
                 }
 
-                var selectedCellCoord = RandomChoice(possibleCells, out _);
-                var localPos = _worldLayer.MapToLocal(selectedCellCoord);
+                if (connectedArea.Count > largestArea.Count)
+                {
+                    largestArea = connectedArea;
+                }
+            }
 
-                cat.Position = new(localPos.X, localPos.Y);
-                _worldManager.UpdateCellCoord(cat.ID, selectedCellCoord);
-                HideCell(selectedCellCoord);
-            } 
+            return largestArea;
+        }
+
+        public List<Vector2I> GetAllPoints()
+        {
+            List<Vector2I> allPoints = [];
+
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    allPoints.Add(new(i, j));
+                }
+            }
+
+            return allPoints;
         }
 
         private void CheckForWork()
@@ -405,7 +474,7 @@ namespace Quasar.scenes.world
 
                 foreach (var cellCoord in _workList)
                 {
-                    foreach (var adjCellCoord in GetAdjacentCells(cellCoord))
+                    foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
                     {
                         if (!IsSolid(adjCellCoord))
                         {
@@ -416,6 +485,7 @@ namespace Quasar.scenes.world
 
                 if (allPossibleWork.Count > 0)
                 {
+                    //Gets nearest but not the shortest path necessarily
                     var nearestCellCoord = GetNearestCell(_worldLayer.LocalToMap(cat.Position), allPossibleWork);
                     if (nearestCellCoord != null)
                     {
@@ -431,7 +501,7 @@ namespace Quasar.scenes.world
             }
         }
 
-        private Vector2I? GetNearestCell(Vector2I toCellCoord, List<Vector2I> cellCoords)
+        private static Vector2I? GetNearestCell(Vector2I toCellCoord, List<Vector2I> cellCoords)
         {
             Vector2I? nearestCell = null;
             float minDistance = float.MaxValue;
