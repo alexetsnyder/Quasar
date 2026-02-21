@@ -1,6 +1,6 @@
 namespace Quasar.data.enums
 {
-    public enum WorkTypes
+    public enum WorkType
     {
         NONE,
         DIG,

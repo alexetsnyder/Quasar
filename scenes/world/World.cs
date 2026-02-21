@@ -67,6 +67,10 @@ namespace Quasar.scenes.world
 
         private WorkManager _workManager = new();
 
+        private List<Vector2I> _workList = [];
+
+        private bool _isWorking = false;
+
         private Queue<Vector2> _path = [];
 
         private bool _isCatMoving = false;
@@ -130,6 +134,7 @@ namespace Quasar.scenes.world
                 SetSelectingArea();
             }
 
+            CheckForWork();
             MoveCat(TimeSystem.Instance.TicksPerSecond * delta);
         }
 
@@ -151,7 +156,7 @@ namespace Quasar.scenes.world
                                 {
                                     EmitSignal(SignalName.CatClickedOn, cat);
                                 }
-                                else
+                                else if (!_isWorking)
                                 {
                                     FindPath(cat.Position, GetLocalMousePosition());
                                 }
@@ -258,17 +263,11 @@ namespace Quasar.scenes.world
 
         private bool IsEdge(Vector2I cellCoord)
         {
-            List<Vector2I> neighbors = [new(1, 0), new(1, 1),
-                                        new(1, -1), new(0, 1),
-                                        new(-1, 1), new(0, -1),
-                                        new(-1, -1), new(-1, 0)];
-
             if (IsSolid(cellCoord))
             {
-                foreach (var neighbor in neighbors)
+                foreach (var adjCellCoord in GetAdjacentCells(cellCoord))
                 {
-                    var neighborCellCoord = cellCoord + neighbor;
-                    if (!IsSolid(neighborCellCoord))
+                    if (!IsSolid(adjCellCoord))
                     {
                         return true;
                     }
@@ -276,6 +275,16 @@ namespace Quasar.scenes.world
             }
 
             return false;
+        }
+
+        private static List<Vector2I> GetAdjacentCells(Vector2I cellCoord)
+        {
+            List<Vector2I> neighbors = [new(1, 0), new(1, 1),
+                                        new(1, -1), new(0, 1),
+                                        new(-1, 1), new(0, -1),
+                                        new(-1, -1), new(-1, 0)];
+
+            return [.. neighbors.Select(n => cellCoord + n)];
         }
 
         private void FillMap()
@@ -377,6 +386,31 @@ namespace Quasar.scenes.world
                 _worldManager.UpdateCellCoord(cat.ID, selectedCellCoord);
                 HideCell(selectedCellCoord);
             } 
+        }
+
+        private void CheckForWork()
+        {
+            if (!_isCatMoving && !_isWorking)
+            {
+                var cat = GetCat();
+                if (cat == null)
+                {
+                    return;
+                }
+
+                foreach (var cellCoord in _workList)
+                {
+                    foreach (var adjCellCoord in GetAdjacentCells(cellCoord))
+                    {
+                        if (!IsSolid(adjCellCoord))
+                        {
+                            FindPath(cat.Position, _worldLayer.MapToLocal(adjCellCoord));
+                            _isWorking = (_path.Count > 0);
+                            return;
+                        }
+                    }
+                }
+            }
         }
 
         private void MoveCat(double delta)
@@ -519,6 +553,7 @@ namespace Quasar.scenes.world
                         if (IsSolid(cellCoord) && _selectLayer.GetCellSourceId(cellCoord) == -1)
                         {
                             SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
+                            _workList.Add(cellCoord);
                         }
                     }
                     else

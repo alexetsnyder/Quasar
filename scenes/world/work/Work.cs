@@ -9,16 +9,19 @@ namespace Quasar.scenes.world.work
 
         public string Name { get; set; }
 
-        public WorkTypes WorkType { get; set; }
+        public WorkType WorkType { get; set; }
 
         public Vector2I WorldCoord { get; set; }
 
-        public Work(int iD, string name, WorkTypes workType, Vector2I worldCoord)
+        public bool IsReachable { get; set; }
+
+        public Work(int iD, string name, WorkType workType, Vector2I worldCoord, bool isReachable)
         {
             ID = iD;
             Name = name;
             WorkType = workType;
             WorldCoord = worldCoord;
+            IsReachable = isReachable;
         }
     }
 }
