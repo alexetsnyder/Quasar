@@ -1,3 +1,4 @@
+using Godot;
 using System;
 
 namespace Quasar.math
@@ -21,6 +22,11 @@ namespace Quasar.math
             float dMax = Distance(0, 0, midX, midY);
 
             return 1 / (1 + MathF.Pow(MathF.E, (d * 12 / dMax - 6)));
+        }
+
+        public static float Distance(Vector2I v1, Vector2I v2)
+        {
+            return Distance(v1.X, v1.Y, v2.X, v2.Y);
         }
 
         public static float Distance(float x1, float y1, float x2, float y2)

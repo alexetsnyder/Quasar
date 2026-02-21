@@ -398,19 +398,47 @@ namespace Quasar.scenes.world
                     return;
                 }
 
+                List<Vector2I> allPossibleWork = [];
+
                 foreach (var cellCoord in _workList)
                 {
                     foreach (var adjCellCoord in GetAdjacentCells(cellCoord))
                     {
                         if (!IsSolid(adjCellCoord))
                         {
-                            FindPath(cat.Position, _worldLayer.MapToLocal(adjCellCoord));
-                            _isWorking = (_path.Count > 0);
-                            return;
+                            allPossibleWork.Add(adjCellCoord);               
                         }
                     }
                 }
+
+                if (allPossibleWork.Count > 0)
+                {
+                    var nearestCellCoord = GetNearestCell(_worldLayer.LocalToMap(cat.Position), allPossibleWork);
+                    if (nearestCellCoord != null)
+                    {
+                        FindPath(cat.Position, _worldLayer.MapToLocal(nearestCellCoord.Value));
+                        _isWorking = _path.Count > 0;
+                    }
+                }
             }
+        }
+
+        private Vector2I? GetNearestCell(Vector2I toCellCoord, List<Vector2I> cellCoords)
+        {
+            Vector2I? nearestCell = null;
+            float minDistance = float.MaxValue;
+
+            foreach (var cellCoord in cellCoords)
+            {
+                var d = Math.Distance(toCellCoord, cellCoord);
+                if (d <  minDistance)
+                {
+                    nearestCell = cellCoord;
+                    minDistance = d;
+                }
+            }
+
+            return nearestCell;
         }
 
         private void MoveCat(double delta)
