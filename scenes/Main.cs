@@ -30,6 +30,8 @@ namespace Quasar.scenes
 
         private Vector2 _prevCameraPos;
 
+        private Cat _cat;
+
         public override void _Ready()
         {
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
@@ -40,12 +42,26 @@ namespace Quasar.scenes
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
 
-            var sceneResource = ResourceLoader.Load<PackedScene>("res://scenes/gui/character_display.tscn");
-            if (sceneResource != null)
+            _characterDisplay = InstantiateScene<CharacterDisplay>("res://scenes/gui/character_display.tscn");
+            if (_characterDisplay != null)
             {
-                _characterDisplay = sceneResource.Instantiate<CharacterDisplay>();
                 _gui.AddChild(_characterDisplay);
                 _characterDisplay.Visible = false;
+            }
+
+            _cat = InstantiateScene<Cat>("res://scenes/cats/cat.tscn");
+            if (_cat != null)
+            {
+                AddChild(_cat);
+                var catPos = _world.PlaceCat();
+                if (catPos.HasValue)
+                {
+                    _cat.Position = catPos.Value;
+                }
+                _cat.Speed = 8;
+                _cat.CatClickedOn += OnCatClickedOn;
+                _cat.MovedOne += OnCatMovedOne;
+                _cat.PathComplete += OnCatPathComplete;
             }
 
             _map.SetProcessUnhandledInput(false);
@@ -150,6 +166,19 @@ namespace Quasar.scenes
             SetTyleColorLabel();
         }
 
+        private static T InstantiateScene<T>(string path)  where T : class    
+        {
+            var sceneResource = ResourceLoader.Load<PackedScene>(path);
+            if (sceneResource == null)
+            {
+                return default;
+            }
+            else 
+            {
+                return sceneResource.Instantiate<T>();
+            }
+        }
+
         private void OnToolBarDigPressed()
         {
             _world.SetSelectionState(SelectionState.DIGGING);
@@ -171,9 +200,22 @@ namespace Quasar.scenes
             _characterDisplay.Visible = true;
         }
 
-        private void OnCatChanged(Cat cat)
+        private void OnWorldTileSelected(Vector2 tileSelected)
         {
-            _characterDisplay.FillUI(cat.CatData);
+            var path = _world.FindPath(_cat.Position, tileSelected);
+            GD.Print($"Path Count: {path.Count}");
+            _cat.SetPath(path);
+        }
+
+        private void OnCatMovedOne(Vector2 lastPos, Vector2 newPos)
+        {
+            _world.ShowCell(lastPos);
+            _world.HideCell(newPos);
+        }
+
+        private void OnCatPathComplete()
+        {
+            _world.ClearPath();
         }
     }
 }

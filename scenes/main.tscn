@@ -22,7 +22,6 @@ color = Color(0, 0, 0, 1)
 [node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_sugp2")]
 Rows = 192
 Cols = 192
-CatSpeed = 8
 
 [node name="Map" parent="." unique_id=692249368 instance=ExtResource("3_jyhfs")]
 visible = false
@@ -78,8 +77,7 @@ grow_vertical = 0
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_bottom = 4
 
-[connection signal="CatChanged" from="World" to="." method="OnCatChanged"]
-[connection signal="CatClickedOn" from="World" to="." method="OnCatClickedOn"]
+[connection signal="TileSelected" from="World" to="." method="OnWorldTileSelected"]
 [connection signal="CancelPressed" from="GUI/ToolBarControl" to="." method="OnToolBarCancelPressed"]
 [connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]
 [connection signal="SelectPressed" from="GUI/ToolBarControl" to="." method="OnToolBarSelectPressed"]

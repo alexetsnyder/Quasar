@@ -3,8 +3,17 @@
 [ext_resource type="Script" uid="uid://la4tgj2gtf1y" path="res://scenes/cats/Cat.cs" id="1_3xrku"]
 [ext_resource type="Texture2D" uid="uid://cjhhn8cuuvft8" path="res://assets/textures/CatFace.png" id="2_3xrku"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3xrku"]
+
 [node name="Cat" type="Node2D" unique_id=1361943199]
 script = ExtResource("1_3xrku")
 
 [node name="CatSprite" type="Sprite2D" parent="." unique_id=723545853]
 texture = ExtResource("2_3xrku")
+
+[node name="CatArea" type="Area2D" parent="." unique_id=1913409475]
+
+[node name="CatAreaCollision" type="CollisionShape2D" parent="CatArea" unique_id=1920732016]
+shape = SubResource("RectangleShape2D_3xrku")
+
+[connection signal="input_event" from="CatArea" to="." method="OnCatAreaInputEvent"]

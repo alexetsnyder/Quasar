@@ -2,9 +2,6 @@ using Godot;
 using Quasar.data;
 using Quasar.data.enums;
 using Quasar.math;
-using Quasar.scenes.cats;
-using Quasar.scenes.time;
-using Quasar.scenes.world.work;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,9 +18,6 @@ namespace Quasar.scenes.world
         public int Cols { get; set; } = 10;
 
         [Export]
-        public int CatSpeed { get; set; } = 10;
-
-        [Export]
         public bool ShowGrid { get; set; } = false;
 
         [Export]
@@ -37,10 +31,7 @@ namespace Quasar.scenes.world
         #region Signals
 
         [Signal]
-        public delegate void CatClickedOnEventHandler(Cat cat);
-
-        [Signal]
-        public delegate void CatChangedEventHandler(Cat cat);
+        public delegate void TileSelectedEventHandler(Vector2 tilePos);
 
         #endregion
 
@@ -66,19 +57,9 @@ namespace Quasar.scenes.world
 
         private SelectionState _selectionState = SelectionState.SINGLE;
 
-        private WorldManager _worldManager = new();
-
-        private WorkManager _workManager = new();
-
         private List<Vector2I> _workList = [];
 
         private bool _isWorking = false;
-
-        private Queue<Vector2> _path = [];
-
-        private bool _isCatMoving = false;
-
-        private Vector2 _nextCatPos = new();
 
         private bool _isSelecting = false;
 
@@ -113,7 +94,6 @@ namespace Quasar.scenes.world
             _selectLayer = GetNode<TileMapLayer>("SelectLayer");
             _pathLayer = GetNode<TileMapLayer>("PathLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
-            _worldManager.Register(GetNode<Cat>("Cat"), new(0, 0));
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             _worldCellArray = new WorldCell[Rows, Cols];
@@ -121,7 +101,6 @@ namespace Quasar.scenes.world
             GenerateWorld();
             FillMap();
             SetUpAStar();
-            PlaceCat();
 
             _gridLayer.Visible = ShowGrid;
         }
@@ -137,8 +116,7 @@ namespace Quasar.scenes.world
                 SetSelectingArea();
             }
 
-            CheckForWork();
-            MoveCat(TimeSystem.Instance.TicksPerSecond * delta);
+            //CheckForWork();
         }
 
         public override void _UnhandledInput(InputEvent @event)
@@ -152,16 +130,10 @@ namespace Quasar.scenes.world
                         switch (_selectionState)
                         {
                             case SelectionState.SINGLE:
-                                var cat = GetCat();
                                 var mousePos = GetGlobalMousePosition();
-                                var cellCoord = _worldLayer.LocalToMap(mousePos);
-                                if (_worldManager.GetCellCoord(cat.ID) == cellCoord)
+                                if (!_isWorking)
                                 {
-                                    EmitSignal(SignalName.CatClickedOn, cat);
-                                }
-                                else if (!_isWorking)
-                                {
-                                    FindPath(cat.Position, GetLocalMousePosition());
+                                    EmitSignal(SignalName.TileSelected, mousePos);
                                 }
                                 break;
                             case SelectionState.DIGGING:
@@ -225,6 +197,57 @@ namespace Quasar.scenes.world
         public void SetSelectionState(SelectionState selectionState)
         {
             _selectionState = selectionState;
+        }
+
+        public Vector2? PlaceCat()
+        {
+            var maxConnnectedArea = Math.MaxConnectedArea(GetAllPoints(), (v) => IsInBounds(v) && !IsImpassable(v));
+
+            Vector2I center = new(Rows / 2, Cols / 2);
+
+            var cellCoord = Math.MinDistanceToPoint(maxConnnectedArea, center);
+
+            if (cellCoord != null)
+            {
+                HideCell(cellCoord.Value);
+                return _worldLayer.MapToLocal(cellCoord.Value);
+            }
+
+            return null;
+        }
+
+        public List<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
+        {
+            _pathLayer.Clear();
+
+            var start = _worldLayer.LocalToMap(startPos);
+            var end = _worldLayer.LocalToMap(endPos);
+
+            List<Vector2> path = [.. _aStarGrid2d.GetPointPath(start, end)];
+
+            foreach (var point in path)
+            {
+                var cellCoord = _worldLayer.LocalToMap(point);
+
+                SelectCell(_pathLayer, cellCoord, new(0, 0), PathColor);
+            }
+
+            return path;
+        }
+
+        public void HideCell(Vector2 localPos)
+        {
+            HideCell(_worldLayer.LocalToMap(localPos));
+        }
+
+        public void ShowCell(Vector2 localPos)
+        {
+            ShowCell(_worldLayer.LocalToMap(localPos));
+        }
+
+        public void ClearPath()
+        {
+            _pathLayer.Clear();
         }
 
         #endregion
@@ -373,31 +396,6 @@ namespace Quasar.scenes.world
                     atlasCoord == AtlasCoordWorld.WATER);
         }
 
-        private void PlaceCat()
-        {
-            var cat = GetCat();
-
-            if (cat != null)
-            {
-                var tileSize = _worldLayer.TileSet.TileSize;
-                cat.Scale = new(tileSize.X / cat.Width, tileSize.Y / cat.Height);
-
-                var maxConnnectedArea = Math.MaxConnectedArea(GetAllPoints(), (v) => IsInBounds(v) && !IsImpassable(v));
-
-                Vector2I center = new(Rows / 2, Cols / 2);
-
-                var cellCoord = Math.MinDistanceToPoint(maxConnnectedArea, center);
-
-                if (cellCoord != null)
-                {
-                    var localPos = _worldLayer.MapToLocal(cellCoord.Value);
-                    cat.Position = new(localPos.X, localPos.Y);
-                    _worldManager.UpdateCellCoord(cat.ID, cellCoord.Value);
-                    HideCell(cellCoord.Value);
-                }
-            } 
-        }
-
         public List<Vector2I> GetAllPoints()
         {
             List<Vector2I> allPoints = [];
@@ -413,107 +411,46 @@ namespace Quasar.scenes.world
             return allPoints;
         }
 
-        private void CheckForWork()
-        {
-            if (!_isCatMoving && !_isWorking)
-            {
-                var cat = GetCat();
-                if (cat == null)
-                {
-                    return;
-                }
+        //private void CheckForWork()
+        //{
+            //if (!_isCatMoving && !_isWorking)
+            //{
+            //    var cat = GetCat();
+            //    if (cat == null)
+            //    {
+            //        return;
+            //    }
 
-                List<Vector2I> allPossibleWork = [];
+            //    List<Vector2I> allPossibleWork = [];
 
-                foreach (var cellCoord in _workList)
-                {
-                    foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
-                    {
-                        if (!IsSolid(adjCellCoord))
-                        {
-                            allPossibleWork.Add(adjCellCoord);               
-                        }
-                    }
-                }
+            //    foreach (var cellCoord in _workList)
+            //    {
+            //        foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
+            //        {
+            //            if (!IsSolid(adjCellCoord))
+            //            {
+            //                allPossibleWork.Add(adjCellCoord);               
+            //            }
+            //        }
+            //    }
 
-                if (allPossibleWork.Count > 0)
-                {
-                    //Gets nearest but not the shortest path necessarily
-                    var nearestCellCoord = GetNearestCell(_worldLayer.LocalToMap(cat.Position), allPossibleWork);
-                    if (nearestCellCoord != null)
-                    {
-                        FindPath(cat.Position, _worldLayer.MapToLocal(nearestCellCoord.Value));
-                        _isWorking = _path.Count > 0;
-                        if (_isWorking)
-                        {
-                            cat.SetWork(WorkType.DIG);
-                            EmitSignal(SignalName.CatChanged, cat);
-                        }
-                    }
-                }
-            }
-        }
-
-        private static Vector2I? GetNearestCell(Vector2I toCellCoord, List<Vector2I> cellCoords)
-        {
-            Vector2I? nearestCell = null;
-            float minDistance = float.MaxValue;
-
-            foreach (var cellCoord in cellCoords)
-            {
-                var d = Math.Distance(toCellCoord, cellCoord);
-                if (d <  minDistance)
-                {
-                    nearestCell = cellCoord;
-                    minDistance = d;
-                }
-            }
-
-            return nearestCell;
-        }
-
-        private void MoveCat(double delta)
-        {
-            var cat = GetCat();
-
-            if (cat == null)
-            {
-                return;
-            }
-
-            if (!_isCatMoving && _path.Count > 0)
-            {
-                _isCatMoving = true;
-
-                var lastCatPos = _worldManager.GetCellCoord(cat.ID);
-                if (lastCatPos != null)
-                {
-                    ShowCell(lastCatPos.Value);
-                }
-
-                var cellLocalPos = _path.Dequeue();
-                HideCell(_worldLayer.LocalToMap(cellLocalPos));
-                _nextCatPos = new(cellLocalPos.X + cat.Width / 2.0f, cellLocalPos.Y + cat.Height / 2.0f);
-            }
-
-            if (_isCatMoving)
-            {
-                cat.Position = cat.Position.Lerp(_nextCatPos, (float)(delta * CatSpeed));
-
-                if (cat.Position.IsEqualApprox(_nextCatPos))
-                {
-                    _isCatMoving = false;
-                    _worldManager.UpdateCellCoord(cat.ID, _worldLayer.LocalToMap(_nextCatPos));
-                }
-            }
-        }
-
-        private Cat GetCat()
-        {
-            var cat = _worldManager.GetAllGameObjects().FirstOrDefault();
-
-            return (cat != null) ? cat as Cat : null;
-        }
+            //    if (allPossibleWork.Count > 0)
+            //    {
+            //        //Gets nearest but not the shortest path necessarily
+            //        var nearestCellCoord = GetNearestCell(_worldLayer.LocalToMap(cat.Position), allPossibleWork);
+            //        if (nearestCellCoord != null)
+            //        {
+            //            FindPath(cat.Position, _worldLayer.MapToLocal(nearestCellCoord.Value));
+            //            _isWorking = _path.Count > 0;
+            //            if (_isWorking)
+            //            {
+            //                cat.SetWork(WorkType.DIG);
+            //                EmitSignal(SignalName.CatChanged, cat);
+            //            }
+            //        }
+            //    }
+            //}
+        //}
 
         private void HideCell(Vector2I cellCoord)
         {
@@ -668,26 +605,6 @@ namespace Quasar.scenes.world
             }
 
             return atlasCoord;
-        }
-
-        private void FindPath(Vector2 startPos, Vector2 endPos)
-        {
-            _pathLayer.Clear();
-            _path.Clear();
-
-            var start = _worldLayer.LocalToMap(startPos);
-            var end = _worldLayer.LocalToMap(endPos);
-
-            var path = _aStarGrid2d.GetPointPath(start, end);
-
-            foreach (var point in path)
-            {
-                _path.Enqueue(point);
-
-                var cellCoord =  _worldLayer.LocalToMap(point);
-
-                SelectCell(_pathLayer, cellCoord, new(0, 0), PathColor);
-            }
         }
 
         private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, Vector2I atlasCoord, Color? modulate = null)
