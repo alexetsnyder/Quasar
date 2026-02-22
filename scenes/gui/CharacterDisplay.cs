@@ -39,7 +39,7 @@ namespace Quasar.scenes.gui
             _catDescriptionLabel.Text = catData.Description;
             _healthLabelValue.Text = catData.Health.ToString();
             _feelingsLabelValue.Text = catData.Feelings;
-            _workLabelValue.Text = catData.Work;
+            _workLabelValue.Text = catData.Work.ToString();
         }
 
         public void OnNameTabButtonPressed()

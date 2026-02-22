@@ -1,6 +1,8 @@
+using Quasar.data.enums;
+
 namespace Quasar.scenes.cats
 {
-    public partial class CatData(string name, string description, string feelings, int health, string work)
+    public partial class CatData(string name, string description, string feelings, int health, WorkType work)
     {
         public string Name { get; set; } = name;
 
@@ -10,6 +12,6 @@ namespace Quasar.scenes.cats
 
         public int Health { get; set; } = health;
 
-        public string Work { get; set; } = work;
+        public WorkType Work { get; set; } = work;
     }
 }

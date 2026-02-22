@@ -1,10 +1,14 @@
 using Godot;
-using Quasar.scenes.camera;
-using Quasar.scenes.map;
-using Quasar.scenes.world;
-using Quasar.scenes.gui;
+using Godot.Collections;
 using Quasar.data.enums;
+using Quasar.scenes.camera;
 using Quasar.scenes.cats;
+using Quasar.scenes.gui;
+using Quasar.scenes.map;
+using Quasar.scenes.work;
+using Quasar.scenes.world;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.scenes
 {
@@ -31,6 +35,8 @@ namespace Quasar.scenes
         private Vector2 _prevCameraPos;
 
         private Cat _cat;
+
+        private List<Work> _workList = [];
 
         public override void _Ready()
         {
@@ -62,6 +68,7 @@ namespace Quasar.scenes
                 _cat.CatClickedOn += OnCatClickedOn;
                 _cat.MovedOne += OnCatMovedOne;
                 _cat.PathComplete += OnCatPathComplete;
+                _cat.CatWork += OnCatWork;
             }
 
             _map.SetProcessUnhandledInput(false);
@@ -76,6 +83,8 @@ namespace Quasar.scenes
         {
             SetTyleTypeLabel();
             SetTyleColorLabel();
+
+            CheckForWork();
         }
 
         public override void _Input(InputEvent @event)
@@ -179,6 +188,63 @@ namespace Quasar.scenes
             }
         }
 
+        private void CheckForWork()
+        {
+            if (_workList.Count > 0 && _cat.CanWork())
+            {
+                List<Vector2> reachableWorkPosList = [.. _workList.Where(w => w.IsReachable).Select(w => w.WorldPos)];
+                System.Collections.Generic.Dictionary<Vector2, List<Vector2>> adjTiles = [];
+
+                foreach (var workPos in reachableWorkPosList)
+                {
+                    if (!adjTiles.ContainsKey(workPos))
+                    {
+                        adjTiles.Add(workPos, []);
+                    }
+
+                    foreach (var adjPos in _world.GetAdjacentTiles(workPos, true))
+                    {
+                        if (!_world.IsSolid(adjPos))
+                        {
+                            adjTiles[workPos].Add(adjPos);
+                        }
+                    }
+                }
+
+                if (adjTiles.Count > 0)
+                {
+                    var shortestPath = ShortestPath(adjTiles, out Vector2 minPoint);
+                    _cat.SetPath(shortestPath);
+                    _world.ShowPath(shortestPath);
+                    _cat.SetWork(WorkType.DIGGING, minPoint);   
+                }
+            }
+        }
+
+        private List<Vector2> ShortestPath(System.Collections.Generic.Dictionary<Vector2, List<Vector2>> allPoints, out Vector2 minPoint)
+        {
+            List<Vector2> shortestPath = [];
+            int minPath = int.MaxValue;
+            minPoint = Vector2.Zero;
+
+            foreach (var workPos in allPoints)
+            {
+                foreach (var point in workPos.Value)
+                {
+                    var newPath = _world.FindPath(_cat.Position, point);
+
+                    if (newPath.Count < minPath)
+                    {
+                        minPath = newPath.Count;
+                        shortestPath = newPath;
+                        minPoint = workPos.Key;
+                    }
+                }
+            } 
+
+            return shortestPath;
+        }
+
         private void OnToolBarDigPressed()
         {
             _world.SetSelectionState(SelectionState.DIGGING);
@@ -202,9 +268,13 @@ namespace Quasar.scenes
 
         private void OnWorldTileSelected(Vector2 tileSelected)
         {
-            var path = _world.FindPath(_cat.Position, tileSelected);
-            GD.Print($"Path Count: {path.Count}");
-            _cat.SetPath(path);
+            if (!_cat.IsWorking)
+            {
+                var path = _world.FindPath(_cat.Position, tileSelected);
+                _world.ShowPath(path);
+                GD.Print($"Path Count: {path.Count}");
+                _cat.SetPath(path);
+            } 
         }
 
         private void OnCatMovedOne(Vector2 lastPos, Vector2 newPos)
@@ -216,6 +286,49 @@ namespace Quasar.scenes
         private void OnCatPathComplete()
         {
             _world.ClearPath();
+        }
+
+        private void OnWorldCreateWork(Array<Work> workArray)
+        {
+            _workList.AddRange(workArray);
+            GD.Print($"WorkList: {_workList.Count}");
+        }
+
+        private void OnWorldCancelWork(Array<Vector2> worldPosArray)
+        {
+            List<Work> removeList = [];
+
+            foreach (var pos in worldPosArray)
+            {
+                foreach (var work in _workList)
+                {
+                    if (work.WorldPos == pos)
+                    {
+                        removeList.Add(work);
+                        break;
+                    }
+                }
+            }
+
+            foreach (var work in removeList)
+            {
+                _workList.Remove(work);
+            }
+
+            GD.Print($"WorkList: {_workList.Count}");
+        }
+
+        private void OnCatWork(Cat cat, Vector2 workPos)
+        {
+            _world.Dig(workPos);
+            cat.IsWorking = false;
+            var work = _workList.First(w =>  w.WorldPos == workPos);
+            _workList.Remove(work);
+
+            foreach (var w in _workList)
+            {
+                w.IsReachable = _world.IsEdge(w.WorldPos);
+            }
         }
     }
 }

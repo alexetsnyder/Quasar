@@ -77,6 +77,8 @@ grow_vertical = 0
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_bottom = 4
 
+[connection signal="CancelWork" from="World" to="." method="OnWorldCancelWork"]
+[connection signal="CreateWork" from="World" to="." method="OnWorldCreateWork"]
 [connection signal="TileSelected" from="World" to="." method="OnWorldTileSelected"]
 [connection signal="CancelPressed" from="GUI/ToolBarControl" to="." method="OnToolBarCancelPressed"]
 [connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]

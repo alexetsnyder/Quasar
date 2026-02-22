@@ -1,7 +1,9 @@
 using Godot;
+using Godot.Collections;
 using Quasar.data;
 using Quasar.data.enums;
 using Quasar.math;
+using Quasar.scenes.work;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,6 +35,12 @@ namespace Quasar.scenes.world
         [Signal]
         public delegate void TileSelectedEventHandler(Vector2 tilePos);
 
+        [Signal]
+        public delegate void CreateWorkEventHandler(Array<Work> workArray);
+
+        [Signal]
+        public delegate void CancelWorkEventHandler(Array<Vector2> worldPosArray);
+
         #endregion
 
         #region Children
@@ -56,8 +64,6 @@ namespace Quasar.scenes.world
         #region Private Variables
 
         private SelectionState _selectionState = SelectionState.SINGLE;
-
-        private List<Vector2I> _workList = [];
 
         private bool _isWorking = false;
 
@@ -218,12 +224,15 @@ namespace Quasar.scenes.world
 
         public List<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
         {
-            _pathLayer.Clear();
-
             var start = _worldLayer.LocalToMap(startPos);
             var end = _worldLayer.LocalToMap(endPos);
 
-            List<Vector2> path = [.. _aStarGrid2d.GetPointPath(start, end)];
+            return [.. _aStarGrid2d.GetPointPath(start, end)];
+        }
+
+        public void ShowPath(List<Vector2> path)
+        {
+            ClearPath();
 
             foreach (var point in path)
             {
@@ -232,7 +241,10 @@ namespace Quasar.scenes.world
                 SelectCell(_pathLayer, cellCoord, new(0, 0), PathColor);
             }
 
-            return path;
+        }
+        public void ClearPath()
+        {
+            _pathLayer.Clear();
         }
 
         public void HideCell(Vector2 localPos)
@@ -245,14 +257,53 @@ namespace Quasar.scenes.world
             ShowCell(_worldLayer.LocalToMap(localPos));
         }
 
-        public void ClearPath()
+        public List<Vector2> GetAdjacentTiles(Vector2 localPos, bool includeDiagonals = false)
         {
-            _pathLayer.Clear();
+            return [..GetAdjacentCells(_worldLayer.LocalToMap(localPos), includeDiagonals).Select(a => _worldLayer.MapToLocal(a))];
+        }
+
+        public bool IsSolid(Vector2 localPos)
+        {
+            return IsSolid(_worldLayer.LocalToMap(localPos));
+        }
+
+        public void Dig(Vector2 localPos)
+        {
+            var cellCoord = _worldLayer.LocalToMap(localPos);
+
+            if (IsSolid(cellCoord) && _selectLayer.GetCellSourceId(cellCoord) != -1)
+            {
+                SetCell(_worldLayer, cellCoord, 0, AtlasCoordWorld.DIRT, 6, ColorConstants.BURNT_ORANGE);
+                SetCell(_selectLayer, cellCoord);
+                _worldCellArray[cellCoord.X, cellCoord.Y] = new(AtlasCoordWorld.DIRT, ColorConstants.BURNT_ORANGE, 6);
+                _aStarGrid2d.SetPointSolid(cellCoord, false);
+
+                foreach (var adjCell in GetAdjacentCells(cellCoord, true))
+                {
+                    if (IsSolid(adjCell))
+                    {
+                        SetWall(adjCell);
+                    }
+                }
+            }
+        }
+
+        public bool IsEdge(Vector2 localPos)
+        {
+            return IsEdge(_worldLayer.LocalToMap(localPos));
         }
 
         #endregion
 
         #region Private Methods
+
+        private void SetWall(Vector2I cellCoord)
+        {
+            var atlasCoord = AtlasCoordWorld.SOLID_WALL;
+            var modulate = GetTileColor(atlasCoord, out int colorIndex);
+            _worldCellArray[cellCoord.X, cellCoord.Y] = new(atlasCoord, modulate, colorIndex);
+            SetCell(_worldLayer, cellCoord, 0, atlasCoord, 0, modulate);
+        }
 
         private void GenerateWorld()
         {
@@ -411,47 +462,6 @@ namespace Quasar.scenes.world
             return allPoints;
         }
 
-        //private void CheckForWork()
-        //{
-            //if (!_isCatMoving && !_isWorking)
-            //{
-            //    var cat = GetCat();
-            //    if (cat == null)
-            //    {
-            //        return;
-            //    }
-
-            //    List<Vector2I> allPossibleWork = [];
-
-            //    foreach (var cellCoord in _workList)
-            //    {
-            //        foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
-            //        {
-            //            if (!IsSolid(adjCellCoord))
-            //            {
-            //                allPossibleWork.Add(adjCellCoord);               
-            //            }
-            //        }
-            //    }
-
-            //    if (allPossibleWork.Count > 0)
-            //    {
-            //        //Gets nearest but not the shortest path necessarily
-            //        var nearestCellCoord = GetNearestCell(_worldLayer.LocalToMap(cat.Position), allPossibleWork);
-            //        if (nearestCellCoord != null)
-            //        {
-            //            FindPath(cat.Position, _worldLayer.MapToLocal(nearestCellCoord.Value));
-            //            _isWorking = _path.Count > 0;
-            //            if (_isWorking)
-            //            {
-            //                cat.SetWork(WorkType.DIG);
-            //                EmitSignal(SignalName.CatChanged, cat);
-            //            }
-            //        }
-            //    }
-            //}
-        //}
-
         private void HideCell(Vector2I cellCoord)
         {
             if (IsInBounds(cellCoord))
@@ -538,29 +548,44 @@ namespace Quasar.scenes.world
             var startingRow = Mathf.FloorToInt(top / tileSize.Y);
             var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
 
-            for (int i = startingRow; i < endingRow; i++)
+            if (_selectionState == SelectionState.DIGGING)
             {
-                for (int j = startingCol; j < endingCol; j++)
+                Array<Work> workList = [];
+                for (int i = startingRow; i < endingRow; i++)
                 {
-                    var cellCoord = new Vector2I(j, i);
-                    
-                    if (_selectionState == SelectionState.DIGGING)
+                    for (int j = startingCol; j < endingCol; j++)
                     {
+                        var cellCoord = new Vector2I(j, i);
                         if (IsSolid(cellCoord) && _selectLayer.GetCellSourceId(cellCoord) == -1)
                         {
                             SelectCell(_selectLayer, cellCoord, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                            _workList.Add(cellCoord);
-                        }
-                    }
-                    else
-                    {
-                        if (_selectLayer.GetCellSourceId(cellCoord) != -1)
-                        {
-                            SetCell(_selectLayer, cellCoord);
+                            workList.Add(new("DIGGING", WorkType.DIGGING, _worldLayer.MapToLocal(cellCoord), IsEdge(cellCoord)));
                         }
                     }
                 }
+
+                EmitSignal(SignalName.CreateWork, workList);
             }
+            else
+            {
+                Array<Vector2> worldPosList = [];
+
+                for (int i = startingRow; i < endingRow; i++)
+                {
+                    for (int j = startingCol; j < endingCol; j++)
+                    {
+                        var cellCoord = new Vector2I(j, i);
+
+                        if (_selectLayer.GetCellSourceId(cellCoord) != -1)
+                        {
+                            worldPosList.Add(_worldLayer.MapToLocal(cellCoord));
+                            SetCell(_selectLayer, cellCoord);
+                        }
+                    }
+                } 
+
+                EmitSignal(SignalName.CancelWork, worldPosList);
+            } 
         }
 
         private static Vector2I GetAtlasCoordForSelection(int i, int j, int startingRow, int endingRow, int startingCol, int endingCol)

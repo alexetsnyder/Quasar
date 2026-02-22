@@ -11,6 +11,9 @@ namespace Quasar.scenes.cats
         [Export]
         public int Speed { get; set; } = 10;
 
+        [Export]
+        public int WorkTicks { get; set; } = 10;
+
         [Signal]
         public delegate void CatClickedOnEventHandler(Cat cat);
 
@@ -20,22 +23,18 @@ namespace Quasar.scenes.cats
         [Signal]
         public delegate void PathCompleteEventHandler();
 
+        [Signal]
+        public delegate void CatWorkEventHandler(Cat cat, Vector2 workPos);
+
         public int ID { get; set; }
 
-        public new Vector2 Position 
-        {
-            get => base.Position; 
-            set
-            {
-                base.Position = value;
-            }
-        }
+        public CatData CatData { get; private set; }
+
+        public bool IsWorking { get; set; } = false;
 
         public float Width { get => _catSprite.GetRect().Size.X;  }
 
         public float Height { get => _catSprite.GetRect().Size.Y; }
-
-        public CatData CatData { get; private set; }
 
         private Sprite2D _catSprite;
 
@@ -47,10 +46,14 @@ namespace Quasar.scenes.cats
 
         private Vector2 _nextPos = new();
 
+        private Vector2 _workPos = new();
+
+        private double ElapsedWorkTime = 0.0;
+
         public override void _Ready()
         {
             _catSprite = GetNode<Sprite2D>("CatSprite");
-            CatData = new("Fern", "Stinky Cat", "Uncomfortable", 100, WorkType.NONE.ToString());
+            CatData = new("Fern", "Stinky Cat", "Uncomfortable", 100, WorkType.NONE);
         }
 
         public override void _Process(double delta)
@@ -66,11 +69,17 @@ namespace Quasar.scenes.cats
                 _lastPos = Position;
                 _nextPos = new(tileLocalPos.X + Width / 2.0f, tileLocalPos.Y + Height / 2.0f);
             }
+            else if (IsWorking)
+            {
+                Work(TimeSystem.Instance.TicksPerSecond * delta);
+            }
         }
 
-        public void SetWork(WorkType workType)
+        public void SetWork(WorkType workType, Vector2 workPos)
         {
-            CatData.Work = workType.ToString();
+            IsWorking = true;
+            CatData.Work = workType;
+            _workPos = workPos;
         }
 
         public void SetPath(List<Vector2> path)
@@ -81,6 +90,11 @@ namespace Quasar.scenes.cats
             {
                 _movePath.Enqueue(v);
             }
+        }
+
+        public bool CanWork()
+        {
+            return !IsWorking;
         }
 
         private void Move(double delta)
@@ -95,6 +109,17 @@ namespace Quasar.scenes.cats
                 {
                     EmitSignal(SignalName.PathComplete);
                 }
+            }
+        }
+
+        private void Work(double delta)
+        {
+            ElapsedWorkTime += delta;
+
+            if (ElapsedWorkTime >= WorkTicks)
+            {
+                EmitSignal(SignalName.CatWork, this, _workPos);
+                ElapsedWorkTime %= WorkTicks;
             }
         }
 
