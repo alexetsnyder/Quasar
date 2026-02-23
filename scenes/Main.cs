@@ -162,6 +162,7 @@ namespace Quasar.scenes
                 _map.SetProcessUnhandledInput(true);
                 _world.Visible = false;
                 _world.SetProcessUnhandledInput(false);
+                _cat.Visible = false;
             }
             else
             {
@@ -169,6 +170,7 @@ namespace Quasar.scenes
                 _map.SetProcessUnhandledInput(false);
                 _world.Visible = true;
                 _world.SetProcessUnhandledInput(true);
+                _cat.Visible = true;
             }
 
             SetTyleTypeLabel();
