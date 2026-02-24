@@ -11,6 +11,12 @@ public partial class ToolBarControl : MarginContainer
 	[Signal]
 	public delegate void CancelPressedEventHandler();
 
+	[Signal]
+	public delegate void BuildPressedEventHandler();
+
+	[Signal]
+	public delegate void FarmPressedEventHandler();
+
 	private Button _digButton;
 
 	private Button _selectButton;
@@ -23,6 +29,7 @@ public partial class ToolBarControl : MarginContainer
 
 	public override void _Process(double delta)
 	{
+
 	}
 
     private void OnSelectButtonPressed()
@@ -35,8 +42,18 @@ public partial class ToolBarControl : MarginContainer
         EmitSignal(SignalName.DigPressed);
 	}
 
-	public void OnCancelButtonPressed()
+	private void OnCancelButtonPressed()
 	{
 		EmitSignal(SignalName.CancelPressed);
+	}
+
+	private void OnBuildButtonPressed()
+	{
+		EmitSignal(SignalName.BuildPressed);
+	}
+
+	private void OnFarmButtonPressed()
+	{
+		EmitSignal(SignalName.FarmPressed);
 	}
 }

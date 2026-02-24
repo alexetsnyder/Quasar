@@ -157,11 +157,14 @@ namespace Quasar.scenes.world
                                 }
                                 break;
                             case SelectionState.DIGGING:
+                            case SelectionState.FARMING:
                             case SelectionState.CANCEL:
                                 _isSelecting = true;
                                 _selectionStart = GetGlobalMousePosition();
                                 _selectionRect.Position = _selectionStart;
                                 _selectionRect.Size = new Vector2();
+                                break;
+                            case SelectionState.BUILDING:
                                 break;
                             default:
                                 GD.Print($"Selection State {_selectionState} set incorrectly.");
@@ -575,7 +578,7 @@ namespace Quasar.scenes.world
 
                 EmitSignal(SignalName.CreateWork, workList);
             }
-            else
+            else if (_selectionState == SelectionState.CANCEL)
             {
                 Array<Vector2> worldPosList = [];
 

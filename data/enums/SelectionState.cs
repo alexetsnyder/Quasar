@@ -5,6 +5,8 @@ namespace Quasar.data.enums
         NONE,
         SINGLE,
         DIGGING,
+        BUILDING,
+        FARMING,
         CANCEL,
     }
 }

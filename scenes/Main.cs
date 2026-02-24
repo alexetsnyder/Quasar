@@ -244,14 +244,24 @@ namespace Quasar.scenes
             _cat.SetWork(workType, workPos);
         }
 
+        private void OnToolBarSelectPressed()
+        {
+            _world.SetSelectionState(SelectionState.SINGLE);
+        }
+
         private void OnToolBarDigPressed()
         {
             _world.SetSelectionState(SelectionState.DIGGING);
         }
 
-        private void OnToolBarSelectPressed()
+        private void OnToolBarBuildPressed()
         {
-            _world.SetSelectionState(SelectionState.SINGLE);
+            _world.SetSelectionState(SelectionState.BUILDING);
+        }
+
+        private void OnToolBarFarmPressed()
+        {
+            _world.SetSelectionState(SelectionState.FARMING);
         }
 
         private void OnToolBarCancelPressed()

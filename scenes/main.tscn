@@ -80,6 +80,8 @@ theme_override_constants/margin_bottom = 4
 [connection signal="CancelWork" from="World" to="." method="OnWorldCancelWork"]
 [connection signal="CreateWork" from="World" to="." method="OnWorldCreateWork"]
 [connection signal="TileSelected" from="World" to="." method="OnWorldTileSelected"]
+[connection signal="BuildPressed" from="GUI/ToolBarControl" to="." method="OnToolBarBuildPressed"]
 [connection signal="CancelPressed" from="GUI/ToolBarControl" to="." method="OnToolBarCancelPressed"]
 [connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]
+[connection signal="FarmPressed" from="GUI/ToolBarControl" to="." method="OnToolBarFarmPressed"]
 [connection signal="SelectPressed" from="GUI/ToolBarControl" to="." method="OnToolBarSelectPressed"]
