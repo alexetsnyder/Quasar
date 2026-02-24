@@ -21,6 +21,10 @@ namespace Quasar.scenes.gui
 
         private Label _workLabelValue;
 
+        private bool _isMoving = false;
+
+        private Vector2 _prevMousePos;
+
         public override void _Ready()
         {
             _nameTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/NameTab");
@@ -66,6 +70,33 @@ namespace Quasar.scenes.gui
         public void OnCloseButtonPressed()
         {
             Visible = false;
+        }
+
+        public void OnGUIInput(InputEvent @event)
+        {
+            if (@event is InputEventMouseButton inputEventMouseButton)
+            {
+                if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
+                {
+                    if (@event.IsPressed())
+                    {
+                        _isMoving = true;
+                        _prevMousePos = inputEventMouseButton.Position;
+                    }
+                    else
+                    {
+                        _isMoving = false;
+                    }
+                }
+            }
+            else if (@event is InputEventMouseMotion mouseEventMouseMotion)
+            {
+                if (_isMoving)
+                {
+                    var dv = mouseEventMouseMotion.Position - _prevMousePos;
+                    Position += dv;
+                }
+            }
         }
     }
 }

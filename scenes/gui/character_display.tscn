@@ -7,6 +7,7 @@
 [node name="CharacterDisplay" type="MarginContainer" unique_id=719971143]
 offset_right = 214.0
 offset_bottom = 232.0
+mouse_filter = 0
 script = ExtResource("1_vp8an")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1164512395]
@@ -96,6 +97,7 @@ layout_mode = 2
 layout_mode = 2
 text = "Nothing Here Yet!"
 
+[connection signal="gui_input" from="." to="." method="OnGUIInput"]
 [connection signal="pressed" from="TabsAndContent/Tabs/NameTabButton" to="." method="OnNameTabButtonPressed"]
 [connection signal="pressed" from="TabsAndContent/Tabs/StatusTabButton" to="." method="OnStatusTabButtonPressed"]
 [connection signal="pressed" from="TabsAndContent/Tabs/InventoryTabButton" to="." method="OnInventoryTabButtonPressed"]
