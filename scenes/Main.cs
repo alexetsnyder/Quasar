@@ -40,8 +40,6 @@ namespace Quasar.scenes
 
         public override void _Ready()
         {
-            GD.Print("In Main Ready");
-
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
             _gui = GetNode<CanvasLayer>("GUI");
             _map = GetNode<Map>("Map");
@@ -49,8 +47,6 @@ namespace Quasar.scenes
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
-
-            GD.Print("All Nodes Loaded");
 
             _characterDisplay = InstantiateScene<CharacterDisplay>("res://scenes/gui/character_display.tscn");
             if (_characterDisplay != null)

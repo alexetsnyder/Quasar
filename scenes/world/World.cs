@@ -50,8 +50,6 @@ namespace Quasar.scenes.world
 
         private IMultiColorTileMapLayer _worldTileMapLayer;
 
-        //private TileMapLayer _hideLayer;
-
         private TileMapLayer _selectingTileMapLayer;
 
         private TileMapLayer _selectedTileMapLayer;
@@ -90,13 +88,9 @@ namespace Quasar.scenes.world
 
         private int _gridLayerSourceId = 1;
 
-        private int _worldLayerSourceId = 0;
-
-        private int _hideLayerSourceId = 0;
-
         private int _selectingLayerSourceId = 0;
 
-        private int _selectLayerSourceId = 0;
+        private int _selectedLayerSourceId = 0;
 
         private int _pathLayerSourceId = 0;
 
@@ -108,13 +102,8 @@ namespace Quasar.scenes.world
 
         public override void _Ready()
         {
-            _rng.Randomize();
-
-            GD.Print("In World Ready");
-
             _gridTileMapLayer = GetNode<TileMapLayer>("GridTileMapLayer");
             _worldTileMapLayer = GetNode<IMultiColorTileMapLayer>("WorldTileMapLayer");
-            //_hideLayer = GetNode<TileMapLayer>("HideLayer");
             _selectingTileMapLayer = GetNode<TileMapLayer>("SelectingTileMapLayer");
             _selectedTileMapLayer = GetNode<TileMapLayer>("SelectedTileMapLayer");
             _pathTileMapLayer = GetNode<TileMapLayer>("PathTileMapLayer");
@@ -213,8 +202,6 @@ namespace Quasar.scenes.world
 
             if (_worldTileMapLayer.GetCellSourceId(coords) != -1)
             {
-                //var tileData = _worldTileMapLayer.GetCellTileData(cellCoord);
-                //return tileData.Modulate;
                 return _worldCellArray[coords.X, coords.Y].Color;
             }
 
@@ -487,7 +474,6 @@ namespace Quasar.scenes.world
             if (IsInBounds(coords))
             {
                 SetWorldCell(coords);
-                //SetCell(_hideLayer, cellCoord, 0, new(0, 0));
             }
         }
 
@@ -500,7 +486,6 @@ namespace Quasar.scenes.world
                 {
                     SetWorldCell(cellCoord, worldCell.AtlasCoords, worldCell.Color);
                 }  
-                //SetCell(_hideLayer, cellCoord);
             }
         }
 
@@ -584,7 +569,7 @@ namespace Quasar.scenes.world
                         var cellCoord = new Vector2I(j, i);
                         if (IsSolid(cellCoord) && _selectedTileMapLayer.GetCellSourceId(cellCoord) == -1)
                         {
-                            SelectCell(_selectedTileMapLayer, cellCoord, _selectLayerSourceId, AtlasCoordSelection.DIG, ColorConstants.GREY);
+                            SelectCell(_selectedTileMapLayer, cellCoord, _selectedLayerSourceId, AtlasCoordSelection.DIG, ColorConstants.GREY);
                             workList.Add(new("DIGGING", WorkType.DIGGING, _worldTileMapLayer.MapToLocal(cellCoord)));
                         }
                     }
