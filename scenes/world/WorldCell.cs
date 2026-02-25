@@ -3,14 +3,12 @@ using Quasar.data.enums;
 
 namespace Quasar.scenes.world
 {
-    public partial class WorldCell(TileType tileType, Vector2I atlasCoord, Color modulate, int alternateTile = 0)
+    public partial class WorldCell(TileType tileType, Vector2I atlasCoords, Color color)
     {
         public TileType TileType { get; set; } = tileType;
 
-        public Vector2I AtlasCoord { get; set; } = atlasCoord;
+        public Vector2I AtlasCoords { get; set; } = atlasCoords;
 
-        public Color Modulate { get; set; } = modulate;
-
-        public int AlternateTile { get; set; } = alternateTile;
+        public Color Color { get; set; } = color;
     }
 }

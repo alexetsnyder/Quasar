@@ -8,10 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/basic_label_display.tscn" id="8_tipki"]
 [ext_resource type="PackedScene" uid="uid://bcw53ty62uig7" path="res://scenes/gui/tool_bar_control.tscn" id="9_85g3d"]
 
-[node name="Main" type="Node2D" unique_id=1898491804]
+[node name="Main" type="Node2D" unique_id=25718441]
 script = ExtResource("1_o5qli")
 
-[node name="Background" type="ColorRect" parent="." unique_id=122821990]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=932187986]
 offset_left = -80.0
 offset_top = -80.0
 offset_right = 3536.0
@@ -31,15 +31,23 @@ Cols = 192
 [node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
 position = Vector2(576, 324)
 zoom = Vector2(0.25, 0.25)
+ZoomSpeed = 5.0
+ZoomInLimit = 0.75
 ZoomOutLimit = 0.25
 WorldSize = Vector2(3456, 3456)
 WorldMargins = Vector4(80, 80, 80, 80)
 
-[node name="DebugGUI" type="CanvasLayer" parent="." unique_id=780521924]
+[node name="DebugGUI" type="CanvasLayer" parent="." unique_id=809005585]
 
-[node name="TimeDisplayControl" parent="DebugGUI" unique_id=1343151648 instance=ExtResource("7_o6xl0")]
+[node name="TileColorDisplay" parent="DebugGUI" unique_id=839488856 instance=ExtResource("8_tipki")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = 0.0
+grow_vertical = 0
 
-[node name="TileTypeDisplay" parent="DebugGUI" unique_id=839488856 instance=ExtResource("8_tipki")]
+[node name="TileTypeDisplay" parent="DebugGUI" unique_id=1767904970 instance=ExtResource("8_tipki")]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -52,36 +60,28 @@ offset_bottom = 0.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="TileColorDisplay" parent="DebugGUI" unique_id=1034868359 instance=ExtResource("8_tipki")]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-offset_bottom = 0.0
-grow_vertical = 0
+[node name="TimeDisplayControl" parent="DebugGUI" unique_id=1343151648 instance=ExtResource("7_o6xl0")]
 
-[node name="GUI" type="CanvasLayer" parent="." unique_id=316006123]
+[node name="GUI" type="CanvasLayer" parent="." unique_id=298968387]
 
-[node name="ToolBarControl" parent="GUI" unique_id=1173881308 instance=ExtResource("9_85g3d")]
+[node name="ToolBar" parent="GUI" unique_id=1173881308 instance=ExtResource("9_85g3d")]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -28.0
+offset_left = -73.0
 offset_top = -34.0
-offset_right = 28.0
+offset_right = 73.0
 offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_bottom = 4
 
 [connection signal="CancelWork" from="World" to="." method="OnWorldCancelWork"]
 [connection signal="CreateWork" from="World" to="." method="OnWorldCreateWork"]
 [connection signal="TileSelected" from="World" to="." method="OnWorldTileSelected"]
-[connection signal="BuildPressed" from="GUI/ToolBarControl" to="." method="OnToolBarBuildPressed"]
-[connection signal="CancelPressed" from="GUI/ToolBarControl" to="." method="OnToolBarCancelPressed"]
-[connection signal="DigPressed" from="GUI/ToolBarControl" to="." method="OnToolBarDigPressed"]
-[connection signal="FarmPressed" from="GUI/ToolBarControl" to="." method="OnToolBarFarmPressed"]
-[connection signal="SelectPressed" from="GUI/ToolBarControl" to="." method="OnToolBarSelectPressed"]
+[connection signal="BuildPressed" from="GUI/ToolBar" to="." method="OnToolBarBuildPressed"]
+[connection signal="CancelPressed" from="GUI/ToolBar" to="." method="OnToolBarCancelPressed"]
+[connection signal="DigPressed" from="GUI/ToolBar" to="." method="OnToolBarDigPressed"]
+[connection signal="FarmPressed" from="GUI/ToolBar" to="." method="OnToolBarFarmPressed"]
+[connection signal="SelectPressed" from="GUI/ToolBar" to="." method="OnToolBarSelectPressed"]

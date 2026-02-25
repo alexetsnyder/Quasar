@@ -10,7 +10,7 @@ namespace Quasar.scenes.camera
         [Export]
         public float ZoomSpeed { get; set; } = 10.0f;
 
-        [Export(PropertyHint.Range, "1.0, 2.0")]
+        [Export(PropertyHint.Range, "0.0, 2.0")]
         public float ZoomInLimit { get; set; } = 2.0f;
 
         [Export(PropertyHint.Range, "0.0, 1.0")]
