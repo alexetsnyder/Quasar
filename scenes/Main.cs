@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using Quasar.data;
 using Quasar.data.enums;
 using Quasar.scenes.camera;
 using Quasar.scenes.cats;
@@ -108,7 +109,7 @@ namespace Quasar.scenes
             var mousePos = GetLocalMousePosition();
 
             string tileTypeStr;
-            Color tileColor;
+            Color? tileColor;
             if (_map.Visible)
             {
                 tileTypeStr = _map.GetTileTypeStr(mousePos);
@@ -121,7 +122,7 @@ namespace Quasar.scenes
             }
 
             _tileTypeDisplay.SetLabelText(tileTypeStr);
-            _tileTypeDisplay.SetLabelColor(tileColor);
+            _tileTypeDisplay.SetLabelColor((tileColor == null) ? ColorConstants.WHITE : tileColor.Value);
         }
 
         public void SetTyleColorLabel()
@@ -129,7 +130,7 @@ namespace Quasar.scenes
             var mousePos = GetLocalMousePosition();
 
             string tileColorStr;
-            Color tileColor;
+            Color? tileColor;
             if (_map.Visible)
             {
                 tileColorStr = _map.GetTileColorStr(mousePos);
@@ -142,7 +143,7 @@ namespace Quasar.scenes
             }
 
             _tileColorDisplay.SetLabelText(tileColorStr);
-            _tileColorDisplay.SetLabelColor(tileColor);
+            _tileColorDisplay.SetLabelColor((tileColor == null) ? ColorConstants.WHITE : tileColor.Value);
         }
 
         private void ToggleMap()

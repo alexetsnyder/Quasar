@@ -46,15 +46,15 @@ namespace Quasar.scenes.world
 
         #region Children
 
-        private TileMapLayer _gridTileMapLayer;
+        private IMultiColorTileMapLayer _gridTileMapLayer;
 
         private IMultiColorTileMapLayer _worldTileMapLayer;
 
-        private TileMapLayer _selectingTileMapLayer;
+        private IMultiColorTileMapLayer _selectingTileMapLayer;
 
-        private TileMapLayer _selectedTileMapLayer;
+        private IMultiColorTileMapLayer _selectedTileMapLayer;
 
-        private TileMapLayer _pathTileMapLayer;
+        private IMultiColorTileMapLayer _pathTileMapLayer;
 
         private ColorRect _selectionRect;
 
@@ -84,29 +84,17 @@ namespace Quasar.scenes.world
         private readonly List<Color> _colorVariance = [ColorConstants.RED, ColorConstants.GREEN, ColorConstants.GRASS_GREEN, 
                                                        ColorConstants.YELLOW, ColorConstants.ORANGE, ColorConstants.AMBER];
 
-        #region TileMapLayer SourceIds
-
-        private int _gridLayerSourceId = 1;
-
-        private int _selectingLayerSourceId = 0;
-
-        private int _selectedLayerSourceId = 0;
-
-        private int _pathLayerSourceId = 0;
-
-        #endregion
-
         #endregion
 
         #region Public Methods
 
         public override void _Ready()
         {
-            _gridTileMapLayer = GetNode<TileMapLayer>("GridTileMapLayer");
+            _gridTileMapLayer = GetNode<IMultiColorTileMapLayer>("GridTileMapLayer");
             _worldTileMapLayer = GetNode<IMultiColorTileMapLayer>("WorldTileMapLayer");
-            _selectingTileMapLayer = GetNode<TileMapLayer>("SelectingTileMapLayer");
-            _selectedTileMapLayer = GetNode<TileMapLayer>("SelectedTileMapLayer");
-            _pathTileMapLayer = GetNode<TileMapLayer>("PathTileMapLayer");
+            _selectingTileMapLayer = GetNode<IMultiColorTileMapLayer>("SelectingTileMapLayer");
+            _selectedTileMapLayer = GetNode<IMultiColorTileMapLayer>("SelectedTileMapLayer");
+            _pathTileMapLayer = GetNode<IMultiColorTileMapLayer>("PathTileMapLayer");
             _selectionRect = GetNode<ColorRect>("SelectionRect");
 
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
@@ -180,33 +168,39 @@ namespace Quasar.scenes.world
         public string GetTileTypeStr(Vector2 localPos)
         {
             var coords = _worldTileMapLayer.LocalToMap(localPos);
-            var atlasCoord = _worldCellArray[coords.X, coords.Y].AtlasCoords;
+            var worldCell = GetWorldCell(coords);
 
-            return AtlasCoordWorld.GetTileStrReflection(atlasCoord);
+            if (worldCell == null)
+            {
+                return "NONE";
+            }
+
+            return AtlasCoordWorld.GetTileStrReflection(worldCell.AtlasCoords);
         }
 
         public string GetTileColorStr(Vector2 localPos)
         {
             var color = GetTileColor(localPos);
 
-            if (color == ColorConstants.WHITE)
+            if (color == null)
             {
                 return "NONE";
             }
 
-            return ColorConstants.GetColorStrReflection(color);
+            return ColorConstants.GetColorStrReflection(color.Value);
         }
 
-        public Color GetTileColor(Vector2 localPos)
+        public Color? GetTileColor(Vector2 localPos)
         {
             var coords = _worldTileMapLayer.LocalToMap(localPos);
+            var worldCell = GetWorldCell(coords);
 
-            if (_worldTileMapLayer.GetCellSourceId(coords) != -1)
+            if (worldCell == null)
             {
-                return _worldCellArray[coords.X, coords.Y].Color;
+                return null;
             }
 
-            return ColorConstants.WHITE;
+            return worldCell.Color;
         }
 
         public void SetSelectionState(SelectionState selectionState)
@@ -220,12 +214,12 @@ namespace Quasar.scenes.world
 
             Vector2I center = new(Rows / 2, Cols / 2);
 
-            var cellCoord = Math.MinDistanceToPoint(maxConnnectedArea, center);
+            var coords = Math.MinDistanceToPoint(maxConnnectedArea, center);
 
-            if (cellCoord != null)
+            if (coords != null)
             {
-                HideCell(cellCoord.Value);
-                return _worldTileMapLayer.MapToLocal(cellCoord.Value);
+                HideCell(coords.Value);
+                return _worldTileMapLayer.MapToLocal(coords.Value);
             }
 
             return null;
@@ -245,9 +239,9 @@ namespace Quasar.scenes.world
 
             foreach (var point in path)
             {
-                var cellCoord = _worldTileMapLayer.LocalToMap(point);
+                var coords = _worldTileMapLayer.LocalToMap(point);
 
-                SelectCell(_pathTileMapLayer, cellCoord, _pathLayerSourceId, new(0, 0), PathColor);
+                SelectCell(_pathTileMapLayer, coords, new(0, 0), PathColor);
             }
 
         }
@@ -279,14 +273,13 @@ namespace Quasar.scenes.world
             if (IsSolid(coords) && _selectedTileMapLayer.GetCellSourceId(coords) != -1)
             {
                 UpdateWorldTile(TileType.DIRT, coords);
-                SetCell(_selectedTileMapLayer, coords);
-                _aStarGrid2d.SetPointSolid(coords, false);
+                SelectCell(_selectedTileMapLayer, coords);
 
                 foreach (var adjCell in GetAdjacentCells(coords, true))
                 {
                     if (IsSolid(adjCell))
                     {
-                        SetWall(adjCell);
+                        SetNaturalWall(adjCell);
                     }
                 }
             }
@@ -298,8 +291,7 @@ namespace Quasar.scenes.world
 
             if (!IsImpassable(coords))
             {
-                UpdateWorldTile(TileType.WALL, coords);
-                _aStarGrid2d.SetPointSolid(coords, true);
+                UpdateWorldTile(TileType.WALL, coords, true);
             }
         }
 
@@ -307,19 +299,20 @@ namespace Quasar.scenes.world
 
         #region Private Methods
 
-        private void UpdateWorldTile(TileType tileType, Vector2I coords)
+        private void UpdateWorldTile(TileType tileType, Vector2I coords, bool isSolid = false)
         {
             var atlasCoords = GetAtlasCoord(tileType);
             var color = GetTileColor(tileType);
 
             _worldCellArray[coords.X, coords.Y] = new(tileType, atlasCoords, color);
 
-            SetWorldCell(coords, atlasCoords, color);
+            SetCell(_worldTileMapLayer, coords, atlasCoords, color);
+            _aStarGrid2d.SetPointSolid(coords, isSolid);
         }
 
-        private void SetWall(Vector2I cellCoord)
+        private void SetNaturalWall(Vector2I cellCoord)
         {
-            UpdateWorldTile(TileType.SOLID_WALL, cellCoord);
+            UpdateWorldTile(TileType.SOLID_WALL, cellCoord, true);
         }
 
         private void GenerateWorld()
@@ -330,9 +323,9 @@ namespace Quasar.scenes.world
                 {
                     var noiseVal = _heightNoise.GetNoise(j, i);
                     var tileType = GetTileType(noiseVal);
-                    var atlasCoord = GetAtlasCoord(tileType);
+                    var atlasCoords = GetAtlasCoord(tileType);
                     var color = GetTileColor(tileType);
-                    _worldCellArray[i, j] = new(tileType, atlasCoord, color);
+                    _worldCellArray[i, j] = new(tileType, atlasCoords, color);
                 }
             }
 
@@ -345,22 +338,23 @@ namespace Quasar.scenes.world
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    var cellCoord = new Vector2I(i, j);
-                    if (IsEdge(cellCoord))
+                    var coords = new Vector2I(i, j);
+
+                    if (IsEdge(coords))
                     {
-                        SetWall(cellCoord);
+                        _worldCellArray[i, j] = new(TileType.SOLID_WALL, AtlasCoordWorld.SOLID_WALL, ColorConstants.WALL_PURPLE);
                     }
                 }
             }
         }
 
-        private bool IsEdge(Vector2I cellCoord)
+        private bool IsEdge(Vector2I coords)
         {
-            if (IsSolid(cellCoord))
+            if (IsSolid(coords))
             {
-                foreach (var adjCellCoord in GetAdjacentCells(cellCoord, true))
+                foreach (var adjCoords in GetAdjacentCells(coords, true))
                 {
-                    if (!IsSolid(adjCellCoord))
+                    if (!IsSolid(adjCoords))
                     {
                         return true;
                     }
@@ -370,7 +364,7 @@ namespace Quasar.scenes.world
             return false;
         }
 
-        private static List<Vector2I> GetAdjacentCells(Vector2I cellCoord, bool includeDiagonals = false)
+        private static List<Vector2I> GetAdjacentCells(Vector2I coords, bool includeDiagonals = false)
         {
             List<Vector2I> adjDirs = [];
 
@@ -387,7 +381,7 @@ namespace Quasar.scenes.world
                                   new(-1, 0), new(0, -1)]);
             }
 
-            return [.. adjDirs.Select(n => cellCoord + n)];
+            return [.. adjDirs.Select(n => coords + n)];
         }
 
         private void FillMap()
@@ -399,8 +393,8 @@ namespace Quasar.scenes.world
                     var coords = new Vector2I(i, j);
                     var worldCell = _worldCellArray[i, j];
 
-                    SetWorldCell(coords, worldCell.AtlasCoords, worldCell.Color);
-                    SetCell(_gridTileMapLayer, coords, _gridLayerSourceId, new(0, 0), 0, ColorConstants.GREY);
+                    SetCell(_worldTileMapLayer, coords, worldCell.AtlasCoords, worldCell.Color);
+                    SetCell(_gridTileMapLayer, coords, new(0, 0), ColorConstants.GREY);
                 }
             }
         }
@@ -413,25 +407,19 @@ namespace Quasar.scenes.world
                 return true;
             }
 
-            return (worldCell.TileType == TileType.SOLID || worldCell.TileType == TileType.SOLID_WALL);
+            return (worldCell.TileType == TileType.SOLID || worldCell.TileType == TileType.SOLID_WALL || worldCell.TileType == TileType.WALL);
         }
 
-        private void SetWorldCell(Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
+        private static void SetCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
         {
-            _worldTileMapLayer.SetCell(coords, atlasCoords, color);
+            tileMapLayer.SetCell(coords, atlasCoords, color);
         }
 
-        private static void SetCell(TileMapLayer tileMapLayer, Vector2I coords, int sourceId = -1, Vector2I? atlasCoord = null, int alternateTile = 0, Color? modulate = null)
+        private void SelectCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
         {
-            tileMapLayer.SetCell(coords, sourceId,  atlasCoord, alternateTile);
-
-            if (modulate.HasValue)
+            if (_worldTileMapLayer.GetCellSourceId(coords) != -1)
             {
-                var tileData = tileMapLayer.GetCellTileData(coords);
-                if (tileData != null)
-                {
-                    tileData.Modulate = modulate.Value;
-                }
+                SetCell(tileMapLayer, coords, atlasCoords, color);
             }
         }
 
@@ -463,6 +451,7 @@ namespace Quasar.scenes.world
 
             return (worldCell.TileType == TileType.SOLID ||
                     worldCell.TileType == TileType.SOLID_WALL ||
+                    worldCell.TileType == TileType.WALL ||
                     worldCell.TileType == TileType.WATER);
         }
 
@@ -485,20 +474,18 @@ namespace Quasar.scenes.world
         {
             if (IsInBounds(coords))
             {
-                SetWorldCell(coords);
+                SetCell(_worldTileMapLayer, coords);
             }
         }
 
         private void ShowCell(Vector2I cellCoord)
         {
-            if (IsInBounds(cellCoord))
+            var worldCell = GetWorldCell(cellCoord);
+
+            if (worldCell != null)
             {
-                var worldCell = GetWorldCell(cellCoord);
-                if (worldCell != null)
-                {
-                    SetWorldCell(cellCoord, worldCell.AtlasCoords, worldCell.Color);
-                }  
-            }
+                SetCell(_worldTileMapLayer, cellCoord, worldCell.AtlasCoords, worldCell.Color);
+            }  
         }
 
         private WorldCell GetWorldCell(Vector2I cellCoord)
@@ -511,10 +498,10 @@ namespace Quasar.scenes.world
             return _worldCellArray[cellCoord.X, cellCoord.Y];
         }
 
-        private bool IsInBounds(Vector2I cellCoord)
+        private bool IsInBounds(Vector2I coords)
         {
-            if (cellCoord.X < 0 || cellCoord.Y < 0 ||
-                cellCoord.X >= Rows || cellCoord.Y >= Cols)
+            if (coords.X < 0 || coords.Y < 0 ||
+                coords.X >= Rows || coords.Y >= Cols)
             {
                 return false;
             }
@@ -526,31 +513,22 @@ namespace Quasar.scenes.world
         {
             _selectingTileMapLayer.Clear();
 
-            var tileSize = _worldTileMapLayer.TileSize;
-            var left = _selectionRect.Position.X;
-            var right = left + _selectionRect.Size.X;
-            var top = _selectionRect.Position.Y;
-            var bottom = top + _selectionRect.Size.Y;
-
-            var startingCol = Mathf.FloorToInt(left / tileSize.X);
-            var endingCol = Mathf.CeilToInt(right / tileSize.X);
-            var startingRow = Mathf.FloorToInt(top / tileSize.Y);
-            var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
+            GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
 
             for (int i = startingRow; i < endingRow; i++)
             {
                 for (int j = startingCol; j < endingCol; j++)
                 {
-                    var cellCoord = new Vector2I(j, i);
+                    var coords = new Vector2I(j, i);
 
                     if (_selectionState == SelectionState.CANCEL)
                     {
-                        SelectCell(_selectingTileMapLayer, cellCoord, _selectingLayerSourceId, AtlasCoordSelection.CANCEL, ColorConstants.WARNING_RED);
+                        SelectCell(_selectingTileMapLayer, coords, AtlasCoordSelection.CANCEL, ColorConstants.WARNING_RED);
                     }
                     else
                     {
-                        var atlasCoord = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
-                        SelectCell(_selectingTileMapLayer, cellCoord, _selectingLayerSourceId, atlasCoord, SelectionColor);
+                        var atlasCoords = GetAtlasCoordForSelection(i, j, startingRow, endingRow, startingCol, endingCol);
+                        SelectCell(_selectingTileMapLayer, coords, atlasCoords, SelectionColor);
                     }  
                 }
             }
@@ -560,16 +538,7 @@ namespace Quasar.scenes.world
         {
             _selectingTileMapLayer.Clear();
 
-            var tileSize = _worldTileMapLayer.TileSize;
-            var left = _selectionRect.Position.X;
-            var right = left + _selectionRect.Size.X;
-            var top = _selectionRect.Position.Y;
-            var bottom = top + _selectionRect.Size.Y;
-
-            var startingCol = Mathf.FloorToInt(left / tileSize.X);
-            var endingCol = Mathf.CeilToInt(right / tileSize.X);
-            var startingRow = Mathf.FloorToInt(top / tileSize.Y);
-            var endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
+            GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
 
             if (_selectionState == SelectionState.DIGGING)
             {
@@ -578,11 +547,11 @@ namespace Quasar.scenes.world
                 {
                     for (int j = startingCol; j < endingCol; j++)
                     {
-                        var cellCoord = new Vector2I(j, i);
-                        if (IsSolid(cellCoord) && _selectedTileMapLayer.GetCellSourceId(cellCoord) == -1)
+                        var coords = new Vector2I(j, i);
+                        if (IsSolid(coords) && _selectedTileMapLayer.GetCellSourceId(coords) == -1)
                         {
-                            SelectCell(_selectedTileMapLayer, cellCoord, _selectedLayerSourceId, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                            workList.Add(new("DIGGING", WorkType.DIGGING, _worldTileMapLayer.MapToLocal(cellCoord)));
+                            SelectCell(_selectedTileMapLayer, coords, AtlasCoordSelection.DIG, ColorConstants.GREY);
+                            workList.Add(new("DIGGING", WorkType.DIGGING, _worldTileMapLayer.MapToLocal(coords)));
                         }
                     }
                 }
@@ -597,18 +566,33 @@ namespace Quasar.scenes.world
                 {
                     for (int j = startingCol; j < endingCol; j++)
                     {
-                        var cellCoord = new Vector2I(j, i);
+                        var coords = new Vector2I(j, i);
 
-                        if (_selectedTileMapLayer.GetCellSourceId(cellCoord) != -1)
+                        if (_selectedTileMapLayer.GetCellSourceId(coords) != -1)
                         {
-                            worldPosList.Add(_worldTileMapLayer.MapToLocal(cellCoord));
-                            SetCell(_selectedTileMapLayer, cellCoord);
+                            worldPosList.Add(_worldTileMapLayer.MapToLocal(coords));
+                            SelectCell(_selectedTileMapLayer, coords);
+                            //SetCell(_selectedTileMapLayer, cellCoord);
                         }
                     }
                 } 
 
                 EmitSignal(SignalName.CancelWork, worldPosList);
             } 
+        }
+
+        private void GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol)
+        {
+            var tileSize = _worldTileMapLayer.TileSize;
+            var left = _selectionRect.Position.X;
+            var right = left + _selectionRect.Size.X;
+            var top = _selectionRect.Position.Y;
+            var bottom = top + _selectionRect.Size.Y;
+
+            startingCol = Mathf.FloorToInt(left / tileSize.X);
+            endingCol = Mathf.CeilToInt(right / tileSize.X);
+            startingRow = Mathf.FloorToInt(top / tileSize.Y);
+            endingRow = Mathf.CeilToInt(bottom / tileSize.Y);
         }
 
         private static Vector2I GetAtlasCoordForSelection(int i, int j, int startingRow, int endingRow, int startingCol, int endingCol)
@@ -655,15 +639,7 @@ namespace Quasar.scenes.world
             return atlasCoord;
         }
 
-        private void SelectCell(TileMapLayer tileMapLayer, Vector2I cellCoord, int sourceId, Vector2I atlasCoord, Color? modulate = null)
-        {
-            if (_worldTileMapLayer.GetCellSourceId(cellCoord) != -1)
-            {
-                SetCell(tileMapLayer, cellCoord, sourceId, atlasCoord, 0, modulate);
-            }
-        }
-
-        private TileType GetTileType(float heightNoiseVal)
+        private static TileType GetTileType(float heightNoiseVal)
         {
             if (heightNoiseVal < 25.0f)
             {

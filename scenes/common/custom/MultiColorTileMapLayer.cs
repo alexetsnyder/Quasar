@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.data;
 using Quasar.scenes.common.interfaces;
 using System.Collections.Generic;
 
@@ -60,10 +61,10 @@ namespace Quasar.scenes.custom
         {
             var atlasSize = _atlasTexture.GetSize();
 
-            foreach (var atlasCoord in GetAllAtlasCoords(atlasSize))
+            foreach (var atlasCoords in GetAllAtlasCoords(atlasSize))
             {
-                atlasSource.CreateTile(atlasCoord, new(1, 1));
-                var tileData = atlasSource.GetTileData(atlasCoord, _alternateTile);
+                atlasSource.CreateTile(atlasCoords, new(1, 1));
+                var tileData = atlasSource.GetTileData(atlasCoords, _alternateTile);
                 if (tileData != null)
                 {
                     tileData.Modulate = color;

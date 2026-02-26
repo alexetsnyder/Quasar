@@ -8,6 +8,8 @@ namespace Quasar.scenes.common.interfaces
     {
         public Vector2I TileSize { get; set; }
 
+        public bool Visible { get; set; }
+
         public void SetCell(Vector2I coords, Vector2I? atlasCoords = null, Color? color = null);
 
         public Vector2I LocalToMap(Vector2 localPos);
@@ -17,6 +19,8 @@ namespace Quasar.scenes.common.interfaces
         public int GetCellSourceId(Vector2I coords);
 
         public Array<Vector2I> GetUsedCellsById(int sourceId = -1, Vector2I? atlasCoords = null, int alternativeTile = -1);
+
+        public void Clear();
     }
 }
 
