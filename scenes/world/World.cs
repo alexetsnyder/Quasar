@@ -572,7 +572,6 @@ namespace Quasar.scenes.world
                         {
                             worldPosList.Add(_worldTileMapLayer.MapToLocal(coords));
                             SelectCell(_selectedTileMapLayer, coords);
-                            //SetCell(_selectedTileMapLayer, cellCoord);
                         }
                     }
                 } 
