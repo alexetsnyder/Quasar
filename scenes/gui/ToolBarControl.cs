@@ -17,6 +17,9 @@ public partial class ToolBarControl : MarginContainer
 	[Signal]
 	public delegate void FarmPressedEventHandler();
 
+	[Signal]
+	public delegate void FishPressedEventHandler();
+
 	private Button _digButton;
 
 	private Button _selectButton;
@@ -55,5 +58,10 @@ public partial class ToolBarControl : MarginContainer
 	private void OnFarmButtonPressed()
 	{
 		EmitSignal(SignalName.FarmPressed);
+	}
+
+	private void OnFishButtonPressed()
+	{
+		EmitSignal(SignalName.FishPressed);
 	}
 }

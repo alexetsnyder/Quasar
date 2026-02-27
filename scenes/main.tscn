@@ -77,10 +77,11 @@ grow_horizontal = 2
 grow_vertical = 0
 
 [connection signal="CancelWork" from="World" to="." method="OnWorldCancelWork"]
-[connection signal="CreateWork" from="World" to="." method="OnWorldCreateWork"]
 [connection signal="TileSelected" from="World" to="." method="OnWorldTileSelected"]
+[connection signal="WorkCreated" from="World" to="." method="OnWorldWorkCreated"]
 [connection signal="BuildPressed" from="GUI/ToolBar" to="." method="OnToolBarBuildPressed"]
 [connection signal="CancelPressed" from="GUI/ToolBar" to="." method="OnToolBarCancelPressed"]
 [connection signal="DigPressed" from="GUI/ToolBar" to="." method="OnToolBarDigPressed"]
 [connection signal="FarmPressed" from="GUI/ToolBar" to="." method="OnToolBarFarmPressed"]
+[connection signal="FishPressed" from="GUI/ToolBar" to="." method="OnToolBarFishPressed"]
 [connection signal="SelectPressed" from="GUI/ToolBar" to="." method="OnToolBarSelectPressed"]

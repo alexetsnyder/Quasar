@@ -3,7 +3,7 @@ using Quasar.data.enums;
 
 namespace Quasar.scenes.cats
 {
-    public partial class CatData(string name, string description, string feelings, int health, WorkType profession)
+    public partial class CatData(string name, string description, string feelings, int health, WorkType workType)
     {
         public string Name { get; set; } = name;
 
@@ -13,7 +13,7 @@ namespace Quasar.scenes.cats
 
         public int Health { get; set; } = health;
 
-        public WorkType Profession { get; set; } = profession;
+        public WorkType WorkType { get; set; } = workType;
 
         public Vector2? WorkPos { get; set; } = null;
     }

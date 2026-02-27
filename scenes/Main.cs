@@ -37,6 +37,8 @@ namespace Quasar.scenes
 
         private List<Cat> _cats = [];
 
+        private List<WorkType> _possibleWorkTypes = [WorkType.MINING, WorkType.BUILDING];
+
         private List<CatData> _catDataList = [
             new("Fern", "Black Shorthair Cat", "Playful", 100, WorkType.MINING),
             new("Fig", "Black Shorthair Cat", "Sad", 100, WorkType.BUILDING),
@@ -237,33 +239,53 @@ namespace Quasar.scenes
 
         private void CheckForWork()
         {
-            if (_workList.Count > 0 && _cats.First().CanWork())
+            if (_workList.Count > 0)
             {
-                var path = ShortestPath(out Vector2? workPos);
-                if (workPos.HasValue)
+                foreach (var workType in _possibleWorkTypes)
                 {
-                    StartWork(WorkType.MINING, workPos.Value, path);
+                    List<Vector2> worldPosByType = [];
+
+                    foreach (var work in _workList)
+                    {
+                        if (work.WorkType == workType)
+                        {
+                            worldPosByType.Add(work.WorldPos);
+                        }
+                    }
+
+                    if (worldPosByType.Count > 0)
+                    {
+                        var cat = _cats.FirstOrDefault(c => c.CanWork() && c.CatData.WorkType == workType);
+                        if (cat != null)
+                        {
+                            var path = ShortestPath(worldPosByType, cat, out Vector2? worldPos);
+                            if (worldPos != null)
+                            {
+                                StartWork(cat, workType, worldPos.Value, path);
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private List<Vector2> ShortestPath(out Vector2? workPos)
+        private List<Vector2> ShortestPath(List<Vector2> worldPosList, Cat cat, out Vector2? worldPos)
         {
             List<Vector2> shortestPath = [];
             int minPathCount = int.MaxValue;
-            workPos = null;
+            worldPos = null;
 
-            foreach (var worldPos in _workList.Select(w => w.WorldPos))
+            foreach (var pos in worldPosList)
             {
-                foreach (var adjPos in _world.GetAdjacentTiles(worldPos, true))
+                foreach (var adjPos in _world.GetAdjacentTiles(pos, true))
                 {
-                    if (_cats.First().Position.IsEqualApprox(adjPos))
+                    if (cat.Position.IsEqualApprox(adjPos))
                     {
-                        workPos = worldPos;
+                        worldPos = pos;
                         return [];
                     }
                     
-                    var path = _world.FindPath(_cats.First().Position, adjPos);
+                    var path = _world.FindPath(cat.Position, adjPos);
 
                     if (path.Count == 0)
                     {
@@ -272,7 +294,7 @@ namespace Quasar.scenes
 
                     if (path.Count < minPathCount)
                     {
-                        workPos = worldPos;
+                        worldPos = pos;
                         minPathCount = path.Count;
                         shortestPath = path;
                     }
@@ -282,11 +304,11 @@ namespace Quasar.scenes
             return shortestPath;
         }
 
-        private void StartWork(WorkType workType, Vector2 workPos, List<Vector2> path)
+        private void StartWork(Cat cat, WorkType workType, Vector2 workPos, List<Vector2> path)
         {
-            _cats.First().SetPath(path);
+            cat.SetPath(path);
             _world.ShowPath(path);
-            _cats.First().SetWork(workType, workPos);
+            cat.SetWork(workType, workPos);
         }
 
         private void CancelCatWork(Vector2 workPos)
@@ -309,7 +331,7 @@ namespace Quasar.scenes
 
         private void OnToolBarDigPressed()
         {
-            _world.SetSelectionState(SelectionState.DIGGING);
+            _world.SetSelectionState(SelectionState.MINING);
         }
 
         private void OnToolBarBuildPressed()
@@ -320,6 +342,11 @@ namespace Quasar.scenes
         private void OnToolBarFarmPressed()
         {
             _world.SetSelectionState(SelectionState.FARMING);
+        }
+
+        private void OnToolBarFishPressed()
+        {
+            _world.SetSelectionState(SelectionState.FISHING);
         }
 
         private void OnToolBarCancelPressed()
@@ -346,7 +373,6 @@ namespace Quasar.scenes
         private void OnCatMovedOne(Vector2 lastPos, Vector2 newPos)
         {
             _world.PlaceItem(newPos, lastPos);
-
         }
 
         private void OnCatPathComplete()
@@ -354,7 +380,7 @@ namespace Quasar.scenes
             _world.ClearPath();
         }
 
-        private void OnWorldCreateWork(Array<Work> workArray)
+        private void OnWorldWorkCreated(Array<Work> workArray)
         {
             _workList.AddRange(workArray);
         }
@@ -382,14 +408,14 @@ namespace Quasar.scenes
             }
         }
 
-        private void OnCatWork(Cat cat, Vector2 workPos)
+        private void OnCatWork(Cat cat, Vector2 worldPos)
         {
-            var work = _workList.FirstOrDefault(w => w.WorldPos == workPos);
+            var work = _workList.FirstOrDefault(w => w.WorldPos == worldPos);
             cat.CompleteWork();
 
             if (work != null)
             {
-                _world.Dig(workPos);
+                _world.Work(work.WorkType, worldPos);
                 _workList.Remove(work);
             }
             else

@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://bnpbq5ghbj0w2" path="res://assets/textures/X.png" id="6_5j5p6"]
 [ext_resource type="Texture2D" uid="uid://d4dhx8rp7sywu" path="res://assets/textures/BuildIcon.png" id="7_r1sxl"]
 [ext_resource type="Texture2D" uid="uid://cdql2irvx48uo" path="res://assets/textures/FarmIcon.png" id="8_6ogpc"]
+[ext_resource type="Texture2D" uid="uid://co2yspy2e0jbv" path="res://assets/textures/Fish.png" id="9_6ogpc"]
 
 [node name="ToolBarMargin" type="MarginContainer" unique_id=1173881308]
 offset_right = 56.0
@@ -68,6 +69,23 @@ button_group = ExtResource("2_akbxs")
 icon = ExtResource("8_6ogpc")
 icon_alignment = 1
 
+[node name="FishButton" type="Button" parent="ToolBarContainer" unique_id=144863582]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/icon_normal_color = Color(0, 0, 1, 1)
+theme_override_colors/icon_focus_color = Color(0, 0, 1, 1)
+theme_override_colors/icon_pressed_color = Color(0, 0, 1, 1)
+theme_override_colors/icon_hover_color = Color(0, 0, 1, 1)
+theme_override_colors/icon_hover_pressed_color = Color(0, 0, 1, 1)
+theme_override_styles/normal = ExtResource("2_nvv0r")
+theme_override_styles/pressed = ExtResource("2_c0fro")
+theme_override_styles/hover = ExtResource("2_c0fro")
+toggle_mode = true
+button_group = ExtResource("2_akbxs")
+icon = ExtResource("9_6ogpc")
+icon_alignment = 1
+
 [node name="CancelButton" type="Button" parent="ToolBarContainer" unique_id=822691304]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -89,4 +107,5 @@ icon_alignment = 1
 [connection signal="pressed" from="ToolBarContainer/DigButton" to="." method="OnDigButtonPressed"]
 [connection signal="pressed" from="ToolBarContainer/BuildButton" to="." method="OnBuildButtonPressed"]
 [connection signal="pressed" from="ToolBarContainer/FarmButton" to="." method="OnFarmButtonPressed"]
+[connection signal="pressed" from="ToolBarContainer/FishButton" to="." method="OnFishButtonPressed"]
 [connection signal="pressed" from="ToolBarContainer/CancelButton" to="." method="OnCancelButtonPressed"]

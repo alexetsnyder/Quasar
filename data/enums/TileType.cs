@@ -7,7 +7,8 @@ namespace Quasar.data.enums
         DIRT,
         WATER,
         SOLID,
-        SOLID_WALL,
+        NATURAL_WALL,
         WALL,
+        TILLED,
     }
 }

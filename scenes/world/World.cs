@@ -37,7 +37,7 @@ namespace Quasar.scenes.world
         public delegate void TileSelectedEventHandler(Vector2 tilePos);
 
         [Signal]
-        public delegate void CreateWorkEventHandler(Array<Work> workArray);
+        public delegate void WorkCreatedEventHandler(Array<Work> workArray);
 
         [Signal]
         public delegate void CancelWorkEventHandler(Array<Vector2> worldPosArray);
@@ -143,8 +143,9 @@ namespace Quasar.scenes.world
                                     EmitSignal(SignalName.TileSelected, mousePos);
                                 }
                                 break;
-                            case SelectionState.DIGGING:
+                            case SelectionState.MINING:
                             case SelectionState.FARMING:
+                            case SelectionState.FISHING:
                             case SelectionState.CANCEL:
                                 _isSelecting = true;
                                 _selectionStart = GetGlobalMousePosition();
@@ -152,7 +153,8 @@ namespace Quasar.scenes.world
                                 _selectionRect.Size = new Vector2();
                                 break;
                             case SelectionState.BUILDING:
-                                Build(GetGlobalMousePosition());
+                                CreateWork(WorkType.BUILDING, [GetGlobalMousePosition()]);
+                                //Build(GetGlobalMousePosition());
                                 break;
                             default:
                                 GD.Print($"Selection State {_selectionState} set incorrectly.");
@@ -284,7 +286,23 @@ namespace Quasar.scenes.world
             return [..GetAdjacentCells(_worldTileMapLayer.LocalToMap(localPos), includeDiagonals).Select(a => _worldTileMapLayer.MapToLocal(a))];
         }
 
-        public void Dig(Vector2 localPos)
+        public void Work(WorkType workType, Vector2 localPos)
+        {
+            switch(workType)
+            {
+                case WorkType.MINING:
+                    Mine(localPos);
+                    break;
+                case WorkType.BUILDING:
+                    Build(localPos);
+                    break;
+                default:
+                    GD.Print("Work not Implimented Yet in World.Work");
+                    break;
+            }
+        }
+
+        public void Mine(Vector2 localPos)
         {
             var coords = _worldTileMapLayer.LocalToMap(localPos);
 
@@ -317,6 +335,13 @@ namespace Quasar.scenes.world
 
         #region Private Methods
 
+        private void CreateWork(WorkType workType, List<Vector2> workPosList)
+        {
+            var workList = workPosList.Select(w => new Work(workType.ToString(), workType, w));
+
+            EmitSignal(SignalName.WorkCreated, workList.ToArray());
+        }
+
         private bool CellOccupied(Vector2 localPos)
         {
             var coords = _worldTileMapLayer.LocalToMap(localPos);
@@ -341,7 +366,7 @@ namespace Quasar.scenes.world
 
         private void SetNaturalWall(Vector2I cellCoord)
         {
-            UpdateWorldTile(TileType.SOLID_WALL, cellCoord, true);
+            UpdateWorldTile(TileType.NATURAL_WALL, cellCoord, true);
         }
 
         private void GenerateWorld()
@@ -371,7 +396,7 @@ namespace Quasar.scenes.world
 
                     if (IsEdge(coords))
                     {
-                        _worldCellArray[i, j] = new(TileType.SOLID_WALL, AtlasCoordWorld.SOLID_WALL, ColorConstants.WALL_PURPLE);
+                        _worldCellArray[i, j] = new(TileType.NATURAL_WALL, AtlasCoordWorld.SOLID_WALL, ColorConstants.WALL_PURPLE);
                     }
                 }
             }
@@ -436,7 +461,7 @@ namespace Quasar.scenes.world
                 return true;
             }
 
-            return (worldCell.TileType == TileType.SOLID || worldCell.TileType == TileType.SOLID_WALL || worldCell.TileType == TileType.WALL);
+            return (worldCell.TileType == TileType.SOLID || worldCell.TileType == TileType.NATURAL_WALL || worldCell.TileType == TileType.WALL);
         }
 
         private static void SetCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
@@ -479,7 +504,7 @@ namespace Quasar.scenes.world
             }
 
             return (worldCell.TileType == TileType.SOLID ||
-                    worldCell.TileType == TileType.SOLID_WALL ||
+                    worldCell.TileType == TileType.NATURAL_WALL ||
                     worldCell.TileType == TileType.WALL ||
                     worldCell.TileType == TileType.WATER);
         }
@@ -569,7 +594,7 @@ namespace Quasar.scenes.world
 
             GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
 
-            if (_selectionState == SelectionState.DIGGING)
+            if (_selectionState == SelectionState.MINING)
             {
                 Array<Work> workList = [];
                 for (int i = startingRow; i < endingRow; i++)
@@ -580,12 +605,12 @@ namespace Quasar.scenes.world
                         if (IsSolid(coords) && _selectedTileMapLayer.GetCellSourceId(coords) == -1)
                         {
                             SelectCell(_selectedTileMapLayer, coords, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                            workList.Add(new("DIGGING", WorkType.MINING, _worldTileMapLayer.MapToLocal(coords)));
+                            workList.Add(new("MINING", WorkType.MINING, _worldTileMapLayer.MapToLocal(coords)));
                         }
                     }
                 }
 
-                EmitSignal(SignalName.CreateWork, workList);
+                EmitSignal(SignalName.WorkCreated, workList);
             }
             else if (_selectionState == SelectionState.CANCEL)
             {
@@ -695,7 +720,7 @@ namespace Quasar.scenes.world
                     return AtlasCoordWorld.DIRT;
                 case TileType.WALL:
                     return AtlasCoordWorld.WALL;
-                case TileType.SOLID_WALL:
+                case TileType.NATURAL_WALL:
                     return AtlasCoordWorld.SOLID_WALL;
                 case TileType.SOLID:
                     return AtlasCoordWorld.SOLID;
@@ -724,7 +749,7 @@ namespace Quasar.scenes.world
                     return ColorConstants.BURNT_ORANGE;
                 case TileType.WALL:
                     return ColorConstants.GREY;
-                case TileType.SOLID_WALL:
+                case TileType.NATURAL_WALL:
                     return ColorConstants.WALL_PURPLE;
                 case TileType.SOLID:
                     return ColorConstants.BLACK;
