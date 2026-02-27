@@ -35,7 +35,14 @@ namespace Quasar.scenes
 
         private Vector2 _prevCameraPos;
 
-        private Cat _cat;
+        private List<Cat> _cats = [];
+
+        private List<CatData> _catDataList = [
+            new("Fern", "Black Shorthair Cat", "Playful", 100, WorkType.MINING),
+            new("Fig", "Black Shorthair Cat", "Sad", 100, WorkType.BUILDING),
+            new("Pepper", "Longhair Cat", "Wary", 100, WorkType.FARMING),
+            new("New Year", "Russian Blue Cat", "Curious", 100, WorkType.FISHING),
+        ];
 
         private List<Work> _workList = [];
 
@@ -56,23 +63,7 @@ namespace Quasar.scenes
                 _characterDisplay.Visible = false;
             }
 
-            _cat = InstantiateScene<Cat>("res://scenes/cats/cat.tscn");
-            if (_cat != null)
-            {
-                AddChild(_cat);
-                var catPosList = _world.GetSpawnPoints(_world.Center);
-                if (catPosList.Count > 0)
-                {
-                    var catPos = catPosList.First();
-                    _cat.Position = catPos;
-                    _world.PlaceItem(catPos);
-                }
-                _cat.Speed = 8;
-                _cat.CatClickedOn += OnCatClickedOn;
-                _cat.MovedOne += OnCatMovedOne;
-                _cat.PathComplete += OnCatPathComplete;
-                _cat.CatWork += OnCatWork;
-            }
+            CreateCats();
 
             _map.SetProcessUnhandledInput(false);
 
@@ -165,7 +156,11 @@ namespace Quasar.scenes
                 _map.SetProcessUnhandledInput(true);
                 _world.Visible = false;
                 _world.SetProcessUnhandledInput(false);
-                _cat.Visible = false;
+
+                foreach (var cat in _cats)
+                {
+                    cat.Visible = false;
+                }
             }
             else
             {
@@ -173,11 +168,58 @@ namespace Quasar.scenes
                 _map.SetProcessUnhandledInput(false);
                 _world.Visible = true;
                 _world.SetProcessUnhandledInput(true);
-                _cat.Visible = true;
+
+                foreach (var cat in _cats)
+                {
+                    cat.Visible = true; 
+                }
             }
 
             SetTyleTypeLabel();
             SetTyleColorLabel();
+        }
+
+        private void CreateCats()
+        {
+            int n = 4;
+            var spawnPoints = _world.GetSpawnPoints(_world.Center, n);
+
+            var spawnPointsStr = "";
+            foreach (var spawnPoint in spawnPoints)
+            {
+                spawnPointsStr += spawnPoint.ToString();
+            }
+
+            if (spawnPoints.Count == n)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    var cat = InstantiateScene<Cat>("res://scenes/cats/cat.tscn");
+                    if (cat != null)
+                    {
+                        AddChild(cat);
+
+                        var catPos = spawnPoints[i];
+                        cat.Position = catPos;
+                        _world.PlaceItem(catPos);
+
+                        cat.Speed = 8;
+                        cat.SetCatData(_catDataList[i]);
+                        WireCatEvents(cat);
+
+                        _cats.Add(cat);
+                    }
+                }
+
+            }
+        }
+
+        private void WireCatEvents(Cat cat)
+        {
+            cat.CatClickedOn += OnCatClickedOn;
+            cat.MovedOne += OnCatMovedOne;
+            cat.PathComplete += OnCatPathComplete;
+            cat.CatWork += OnCatWork;
         }
 
         private static T InstantiateScene<T>(string path)  where T : class    
@@ -195,7 +237,7 @@ namespace Quasar.scenes
 
         private void CheckForWork()
         {
-            if (_workList.Count > 0 && _cat.CanWork())
+            if (_workList.Count > 0 && _cats.First().CanWork())
             {
                 var path = ShortestPath(out Vector2? workPos);
                 if (workPos.HasValue)
@@ -215,13 +257,13 @@ namespace Quasar.scenes
             {
                 foreach (var adjPos in _world.GetAdjacentTiles(worldPos, true))
                 {
-                    if (_cat.Position.IsEqualApprox(adjPos))
+                    if (_cats.First().Position.IsEqualApprox(adjPos))
                     {
                         workPos = worldPos;
                         return [];
                     }
                     
-                    var path = _world.FindPath(_cat.Position, adjPos);
+                    var path = _world.FindPath(_cats.First().Position, adjPos);
 
                     if (path.Count == 0)
                     {
@@ -242,9 +284,22 @@ namespace Quasar.scenes
 
         private void StartWork(WorkType workType, Vector2 workPos, List<Vector2> path)
         {
-            _cat.SetPath(path);
+            _cats.First().SetPath(path);
             _world.ShowPath(path);
-            _cat.SetWork(workType, workPos);
+            _cats.First().SetWork(workType, workPos);
+        }
+
+        private void CancelCatWork(Vector2 workPos)
+        {
+            foreach (var cat in _cats)
+            {
+                if (!cat.CanWork() && cat.CatData.WorkPos == workPos)
+                {
+                    GD.Print("Cancel from CancelCatWork");
+                    cat.CompleteWork();
+                    break;
+                }
+            }
         }
 
         private void OnToolBarSelectPressed()
@@ -280,11 +335,11 @@ namespace Quasar.scenes
 
         private void OnWorldTileSelected(Vector2 tileSelected)
         {
-            if (!_cat.IsWorking)
+            if (!_cats.First().IsWorking)
             {
-                var path = _world.FindPath(_cat.Position, tileSelected);
+                var path = _world.FindPath(_cats.First().Position, tileSelected);
                 _world.ShowPath(path);
-                _cat.SetPath(path);
+                _cats.First().SetPath(path);
             } 
         }
 
@@ -315,6 +370,7 @@ namespace Quasar.scenes
                     if (work.WorldPos == pos)
                     {
                         removeList.Add(work);
+                        CancelCatWork(work.WorldPos);
                         break;
                     }
                 }
@@ -328,10 +384,18 @@ namespace Quasar.scenes
 
         private void OnCatWork(Cat cat, Vector2 workPos)
         {
-            _world.Dig(workPos);
+            var work = _workList.FirstOrDefault(w => w.WorldPos == workPos);
             cat.CompleteWork();
-            var work = _workList.First(w =>  w.WorldPos == workPos);
-            _workList.Remove(work);
+
+            if (work != null)
+            {
+                _world.Dig(workPos);
+                _workList.Remove(work);
+            }
+            else
+            {
+                GD.Print("Cancel from OnCatWork");
+            }
         }
     }
 }

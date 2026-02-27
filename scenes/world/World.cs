@@ -73,8 +73,6 @@ namespace Quasar.scenes.world
 
         private SelectionState _selectionState = SelectionState.SINGLE;
 
-        private bool _isWorking = false;
-
         private bool _isSelecting = false;
 
         private Vector2 _selectionStart;
@@ -140,7 +138,7 @@ namespace Quasar.scenes.world
                         {
                             case SelectionState.SINGLE:
                                 var mousePos = GetGlobalMousePosition();
-                                if (!_isWorking)
+                                if (!CellOccupied(mousePos))
                                 {
                                     EmitSignal(SignalName.TileSelected, mousePos);
                                 }
@@ -318,6 +316,17 @@ namespace Quasar.scenes.world
         #endregion
 
         #region Private Methods
+
+        private bool CellOccupied(Vector2 localPos)
+        {
+            var coords = _worldTileMapLayer.LocalToMap(localPos);
+            if (_worldTileMapLayer.GetCellSourceId(coords) == -1)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         private void UpdateWorldTile(TileType tileType, Vector2I coords, bool isSolid = false)
         {

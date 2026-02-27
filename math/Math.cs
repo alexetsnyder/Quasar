@@ -72,6 +72,7 @@ namespace Quasar.math
                         BubbleMinRec(minDistances, points, n, i);
                         minDistances[i] = d;
                         points[i] = point;
+                        break;
                     }
                 }
             }
@@ -85,10 +86,10 @@ namespace Quasar.math
             {
                 if (minDistances[index] < minDistances[j])
                 {
+                    BubbleMinRec(minDistances, points, n, j);
                     minDistances[j] = minDistances[index];
                     points[j] = points[index];
-
-                    BubbleMinRec(minDistances, points, n, j);
+                    break;
                 }
             }
         }

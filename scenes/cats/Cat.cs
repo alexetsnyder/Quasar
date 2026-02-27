@@ -55,8 +55,6 @@ namespace Quasar.scenes.cats
             _catSprite = GetNode<Sprite2D>("CatSprite");
             _workProgress = GetNode<TextureProgressBar>("WorkProgress");
             _workProgress.Visible = false;
-
-            CatData = new("Fern", "Stinky Cat", "Warm", 100, WorkType.MINING);
         }
 
         public override void _Process(double delta)
@@ -76,6 +74,11 @@ namespace Quasar.scenes.cats
             {
                 Work(TimeSystem.Instance.TicksPerSecond * delta);
             }
+        }
+
+        public void SetCatData(CatData data)
+        {
+            CatData = data;
         }
 
         public void SetWork(WorkType workType, Vector2 workPos)
