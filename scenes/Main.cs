@@ -37,7 +37,7 @@ namespace Quasar.scenes
 
         private List<Cat> _cats = [];
 
-        private List<WorkType> _possibleWorkTypes = [WorkType.MINING, WorkType.BUILDING];
+        private List<WorkType> _possibleWorkTypes = [WorkType.MINING, WorkType.BUILDING, WorkType.FARMING, WorkType.FISHING];
 
         private List<CatData> _catDataList = [
             new("Fern", "Black Shorthair Cat", "Playful", 100, WorkType.MINING),
@@ -389,15 +389,14 @@ namespace Quasar.scenes
         {
             List<Work> removeList = [];
 
-            foreach (var pos in worldPosArray)
+            foreach (var worldPos in worldPosArray)
             {
                 foreach (var work in _workList)
                 {
-                    if (work.WorldPos == pos)
+                    if (work.WorldPos == worldPos)
                     {
-                        removeList.Add(work);
-                        CancelCatWork(work.WorldPos);
-                        break;
+                        removeList.Add(work); 
+                        break; 
                     }
                 }
             }

@@ -7,5 +7,6 @@ namespace Quasar.data.enums
         FARMING,
         BUILDING,
         FISHING,
+        CANCEL,
     }
 }

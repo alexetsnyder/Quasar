@@ -7,6 +7,7 @@ using Quasar.scenes.common.interfaces;
 using Quasar.scenes.work;
 using System.Collections.Generic;
 using System.Linq;
+using static Godot.VisualShaderNode;
 
 namespace Quasar.scenes.world
 {
@@ -146,15 +147,12 @@ namespace Quasar.scenes.world
                             case SelectionState.MINING:
                             case SelectionState.FARMING:
                             case SelectionState.FISHING:
+                            case SelectionState.BUILDING:
                             case SelectionState.CANCEL:
                                 _isSelecting = true;
                                 _selectionStart = GetGlobalMousePosition();
                                 _selectionRect.Position = _selectionStart;
                                 _selectionRect.Size = new Vector2();
-                                break;
-                            case SelectionState.BUILDING:
-                                CreateWork(WorkType.BUILDING, [GetGlobalMousePosition()]);
-                                //Build(GetGlobalMousePosition());
                                 break;
                             default:
                                 GD.Print($"Selection State {_selectionState} set incorrectly.");
@@ -296,6 +294,12 @@ namespace Quasar.scenes.world
                 case WorkType.BUILDING:
                     Build(localPos);
                     break;
+                case WorkType.FARMING:
+                    Till(localPos);
+                    break;
+                case WorkType.FISHING:
+                    Fish(localPos);
+                    break;
                 default:
                     GD.Print("Work not Implimented Yet in World.Work");
                     break;
@@ -328,19 +332,34 @@ namespace Quasar.scenes.world
             if (!IsImpassable(coords))
             {
                 UpdateWorldTile(TileType.WALL, coords, true);
+                SelectCell(_selectedTileMapLayer, coords);
+            }
+        }
+
+        public void Till(Vector2 localPos)
+        {
+            var coords = _worldTileMapLayer.LocalToMap(localPos);
+
+            if (!IsImpassable(coords))
+            {
+                UpdateWorldTile(TileType.TILLED, coords, false);
+                SelectCell(_selectedTileMapLayer, coords);
+            }
+        }
+
+        public void Fish(Vector2 localPos)
+        {
+            var coords = _worldTileMapLayer.LocalToMap(localPos);
+
+            if (IsWater(coords))
+            {
+                SelectCell(_selectedTileMapLayer, coords);
             }
         }
 
         #endregion
 
         #region Private Methods
-
-        private void CreateWork(WorkType workType, List<Vector2> workPosList)
-        {
-            var workList = workPosList.Select(w => new Work(workType.ToString(), workType, w));
-
-            EmitSignal(SignalName.WorkCreated, workList.ToArray());
-        }
 
         private bool CellOccupied(Vector2 localPos)
         {
@@ -355,8 +374,8 @@ namespace Quasar.scenes.world
 
         private void UpdateWorldTile(TileType tileType, Vector2I coords, bool isSolid = false)
         {
-            var atlasCoords = GetAtlasCoord(tileType);
-            var color = GetTileColor(tileType);
+            var atlasCoords = GetAtlasCoords(tileType);
+            var color = GetCellColor(tileType);
 
             _worldCellArray[coords.X, coords.Y] = new(tileType, atlasCoords, color);
 
@@ -377,8 +396,8 @@ namespace Quasar.scenes.world
                 {
                     var noiseVal = _heightNoise.GetNoise(j, i);
                     var tileType = GetTileType(noiseVal);
-                    var atlasCoords = GetAtlasCoord(tileType);
-                    var color = GetTileColor(tileType);
+                    var atlasCoords = GetAtlasCoords(tileType);
+                    var color = GetCellColor(tileType);
                     _worldCellArray[i, j] = new(tileType, atlasCoords, color);
                 }
             }
@@ -462,6 +481,17 @@ namespace Quasar.scenes.world
             }
 
             return (worldCell.TileType == TileType.SOLID || worldCell.TileType == TileType.NATURAL_WALL || worldCell.TileType == TileType.WALL);
+        }
+
+        private bool IsWater(Vector2I coords)
+        {
+            var worldCell = GetWorldCell(coords);
+            if (worldCell == null)
+            {
+                return false;
+            }
+
+            return (worldCell.TileType == TileType.WATER);
         }
 
         private static void SetCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
@@ -592,28 +622,23 @@ namespace Quasar.scenes.world
         {
             _selectingTileMapLayer.Clear();
 
-            GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
-
             if (_selectionState == SelectionState.MINING)
             {
-                Array<Work> workList = [];
-                for (int i = startingRow; i < endingRow; i++)
-                {
-                    for (int j = startingCol; j < endingCol; j++)
-                    {
-                        var coords = new Vector2I(j, i);
-                        if (IsSolid(coords) && _selectedTileMapLayer.GetCellSourceId(coords) == -1)
-                        {
-                            SelectCell(_selectedTileMapLayer, coords, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                            workList.Add(new("MINING", WorkType.MINING, _worldTileMapLayer.MapToLocal(coords)));
-                        }
-                    }
-                }
-
-                EmitSignal(SignalName.WorkCreated, workList);
+                EmitSignal(SignalName.WorkCreated, GetWorkArray((c) => !IsSolid(c)));
+            }
+            else if (_selectionState == SelectionState.BUILDING ||
+                     _selectionState == SelectionState.FARMING)
+            {
+                EmitSignal(SignalName.WorkCreated, GetWorkArray(IsImpassable));
+            }
+            else if (_selectionState == SelectionState.FISHING)
+            {
+                EmitSignal(SignalName.WorkCreated, GetWorkArray((c) => !IsWater(c)));
             }
             else if (_selectionState == SelectionState.CANCEL)
             {
+                GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
+
                 Array<Vector2> worldPosList = [];
 
                 for (int i = startingRow; i < endingRow; i++)
@@ -624,14 +649,40 @@ namespace Quasar.scenes.world
 
                         if (_selectedTileMapLayer.GetCellSourceId(coords) != -1)
                         {
-                            worldPosList.Add(_worldTileMapLayer.MapToLocal(coords));
                             SelectCell(_selectedTileMapLayer, coords);
+                            worldPosList.Add(_worldTileMapLayer.MapToLocal(coords));
                         }
                     }
                 } 
 
                 EmitSignal(SignalName.CancelWork, worldPosList);
             } 
+        }
+
+        private Array<Work> GetWorkArray(System.Func<Vector2I, bool> filter)
+        {
+            Array<Work> workPosArray = [];
+
+            GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol);
+
+            var workType = GetWorkType(_selectionState);
+            var atlasCoords = GetAtlasCoords(workType);
+            var color = GetCellColor(workType);
+
+            for (int i = startingRow; i < endingRow; i++)
+            {
+                for (int j = startingCol; j < endingCol; j++)
+                {
+                    var coords = new Vector2I(j, i);
+                    if (!filter(coords) && _selectedTileMapLayer.GetCellSourceId(coords) == -1)
+                    {
+                        SelectCell(_selectedTileMapLayer, coords, atlasCoords, color);
+                        workPosArray.Add(new(workType.ToString(), workType, _worldTileMapLayer.MapToLocal(coords)));
+                    }
+                }
+            }
+
+            return workPosArray;
         }
 
         private void GetSelection(out int startingRow, out int endingRow, out int startingCol, out int endingCol)
@@ -708,7 +759,7 @@ namespace Quasar.scenes.world
             }
         }
 
-        private Vector2I GetAtlasCoord(TileType tileType)
+        private Vector2I GetAtlasCoords(TileType tileType)
         {
             switch (tileType)
             {
@@ -720,6 +771,8 @@ namespace Quasar.scenes.world
                     return AtlasCoordWorld.DIRT;
                 case TileType.WALL:
                     return AtlasCoordWorld.WALL;
+                case TileType.TILLED:
+                    return AtlasCoordWorld.DIRT;
                 case TileType.NATURAL_WALL:
                     return AtlasCoordWorld.SOLID_WALL;
                 case TileType.SOLID:
@@ -737,7 +790,7 @@ namespace Quasar.scenes.world
         /// List Index matches alternative tiles in TileSet.
         /// </param>
         /// <returns> Return Tile Color </returns>
-        private Color GetTileColor(TileType tileType)
+        private Color GetCellColor(TileType tileType)
         {
             switch (tileType)
             {
@@ -749,12 +802,67 @@ namespace Quasar.scenes.world
                     return ColorConstants.BURNT_ORANGE;
                 case TileType.WALL:
                     return ColorConstants.GREY;
+                case TileType.TILLED:
+                    return ColorConstants.LAVENDER;
                 case TileType.NATURAL_WALL:
                     return ColorConstants.WALL_PURPLE;
                 case TileType.SOLID:
                     return ColorConstants.BLACK;
                 default:
                     return ColorConstants.BLACK;
+            }
+        }
+
+        private static WorkType GetWorkType(SelectionState selectionState)
+        {
+            switch (selectionState)
+            {
+                case SelectionState.MINING:
+                    return WorkType.MINING;
+                case SelectionState.BUILDING:
+                    return WorkType.BUILDING;
+                case SelectionState.FARMING:
+                    return WorkType.FARMING;
+                case SelectionState.FISHING:
+                    return WorkType.FISHING;
+                default:
+                    GD.Print("Incorrect Selection State in GetWorkType(selectionState).");
+                    return WorkType.NONE;
+            }
+        }
+
+        private static Vector2I GetAtlasCoords(WorkType workType)
+        {
+            switch (workType)
+            {
+                case WorkType.MINING:
+                    return AtlasCoordSelection.MINE;
+                case WorkType.BUILDING:
+                    return AtlasCoordSelection.BUILD;
+                case WorkType.FARMING:
+                    return AtlasCoordSelection.TILL;
+                case WorkType.FISHING:
+                    return AtlasCoordSelection.FISH;
+                default:
+                    GD.Print("Incorrect WorkType in GetAtlasCoords(workType).");
+                    return AtlasCoordSelection.MIDDLE_SELECTION;
+
+            }
+        }
+
+        private static Color GetCellColor(WorkType workType)
+        {
+            switch (workType)
+            {
+                case WorkType.MINING:
+                case WorkType.BUILDING:
+                case WorkType.FARMING:
+                    return ColorConstants.GREY;
+                case WorkType.FISHING:
+                    return ColorConstants.ORANGE;
+                default:
+                    GD.Print("Incorrect WorkType in GetCellColor(workType).");
+                    return ColorConstants.WHITE;
             }
         }
 

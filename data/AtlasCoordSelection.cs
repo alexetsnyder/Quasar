@@ -4,7 +4,13 @@ namespace Quasar.data
 {
     public static partial class AtlasCoordSelection
     {
-        public static Vector2I DIG { get => new(0, 0); }
+        public static Vector2I MINE { get => new(0, 0); }
+
+        public static Vector2I BUILD {  get => new(2, 3); }
+
+        public static Vector2I TILL {  get => new(2, 1); }
+
+        public static Vector2I FISH { get => new(2, 2); }
 
         public static Vector2I CANCEL {  get => new(2, 0); }
 
