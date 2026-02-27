@@ -48,8 +48,6 @@ namespace Quasar.scenes.cats
 
         private Vector2 _nextPos = new();
 
-        private Vector2 _workPos = new();
-
         private double ElapsedWorkTime = 0.0;
 
         public override void _Ready()
@@ -58,7 +56,7 @@ namespace Quasar.scenes.cats
             _workProgress = GetNode<TextureProgressBar>("WorkProgress");
             _workProgress.Visible = false;
 
-            CatData = new("Fern", "Stinky Cat", "Uncomfortable", 100, WorkType.NONE);
+            CatData = new("Fern", "Stinky Cat", "Warm", 100, WorkType.MINING);
         }
 
         public override void _Process(double delta)
@@ -83,8 +81,7 @@ namespace Quasar.scenes.cats
         public void SetWork(WorkType workType, Vector2 workPos)
         {
             IsWorking = true;
-            CatData.Work = workType;
-            _workPos = workPos;
+            CatData.WorkPos = workPos;
             _workProgress.Value = 0;
             _workProgress.Visible = true;
         }
@@ -93,6 +90,7 @@ namespace Quasar.scenes.cats
         {
             IsWorking = false;
             _workProgress.Visible = false;
+            CatData.WorkPos = null;
         }
 
         public void SetPath(List<Vector2> path)
@@ -133,7 +131,7 @@ namespace Quasar.scenes.cats
 
             if (ElapsedWorkTime >= WorkTicks)
             {
-                EmitSignal(SignalName.CatWork, this, _workPos);
+                EmitSignal(SignalName.CatWork, this, CatData.WorkPos.Value);
                 ElapsedWorkTime %= WorkTicks;
             }
         }

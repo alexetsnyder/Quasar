@@ -89,6 +89,14 @@ text = "Work: "
 [node name="WorkLabelValue" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=724405433]
 layout_mode = 2
 
+[node name="WorkPosLabel" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=2009355648]
+visible = false
+layout_mode = 2
+text = "WorkPos:"
+
+[node name="WorkPosLabelValue" type="Label" parent="TabsAndContent/PanelContainer/StatusTab" unique_id=1896431912]
+layout_mode = 2
+
 [node name="InventoryTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=871570406]
 visible = false
 layout_mode = 2

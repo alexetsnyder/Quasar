@@ -3,6 +3,9 @@ namespace Quasar.data.enums
     public enum WorkType
     {
         NONE,
-        DIGGING,
+        MINING,
+        FARMING,
+        BUILDING,
+        FISHING,
     }
 }

@@ -200,7 +200,7 @@ namespace Quasar.scenes
                 var path = ShortestPath(out Vector2? workPos);
                 if (workPos.HasValue)
                 {
-                    StartWork(WorkType.DIGGING, workPos.Value, path);
+                    StartWork(WorkType.MINING, workPos.Value, path);
                 }
             }
         }
@@ -274,7 +274,7 @@ namespace Quasar.scenes
 
         private void OnCatClickedOn(Cat cat)
         {
-            _characterDisplay.FillUI(cat.CatData);
+            _characterDisplay.SetCatData(cat.CatData);
             _characterDisplay.Visible = true;
         }
 
@@ -302,7 +302,6 @@ namespace Quasar.scenes
         private void OnWorldCreateWork(Array<Work> workArray)
         {
             _workList.AddRange(workArray);
-            GD.Print($"WorkList: {_workList.Count}");
         }
 
         private void OnWorldCancelWork(Array<Vector2> worldPosArray)
@@ -325,8 +324,6 @@ namespace Quasar.scenes
             {
                 _workList.Remove(work);
             }
-
-            GD.Print($"WorkList: {_workList.Count}");
         }
 
         private void OnCatWork(Cat cat, Vector2 workPos)

@@ -1,8 +1,9 @@
+using Godot;
 using Quasar.data.enums;
 
 namespace Quasar.scenes.cats
 {
-    public partial class CatData(string name, string description, string feelings, int health, WorkType work)
+    public partial class CatData(string name, string description, string feelings, int health, WorkType profession)
     {
         public string Name { get; set; } = name;
 
@@ -12,6 +13,8 @@ namespace Quasar.scenes.cats
 
         public int Health { get; set; } = health;
 
-        public WorkType Work { get; set; } = work;
+        public WorkType Profession { get; set; } = profession;
+
+        public Vector2? WorkPos { get; set; } = null;
     }
 }

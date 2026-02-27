@@ -230,7 +230,7 @@ namespace Quasar.scenes.world
             var allPoints = GetAllPoints();
             var maxConnnectedArea = Math.MaxConnectedArea(allPoints, (v) => !IsImpassable(v));
 
-            var coordsSpawnPoints = Math.MinDistanceToPoint(allPoints, toPoint, n);
+            var coordsSpawnPoints = Math.MinDistanceToPoint(maxConnnectedArea, toPoint, n);
 
             List<Vector2> localSpawnPoints = [];
 
@@ -571,7 +571,7 @@ namespace Quasar.scenes.world
                         if (IsSolid(coords) && _selectedTileMapLayer.GetCellSourceId(coords) == -1)
                         {
                             SelectCell(_selectedTileMapLayer, coords, AtlasCoordSelection.DIG, ColorConstants.GREY);
-                            workList.Add(new("DIGGING", WorkType.DIGGING, _worldTileMapLayer.MapToLocal(coords)));
+                            workList.Add(new("DIGGING", WorkType.MINING, _worldTileMapLayer.MapToLocal(coords)));
                         }
                     }
                 }

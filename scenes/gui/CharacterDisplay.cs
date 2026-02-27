@@ -21,9 +21,15 @@ namespace Quasar.scenes.gui
 
         private Label _workLabelValue;
 
+        private Label _workPosLabel;
+
+        private Label _workPosLabelValue;
+
         private bool _isMoving = false;
 
         private Vector2 _prevMousePos;
+
+        private CatData _catData;
 
         public override void _Ready()
         {
@@ -35,15 +41,44 @@ namespace Quasar.scenes.gui
             _healthLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/HealthLabelValue");
             _feelingsLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/FeelingsLabelValue");
             _workLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkLabelValue");
+            _workPosLabel = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkPosLabel");
+            _workPosLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkPosLabelValue");
         }
 
-        public void FillUI(CatData catData)
+        public override void _Process(double delta)
         {
-            _catNameLabel.Text = catData.Name;
-            _catDescriptionLabel.Text = catData.Description;
-            _healthLabelValue.Text = catData.Health.ToString();
-            _feelingsLabelValue.Text = catData.Feelings;
-            _workLabelValue.Text = catData.Work.ToString();
+            FillUI();
+        }
+
+        public void SetCatData(CatData catData)
+        {
+            _catData = catData;
+            FillUI();
+        }
+
+        public void FillUI()
+        {
+            if (_catData == null)
+            {
+                return;
+            }
+
+            _catNameLabel.Text = _catData.Name;
+            _catDescriptionLabel.Text = _catData.Description;
+            _healthLabelValue.Text = _catData.Health.ToString();
+            _feelingsLabelValue.Text = _catData.Feelings;
+            _workLabelValue.Text = _catData.Profession.ToString();
+
+            if (_catData.WorkPos != null)
+            {
+                _workPosLabel.Visible = true;
+                _workPosLabelValue.Text = _catData.WorkPos.Value.ToString();
+            }
+            else
+            {
+                _workPosLabel.Visible = false;
+                _workPosLabelValue.Text = "";
+            }
         }
 
         public void OnNameTabButtonPressed()
