@@ -51,6 +51,8 @@ namespace Quasar.scenes
 
         private List<Work> _workList = [];
 
+        private BuildingType _currentBuildable = BuildingType.NONE;
+
         public override void _Ready()
         {
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
@@ -379,8 +381,9 @@ namespace Quasar.scenes
             _selectionSystem.SelectionState = SelectionState.MINING;
         }
 
-        private void OnToolBarBuildPressed()
+        private void OnToolBarBuildPressed(int buildableType)
         {
+            _currentBuildable = (BuildingType)buildableType;
             _selectionSystem.SelectionState = SelectionState.BUILDING;
         }
 
@@ -455,7 +458,7 @@ namespace Quasar.scenes
 
             if (work != null)
             {
-                _world.Work(work.WorkType, worldPos);
+                _world.Work(work.WorkType, worldPos, _currentBuildable);
                 _selectionSystem.Deselect(worldPos);
                 _workList.Remove(work);
             }

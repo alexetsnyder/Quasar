@@ -160,3 +160,4 @@ item_3/icon = SubResource("AtlasTexture_pk1ca")
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FarmButton" to="." method="OnFarmButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FishButton" to="." method="OnFishButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/CancelButton" to="." method="OnCancelButtonPressed"]
+[connection signal="item_selected" from="BuildMenu" to="." method="OnBuildMenuItemSelected"]

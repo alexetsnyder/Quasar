@@ -9,7 +9,7 @@ public partial class ToolBarControl : Control
 	public delegate void MinePressedEventHandler();
 
 	[Signal]
-	public delegate void BuildPressedEventHandler();
+	public delegate void BuildPressedEventHandler(int buildingType);
 
 	[Signal]
 	public delegate void FarmPressedEventHandler();
@@ -41,10 +41,14 @@ public partial class ToolBarControl : Control
 	private void OnBuildButtonPressed()
 	{
 		_buildMenu.Visible = true;
-		EmitSignal(SignalName.BuildPressed);
 	}
 
-	private void OnFarmButtonPressed()
+    private void OnBuildMenuItemSelected(int index)
+    {
+        EmitSignal(SignalName.BuildPressed, index + 1);
+    }
+
+    private void OnFarmButtonPressed()
 	{
         _buildMenu.Visible = false;
         EmitSignal(SignalName.FarmPressed);

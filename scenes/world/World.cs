@@ -192,7 +192,7 @@ namespace Quasar.scenes.world
             return [..GetAdjacentCells(_worldTileMapLayer.LocalToMap(localPos), includeDiagonals).Select(a => _worldTileMapLayer.MapToLocal(a))];
         }
 
-        public void Work(WorkType workType, Vector2 localPos)
+        public void Work(WorkType workType, Vector2 localPos, BuildingType? buildingType = null)
         {
             switch(workType)
             {
@@ -200,7 +200,7 @@ namespace Quasar.scenes.world
                     Mine(localPos);
                     break;
                 case WorkType.BUILDING:
-                    Build(localPos);
+                    Build(localPos, buildingType.Value);
                     break;
                 case WorkType.FARMING:
                     Till(localPos);
@@ -232,13 +232,20 @@ namespace Quasar.scenes.world
             }
         }
 
-        public void Build(Vector2 localPos)
+        public void Build(Vector2 localPos, BuildingType buildingType)
         {
             var coords = _worldTileMapLayer.LocalToMap(localPos);
 
             if (!IsImpassable(coords))
             {
-                UpdateWorldTile(TileType.WALL, coords, true);
+                var atlasCoords = GetAtlasCoords(buildingType);
+                var color = GetCellColor(TileType.WALL);
+
+                _worldCellArray[coords.X, coords.Y] = new(TileType.WALL, atlasCoords, color);
+
+                SetCell(_worldTileMapLayer, coords, atlasCoords, color);
+                _aStarGrid2d.SetPointSolid(coords, true);
+
             }
         }
 
@@ -565,6 +572,23 @@ namespace Quasar.scenes.world
                     return ColorConstants.BLACK;
                 default:
                     return ColorConstants.BLACK;
+            }
+        }
+
+        private Vector2I GetAtlasCoords(BuildingType buildingType)
+        {
+            switch (buildingType)
+            {
+                case BuildingType.VERTICAL_WALL:
+                    return new(10, 11);
+                case BuildingType.THREEWAY_CONNECT_UP_WALL:
+                    return new(10, 12);
+                case BuildingType.HORIZONTAL_WALL:
+                    return new(13, 12);
+                case BuildingType.LEFTTOP_CORNER_WALL:
+                    return new(9, 12);
+                default:
+                    return new(2, 11);
             }
         }
 
