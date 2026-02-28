@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://cpp3jevx3bead"]
+
+[ext_resource type="Script" uid="uid://il2qhy0tbniy" path="res://scenes/work/SelectionSystem.cs" id="1_c1cf4"]
+[ext_resource type="Script" uid="uid://di86uya3cyg7d" path="res://scenes/common/custom/MultiColorTileMapLayer.cs" id="1_haes3"]
+
+[sub_resource type="TileSet" id="TileSet_haes3"]
+tile_size = Vector2i(18, 18)
+
+[sub_resource type="TileSet" id="TileSet_c1cf4"]
+tile_size = Vector2i(18, 18)
+
+[node name="SelectionSystem" type="Node2D" unique_id=1554002201]
+script = ExtResource("1_c1cf4")
+SelectionState = 6
+
+[node name="SelectionRect" type="ColorRect" parent="." unique_id=400308980]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(1, 0, 0, 1)
+
+[node name="SelectedTileMapLayer" type="TileMapLayer" parent="." unique_id=1236395633]
+tile_set = SubResource("TileSet_haes3")
+script = ExtResource("1_haes3")
+TexturePath = "res://assets/textures/SelectionTileSet.png"
+TileSize = Vector2i(18, 18)
+metadata/_custom_type_script = "uid://di86uya3cyg7d"
+
+[node name="SelectingTileMapLayer" type="TileMapLayer" parent="." unique_id=1312108792]
+tile_set = SubResource("TileSet_c1cf4")
+script = ExtResource("1_haes3")
+TexturePath = "res://assets/textures/SelectionTileSet.png"
+TileSize = Vector2i(18, 18)
+metadata/_custom_type_script = "uid://di86uya3cyg7d"

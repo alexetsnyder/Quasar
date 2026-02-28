@@ -7,7 +7,6 @@ using Quasar.scenes.common.interfaces;
 using Quasar.scenes.work;
 using System.Collections.Generic;
 using System.Linq;
-using static Godot.VisualShaderNode;
 
 namespace Quasar.scenes.world
 {
