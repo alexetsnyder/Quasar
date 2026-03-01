@@ -1,5 +1,6 @@
 using Godot;
 using Quasar.data;
+using Quasar.data.enums;
 using Quasar.math;
 using System.Collections.Generic;
 
@@ -35,15 +36,7 @@ namespace Quasar.scenes.map
 
         private SimplexNoise _varianceNoise;
 
-        private AStarGrid2D _aStarGrid2d = new();
-
         private RandomNumberGenerator _rng = new();
-
-        private List<Vector2I> _grassAlts = [AtlasCoordWorld.GRASSLAND_01, AtlasCoordWorld.GRASSLAND_02, AtlasCoordWorld.GRASSLAND_03];
-
-        private List<Vector2I> _treeAlts = [AtlasCoordWorld.FOREST_01, AtlasCoordWorld.FOREST_02, AtlasCoordWorld.FOREST_03];
-
-        private List<Vector2I> _hillAlts = [AtlasCoordWorld.HILLS_01, AtlasCoordWorld.HILLS_02];
 
         #endregion
 
@@ -56,7 +49,6 @@ namespace Quasar.scenes.map
             _varianceNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
 
             FillMap();
-            SetUpAStar();
         }
 
         public override void _Process(double delta)
@@ -112,7 +104,7 @@ namespace Quasar.scenes.map
             var cellCoord = _mapLayer.LocalToMap(localPos);
             var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
 
-            return AtlasCoordWorld.GetTileStrReflection(atlasCoord);
+            return "Not Implemented";
         }
 
         public string GetTileColorStr(Vector2 localPos)
@@ -149,7 +141,7 @@ namespace Quasar.scenes.map
                     var coord = new Vector2I(i, j);
 
                     var color = ColorConstants.GREEN;
-                    var atlasCoords = AtlasCoordWorld.GRASSLAND_01;
+                    var atlasCoords = AtlasConstants.AtlasCoords[TileType.GRASSLAND][0];
                     var noiseVal = _heightNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
                     var varyNoiseVal = _varianceNoise.GetNoise(j, i);
                     GetAtlasCoordsAndColor(noiseVal, varyNoiseVal, ref atlasCoords, ref color);
@@ -161,28 +153,6 @@ namespace Quasar.scenes.map
                     {
                         tileData.Modulate = color;
                     }
-                }
-            }
-        }
-
-        private void SetUpAStar()
-        {
-            _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
-            _aStarGrid2d.CellSize = _mapLayer.TileSet.TileSize;
-            _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
-            _aStarGrid2d.Update();
-
-            foreach (var cellCoord in _mapLayer.GetUsedCellsById())
-            {
-                var atlasCoord = _mapLayer.GetCellAtlasCoords(cellCoord);
-
-                if (atlasCoord == AtlasCoordWorld.WATER ||
-                    atlasCoord == AtlasCoordWorld.MOUNTAINS ||
-                    atlasCoord == AtlasCoordWorld.TALLER_MOUNTAINS)
-                {
-                    _aStarGrid2d.SetPointSolid(cellCoord);
                 }
             }
         }
@@ -213,23 +183,6 @@ namespace Quasar.scenes.map
             }
         }
 
-        public void FindPath(Vector2 startPos, Vector2 endPos)
-        {
-            _selectLayer.Clear();
-
-            var start = _mapLayer.LocalToMap(startPos);
-            var end = _mapLayer.LocalToMap(endPos);
-
-            var path = _aStarGrid2d.GetPointPath(start, end);
-
-            foreach (var point in path)
-            {
-                var cellCoord = _mapLayer.LocalToMap(point);
-
-                SelectCell(cellCoord, PathColor);
-            }
-        }
-
         private void SelectCell(Vector2I cellCoord, Color modulate)
         {
             if (_mapLayer.GetCellSourceId(cellCoord) != -1)
@@ -251,38 +204,38 @@ namespace Quasar.scenes.map
         {
             if (heightNoiseVal < 25.0f)
             {
-                atlasCoord = AtlasCoordWorld.WATER;
-                cellColor = ColorConstants.BLUE;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.WATER][0];
+                cellColor = AtlasConstants.Colors[TileType.WATER][0];
             }
             else if (heightNoiseVal < 50.0f)
             {
                 if (varyNoiseVal < 40.0f)
                 {
-                    atlasCoord = VaryTiles(_grassAlts);
-                    cellColor = ColorConstants.GRASS_GREEN;
+                    atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.GRASSLAND]);
+                    cellColor = AtlasConstants.Colors[TileType.GRASSLAND][0];
                 }
                 else //(varyNoiseVal < 100.0f
                 {
-                    atlasCoord = VaryTiles(_treeAlts);
-                    cellColor = ColorConstants.FOREST_GREEN;
+                    atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.FOREST]);
+                    cellColor = AtlasConstants.Colors[TileType.FOREST][0]; ;
                 }
             }
             else if (heightNoiseVal < 70.0f)
             {
-                atlasCoord = VaryTiles(_hillAlts);
-                cellColor = ColorConstants.EMERALD_GREEN;
+                atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.HILLS]);
+                cellColor = AtlasConstants.Colors[TileType.HILLS][0];
             }
             else //(heightNoiseVal < 100.0f
             {
                 if (heightNoiseVal < 80.0f)
                 {
-                    atlasCoord = AtlasCoordWorld.MOUNTAINS;
-                    cellColor = ColorConstants.GREY;
+                    atlasCoord = AtlasConstants.AtlasCoords[TileType.MOUNTAINS][0];
+                    cellColor = AtlasConstants.Colors[TileType.MOUNTAINS][0]; ;
                 }
                 else //(heightNoiseVal < 100.0f
                 {
-                    atlasCoord = AtlasCoordWorld.TALLER_MOUNTAINS;
-                    cellColor = ColorConstants.GREY;
+                    atlasCoord = AtlasConstants.AtlasCoords[TileType.MOUNTAINS][1];
+                    cellColor = AtlasConstants.Colors[TileType.MOUNTAINS][0]; ;
                 }
             }
         }

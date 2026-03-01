@@ -19,7 +19,6 @@ namespace Quasar.scenes.demos
 
         private readonly int _alternateTile = 0;
 
-        private readonly List<Vector2I> _allAtlasCoords = AtlasCoordWorld.GetAllAtlasTileCoords();
 
         public override void _Ready()
         {
@@ -41,7 +40,7 @@ namespace Quasar.scenes.demos
                     if (@event.IsPressed())
                     {
                         var localPos = GetGlobalMousePosition();
-                        var atlasCoord = RandomChoice<Vector2I>(_allAtlasCoords);
+                        var atlasCoord = RandomChoice<Vector2I>(GetAllAtlasCoords(new(288, 288)));
                         SetCell(LocalToMap(localPos), _tileSetSources[_currentColor], atlasCoord);
                     }
                 }
@@ -65,15 +64,32 @@ namespace Quasar.scenes.demos
 
         private void CreateAllTiles(TileSetAtlasSource atlasSource)
         {
-            foreach (var atlasCoord in _allAtlasCoords)
+            var atlasSize = _atlasTexture.GetSize();
+
+            foreach (var atlasCoords in GetAllAtlasCoords(atlasSize))
             {
-                atlasSource.CreateTile(atlasCoord, new(1, 1));
-                var tileData = atlasSource.GetTileData(atlasCoord, _alternateTile);
+                atlasSource.CreateTile(atlasCoords, new(1, 1));
+                var tileData = atlasSource.GetTileData(atlasCoords, _alternateTile);
                 if (tileData != null)
                 {
                     tileData.Modulate = _currentColor;
                 }
             }
+        }
+
+        private List<Vector2I> GetAllAtlasCoords(Vector2 atlasSize)
+        {
+            List<Vector2I> atlasCoords = [];
+
+            for (int i = 0; i < atlasSize.X / 18; i++)
+            {
+                for (int j = 0; j < atlasSize.Y / 18; j++)
+                {
+                    atlasCoords.Add(new(i, j));
+                }
+            }
+
+            return atlasCoords;
         }
 
         private T RandomChoice<T>(List<T> alts)

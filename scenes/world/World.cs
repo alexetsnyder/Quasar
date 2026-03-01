@@ -52,12 +52,6 @@ namespace Quasar.scenes.world
 
         private WorldCell[,] _worldCellArray;
 
-        private readonly List<Vector2I> _groundVariance = [AtlasCoordWorld.GRASS_01, AtlasCoordWorld.GRASS_02, 
-                                                           AtlasCoordWorld.GRASS_03, AtlasCoordWorld.GRASS_04];
-
-        private readonly List<Color> _colorVariance = [ColorConstants.RED, ColorConstants.GREEN, ColorConstants.GRASS_GREEN, 
-                                                       ColorConstants.YELLOW, ColorConstants.ORANGE, ColorConstants.AMBER];
-
         #endregion
 
         #region Public Methods
@@ -86,7 +80,7 @@ namespace Quasar.scenes.world
                 return "NONE";
             }
 
-            return AtlasCoordWorld.GetTileStrReflection(worldCell.AtlasCoords);
+            return worldCell.TileType.ToString();
         }
 
         public string GetTileColorStr(Vector2 localPos)
@@ -351,7 +345,10 @@ namespace Quasar.scenes.world
 
                     if (IsEdge(coords))
                     {
-                        _worldCellArray[i, j] = new(TileType.NATURAL_WALL, AtlasCoordWorld.SOLID_WALL, ColorConstants.WALL_PURPLE);
+                        var atlasCoords = GetAtlasCoords(TileType.NATURAL_WALL);
+                        var color = GetCellColor(TileType.NATURAL_WALL);
+
+                        _worldCellArray[i, j] = new(TileType.NATURAL_WALL, atlasCoords, color);
                     }
                 }
             }
@@ -413,14 +410,6 @@ namespace Quasar.scenes.world
             tileMapLayer.SetCell(coords, atlasCoords, color);
         }
 
-        private void SelectCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
-        {
-            if (_worldTileMapLayer.GetCellSourceId(coords) != -1)
-            {
-                SetCell(tileMapLayer, coords, atlasCoords, color);
-            }
-        }
-
         private void HideCell(Vector2I coords)
         {
             if (IsInBounds(coords))
@@ -467,73 +456,17 @@ namespace Quasar.scenes.world
 
         private Vector2I GetAtlasCoords(TileType tileType)
         {
-            switch (tileType)
-            {
-                case TileType.WATER:
-                    return AtlasCoordWorld.WATER;
-                case TileType.GRASS:
-                    return Random.RandomChoice<Vector2I>(_rng, _groundVariance);
-                case TileType.DIRT:
-                    return AtlasCoordWorld.DIRT;
-                case TileType.WALL:
-                    return AtlasCoordWorld.WALL;
-                case TileType.TILLED:
-                    return AtlasCoordWorld.DIRT;
-                case TileType.NATURAL_WALL:
-                    return AtlasCoordWorld.SOLID_WALL;
-                case TileType.SOLID:
-                    return AtlasCoordWorld.SOLID;
-                default:
-                    return AtlasCoordWorld.SOLID;
-            }
+            return Random.RandomChoice<Vector2I>(_rng, AtlasConstants.AtlasCoords[tileType]);
         }
 
-        /// <summary>
-        /// Returns the modulate color of tile given tile type.
-        /// </summary>
-        /// <param name="tileType"></param>
-        /// <param name="alternativeTile">
-        /// List Index matches alternative tiles in TileSet.
-        /// </param>
-        /// <returns> Return Tile Color </returns>
         private Color GetCellColor(TileType tileType)
         {
-            switch (tileType)
-            {
-                case TileType.WATER:
-                    return ColorConstants.BLUE;
-                case TileType.GRASS:
-                    return Random.RandomChoice<Color>(_rng, _colorVariance);
-                case TileType.DIRT:
-                    return ColorConstants.BURNT_ORANGE;
-                case TileType.WALL:
-                    return ColorConstants.GREY;
-                case TileType.TILLED:
-                    return ColorConstants.LAVENDER;
-                case TileType.NATURAL_WALL:
-                    return ColorConstants.WALL_PURPLE;
-                case TileType.SOLID:
-                    return ColorConstants.BLACK;
-                default:
-                    return ColorConstants.BLACK;
-            }
+            return Random.RandomChoice<Color>(_rng, AtlasConstants.Colors[tileType]);
         }
 
         private Vector2I GetAtlasCoords(BuildingType buildingType)
         {
-            switch (buildingType)
-            {
-                case BuildingType.VERTICAL_WALL:
-                    return new(10, 11);
-                case BuildingType.THREEWAY_CONNECT_UP_WALL:
-                    return new(10, 12);
-                case BuildingType.HORIZONTAL_WALL:
-                    return new(13, 12);
-                case BuildingType.LEFTTOP_CORNER_WALL:
-                    return new(9, 12);
-                default:
-                    return new(2, 11);
-            }
+            return AtlasConstants.AtlasCoords[TileType.WALL][(int)buildingType - 1];
         }
 
         #endregion
