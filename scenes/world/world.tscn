@@ -13,9 +13,6 @@ shader = ExtResource("2_1fp7r")
 [sub_resource type="TileSet" id="TileSet_bq33v"]
 tile_size = Vector2i(18, 18)
 
-[sub_resource type="TileSet" id="TileSet_t5ptc"]
-tile_size = Vector2i(18, 18)
-
 [node name="World" type="Node2D" unique_id=1915405860]
 script = ExtResource("1_sl2e5")
 Rows = 20
@@ -34,12 +31,5 @@ material = SubResource("ShaderMaterial_v5dby")
 tile_set = SubResource("TileSet_bq33v")
 script = ExtResource("3_v5dby")
 TexturePath = "res://assets/textures/Haowan_Curses_1440x450.png"
-TileSize = Vector2i(18, 18)
-metadata/_custom_type_script = "uid://di86uya3cyg7d"
-
-[node name="PathTileMapLayer" type="TileMapLayer" parent="." unique_id=970252362]
-tile_set = SubResource("TileSet_t5ptc")
-script = ExtResource("3_v5dby")
-TexturePath = "res://assets/textures/CellBorder.png"
 TileSize = Vector2i(18, 18)
 metadata/_custom_type_script = "uid://di86uya3cyg7d"

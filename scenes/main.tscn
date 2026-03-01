@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cpp3jevx3bead" path="res://scenes/work/selection_system.tscn" id="2_tipki"]
 [ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="3_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://dpl7bqssfeyxe" path="res://scenes/work/pathing_system.tscn" id="6_85g3d"]
 [ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/time_display_control.tscn" id="7_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/basic_label_display.tscn" id="8_tipki"]
 [ext_resource type="PackedScene" uid="uid://bcw53ty62uig7" path="res://scenes/gui/tool_bar_control.tscn" id="9_85g3d"]
@@ -39,6 +40,9 @@ WorldMargins = Vector4(80, 80, 80, 80)
 
 [node name="SelectionSystem" parent="." unique_id=1554002201 instance=ExtResource("2_tipki")]
 SelectionState = 1
+
+[node name="PathingSystem" parent="." unique_id=66750832 node_paths=PackedStringArray("World") instance=ExtResource("6_85g3d")]
+World = NodePath("../World")
 
 [node name="DebugGUI" type="CanvasLayer" parent="." unique_id=809005585]
 

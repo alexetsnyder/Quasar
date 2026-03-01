@@ -5,16 +5,10 @@ using System.Collections.Generic;
 
 namespace Quasar.scenes.work
 {
-    public partial class Selection : Resource
+    public partial class Selection(SelectionState selectionState, List<Vector2> points) : Resource
     {
-        public SelectionState SelectionState { get; set; }
+        public SelectionState SelectionState { get; set; } = selectionState;
 
-        public List<Vector2> Coords { get; set; }
-
-        public Selection(SelectionState selectionState, List<Vector2> coords) 
-        { 
-            SelectionState = selectionState;
-            Coords = coords;
-        }
+        public List<Vector2> Points { get; set; } = points;
     }
 }

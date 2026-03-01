@@ -21,9 +21,6 @@ namespace Quasar.scenes.world
         [Export]
         public bool ShowGrid { get; set; } = false;
 
-        [Export]
-        public Color PathColor { get; set; } = new Color(1.0f, 0.0f, 1.0f, 1.0f);
-
         #endregion
 
         #region Signals
@@ -45,15 +42,11 @@ namespace Quasar.scenes.world
 
         private IMultiColorTileMapLayer _worldTileMapLayer;
 
-        private IMultiColorTileMapLayer _pathTileMapLayer;
-
         #endregion
 
         #region Private Variables
 
         private SimplexNoise _heightNoise;
-
-        private AStarGrid2D _aStarGrid2d = new();
 
         private RandomNumberGenerator _rng = new();
 
@@ -73,14 +66,12 @@ namespace Quasar.scenes.world
         {
             _gridTileMapLayer = GetNode<IMultiColorTileMapLayer>("GridTileMapLayer");
             _worldTileMapLayer = GetNode<IMultiColorTileMapLayer>("WorldTileMapLayer");
-            _pathTileMapLayer = GetNode<IMultiColorTileMapLayer>("PathTileMapLayer");
 
             _heightNoise = new SimplexNoise(_rng.RandiRange(int.MinValue, int.MaxValue));
             _worldCellArray = new WorldCell[Rows, Cols];
 
             GenerateWorld();
             FillMap();
-            SetUpAStar();
 
             _gridTileMapLayer.Visible = ShowGrid;
         }
@@ -151,32 +142,6 @@ namespace Quasar.scenes.world
             return localSpawnPoints; 
         }
 
-        public List<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
-        {
-            var start = _worldTileMapLayer.LocalToMap(startPos);
-            var end = _worldTileMapLayer.LocalToMap(endPos);
-
-            return [.._aStarGrid2d.GetPointPath(start, end)];
-        }
-
-        public void ShowPath(List<Vector2> path)
-        {
-            ClearPath();
-
-            foreach (var point in path)
-            {
-                var coords = _worldTileMapLayer.LocalToMap(point);
-
-                SelectCell(_pathTileMapLayer, coords, new(0, 0), PathColor);
-            }
-
-        }
-
-        public void ClearPath()
-        {
-            _pathTileMapLayer.Clear();
-        }
-
         public void PlaceItem(Vector2 newPos, Vector2? oldPos = null)
         {
             if (oldPos != null)
@@ -244,8 +209,6 @@ namespace Quasar.scenes.world
                 _worldCellArray[coords.X, coords.Y] = new(TileType.WALL, atlasCoords, color);
 
                 SetCell(_worldTileMapLayer, coords, atlasCoords, color);
-                _aStarGrid2d.SetPointSolid(coords, true);
-
             }
         }
 
@@ -255,7 +218,7 @@ namespace Quasar.scenes.world
 
             if (!IsImpassable(coords))
             {
-                UpdateWorldTile(TileType.TILLED, coords, false);
+                UpdateWorldTile(TileType.TILLED, coords);
             }
         }
 
@@ -327,11 +290,26 @@ namespace Quasar.scenes.world
             return false;
         }
 
+        public List<Vector2I> GetAllPoints()
+        {
+            List<Vector2I> allPoints = [];
+
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    allPoints.Add(new(i, j));
+                }
+            }
+
+            return allPoints;
+        }
+
         #endregion
 
         #region Private Methods
 
-        private void UpdateWorldTile(TileType tileType, Vector2I coords, bool isSolid = false)
+        private void UpdateWorldTile(TileType tileType, Vector2I coords)
         {
             var atlasCoords = GetAtlasCoords(tileType);
             var color = GetCellColor(tileType);
@@ -339,12 +317,11 @@ namespace Quasar.scenes.world
             _worldCellArray[coords.X, coords.Y] = new(tileType, atlasCoords, color);
 
             SetCell(_worldTileMapLayer, coords, atlasCoords, color);
-            _aStarGrid2d.SetPointSolid(coords, isSolid);
         }
 
         private void SetNaturalWall(Vector2I cellCoord)
         {
-            UpdateWorldTile(TileType.NATURAL_WALL, cellCoord, true);
+            UpdateWorldTile(TileType.NATURAL_WALL, cellCoord);
         }
 
         private void GenerateWorld()
@@ -442,39 +419,6 @@ namespace Quasar.scenes.world
             {
                 SetCell(tileMapLayer, coords, atlasCoords, color);
             }
-        }
-
-        private void SetUpAStar()
-        {
-            _aStarGrid2d.Region = new Rect2I(0, 0, Rows + 1, Cols + 1);
-            _aStarGrid2d.CellSize = _worldTileMapLayer.TileSize;
-            _aStarGrid2d.DefaultComputeHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DefaultEstimateHeuristic = AStarGrid2D.Heuristic.Manhattan;
-            _aStarGrid2d.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Always;
-            _aStarGrid2d.Update();
-
-            foreach (var coords in _worldTileMapLayer.GetUsedCellsById())
-            {
-                if (IsImpassable(coords))
-                {
-                    _aStarGrid2d.SetPointSolid(coords);
-                }
-            }
-        }
-
-        public List<Vector2I> GetAllPoints()
-        {
-            List<Vector2I> allPoints = [];
-
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Cols; j++)
-                {
-                    allPoints.Add(new(i, j));
-                }
-            }
-
-            return allPoints;
         }
 
         private void HideCell(Vector2I coords)

@@ -22,6 +22,8 @@ namespace Quasar.scenes
 
         private SelectionSystem _selectionSystem;
 
+        private PathingSystem _pathingSystem;
+
         private CanvasLayer _debugGUI;
 
         private CanvasLayer _gui;
@@ -42,7 +44,7 @@ namespace Quasar.scenes
 
         private List<WorkType> _possibleWorkTypes = [WorkType.MINING, WorkType.BUILDING, WorkType.FARMING, WorkType.FISHING];
 
-        private List<CatData> _catDataList = [
+        private readonly List<CatData> _catDataList = [
             new("Fern", "Black Shorthair Cat", "Playful", 100, WorkType.MINING),
             new("Fig", "Black Shorthair Cat", "Sad", 100, WorkType.BUILDING),
             new("Pepper", "Longhair Cat", "Wary", 100, WorkType.FARMING),
@@ -60,7 +62,8 @@ namespace Quasar.scenes
             _map = GetNode<Map>("Map");
             _world = GetNode<World>("World");
             _selectionSystem = GetNode<SelectionSystem>("SelectionSystem");
-            _selectionSystem.World = _world;
+            _pathingSystem = GetNode<PathingSystem>("PathingSystem");
+            _selectionSystem._world = _world;
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
@@ -276,9 +279,9 @@ namespace Quasar.scenes
             }
         }
 
-        private List<Vector2> ShortestPath(List<Vector2> worldPosList, Cat cat, out Vector2? worldPos)
+        private Path ShortestPath(List<Vector2> worldPosList, Cat cat, out Vector2? worldPos)
         {
-            List<Vector2> shortestPath = [];
+            Path shortestPath = null;
             int minPathCount = int.MaxValue;
             worldPos = null;
 
@@ -289,20 +292,20 @@ namespace Quasar.scenes
                     if (cat.Position.IsEqualApprox(adjPos))
                     {
                         worldPos = pos;
-                        return [];
+                        return _pathingSystem.FindPath(cat.Position, adjPos);
                     }
-                    
-                    var path = _world.FindPath(cat.Position, adjPos);
 
-                    if (path.Count == 0)
+                    var path = _pathingSystem.FindPath(cat.Position, adjPos);
+
+                    if (path.Points.Count == 0)
                     {
                         continue;
                     }
 
-                    if (path.Count < minPathCount)
+                    if (path.Points.Count < minPathCount)
                     {
                         worldPos = pos;
-                        minPathCount = path.Count;
+                        minPathCount = path.Points.Count;
                         shortestPath = path;
                     }
                 }
@@ -311,10 +314,10 @@ namespace Quasar.scenes
             return shortestPath;
         }
 
-        private void StartWork(Cat cat, WorkType workType, Vector2 workPos, List<Vector2> path)
+        private void StartWork(Cat cat, WorkType workType, Vector2 workPos, Path path)
         {
             cat.SetPath(path);
-            _world.ShowPath(path);
+            _pathingSystem.ShowPath(path.Id);
             cat.SetWork(workType, workPos);
         }
 
@@ -411,10 +414,10 @@ namespace Quasar.scenes
                 case SelectionState.FARMING:
                 case SelectionState.FISHING:
                     var workType = GetWorkType(selection.SelectionState);
-                    _workList.AddRange(selection.Coords.Select(c => new Work(workType, c)));
+                    _workList.AddRange(selection.Points.Select(c => new Work(workType, c)));
                     break;
                 case SelectionState.CANCEL:
-                    RemoveWork(selection.Coords);
+                    RemoveWork(selection.Points);
                     break;
                 default:
                     GD.Print("Incorrect SelectionState in OnSelectionCreated");
@@ -426,10 +429,11 @@ namespace Quasar.scenes
         {
             if (_selectedCat != null &&
                 _selectedCat.CanWork() &&
+                !_selectedCat.IsMoving() &&
                 !_world.TileOccupied(localPos))
             {
-                var path = _world.FindPath(_selectedCat.Position, localPos);
-                _world.ShowPath(path);
+                var path = _pathingSystem.FindPath(_selectedCat.Position, localPos);
+                _pathingSystem.ShowPath(path.Id);
                 _selectedCat.SetPath(path);
             } 
         }
@@ -446,9 +450,9 @@ namespace Quasar.scenes
             _world.PlaceItem(newPos, lastPos);
         }
 
-        private void OnCatPathComplete()
+        private void OnCatPathComplete(Path path)
         {
-            _world.ClearPath();
+            _pathingSystem.RemovePath(path.Id);
         }
 
         private void OnCatWork(Cat cat, Vector2 worldPos)
@@ -460,6 +464,17 @@ namespace Quasar.scenes
             {
                 _world.Work(work.WorkType, worldPos, _currentBuildable);
                 _selectionSystem.Deselect(worldPos);
+
+                switch (work.WorkType)
+                {
+                    case WorkType.MINING:
+                        _pathingSystem.SetPointSolid(worldPos, false); 
+                        break;
+                    case WorkType.BUILDING:
+                        _pathingSystem.SetPointSolid(worldPos);
+                        break;
+                }
+
                 _workList.Remove(work);
             }
             else

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dpl7bqssfeyxe"]
+
+[ext_resource type="Script" uid="uid://d0tai3b2i3sgs" path="res://scenes/work/PathingSystem.cs" id="1_u0qs4"]
+[ext_resource type="Script" uid="uid://di86uya3cyg7d" path="res://scenes/common/custom/MultiColorTileMapLayer.cs" id="2_yn7b6"]
+
+[sub_resource type="TileSet" id="TileSet_e4pew"]
+tile_size = Vector2i(18, 18)
+
+[node name="PathingSystem" type="Node2D" unique_id=66750832]
+script = ExtResource("1_u0qs4")
+
+[node name="PathingTileMapLayer" type="TileMapLayer" parent="." unique_id=2108401608]
+tile_set = SubResource("TileSet_e4pew")
+script = ExtResource("2_yn7b6")
+TexturePath = "res://assets/textures/CellBorder.png"
+TileSize = Vector2i(18, 18)
+metadata/_custom_type_script = "uid://di86uya3cyg7d"

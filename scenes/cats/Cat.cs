@@ -2,6 +2,7 @@ using Godot;
 using Quasar.data.enums;
 using Quasar.scenes.common.interfaces;
 using Quasar.scenes.time;
+using Quasar.scenes.work;
 using System.Collections.Generic;
 
 namespace Quasar.scenes.cats
@@ -21,7 +22,7 @@ namespace Quasar.scenes.cats
         public delegate void MovedOneEventHandler(Vector2 lastPos, Vector2 newPos);
 
         [Signal]
-        public delegate void PathCompleteEventHandler();
+        public delegate void PathCompleteEventHandler(Path path);
 
         [Signal]
         public delegate void CatWorkEventHandler(Cat cat, Vector2 workPos);
@@ -42,7 +43,9 @@ namespace Quasar.scenes.cats
 
         private bool _isMoving = false;
 
-        private Queue<Vector2> _movePath = [];
+        private Path _movePath = null;
+
+        private Queue<Vector2> _movePathQueue = [];
 
         private Vector2 _lastPos = new();
 
@@ -63,10 +66,10 @@ namespace Quasar.scenes.cats
             {
                 Move(TimeSystem.Instance.TicksPerSecond * delta);
             }
-            else if (_movePath.Count > 0)
+            else if (_movePathQueue.Count > 0)
             {
                 _isMoving = true;
-                var tileLocalPos = _movePath.Dequeue();
+                var tileLocalPos = _movePathQueue.Dequeue();
                 _lastPos = Position;
                 _nextPos = new(tileLocalPos.X + Width / 2.0f, tileLocalPos.Y + Height / 2.0f);
             }
@@ -96,19 +99,25 @@ namespace Quasar.scenes.cats
             CatData.WorkPos = null;
         }
 
-        public void SetPath(List<Vector2> path)
+        public void SetPath(Path path)
         {
-            _movePath.Clear();
+            _movePath = path;
+            _movePathQueue.Clear();
 
-            foreach (var v in path)
+            foreach (var v in path.Points)
             {
-                _movePath.Enqueue(v);
+                _movePathQueue.Enqueue(v);
             }
         }
 
         public bool CanWork()
         {
             return !IsWorking;
+        }
+
+        public bool IsMoving()
+        {
+            return (_isMoving || _movePathQueue.Count > 0);
         }
 
         private void Move(double delta)
@@ -119,9 +128,9 @@ namespace Quasar.scenes.cats
             {
                 _isMoving = false;
                 EmitSignal(SignalName.MovedOne, _lastPos, Position);
-                if (_movePath.Count == 0)
+                if (_movePathQueue.Count == 0)
                 {
-                    EmitSignal(SignalName.PathComplete);
+                    EmitSignal(SignalName.PathComplete, _movePath);
                 }
             }
         }

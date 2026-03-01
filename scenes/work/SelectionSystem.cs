@@ -13,13 +13,16 @@ namespace Quasar.scenes.work
         [Export]
         public Color SelectionColor { get; set; } = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
+        [Export]
+        public Node WorldNode { get; set; }
+
         [Signal]
         public delegate void TileSelectedEventHandler(Vector2 localPos);
 
         [Signal]
         public delegate void SelectionCreatedEventHandler(Selection selection);
 
-        public IWorld World { get; set; }
+        private IWorld _world;
 
         private ColorRect _selectionRect;
 
@@ -36,6 +39,11 @@ namespace Quasar.scenes.work
             _selectionRect = GetNode<ColorRect>("SelectionRect");
             _selectedTileMapLayer = GetNode<IMultiColorTileMapLayer>("SelectedTileMapLayer");
             _selectingTileMapLayer = GetNode<IMultiColorTileMapLayer>("SelectingTileMapLayer");
+
+            if (WorldNode is IWorld world)
+            {
+                _world = world;
+            }
         }
 
         public override void _Process(double delta)
@@ -204,14 +212,14 @@ namespace Quasar.scenes.work
             switch (SelectionState)
             {
                 case SelectionState.MINING:
-                    filter = (c) => World.IsSolid(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
+                    filter = (c) => _world.IsSolid(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
-                    filter = (c) => !World.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
+                    filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
                     break;
                 case SelectionState.FISHING:
-                    filter = (c) => World.IsWater(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
+                    filter = (c) => _world.IsWater(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
                     break;
                 case SelectionState.CANCEL:
                     filter = (c) => _selectedTileMapLayer.GetCellSourceId(c) != -1; ;
@@ -242,7 +250,7 @@ namespace Quasar.scenes.work
                     if (filter(coords))
                     {
                         SelectCell(_selectedTileMapLayer, coords, atlasCoords, color);
-                        selection.Coords.Add(_selectedTileMapLayer.MapToLocal(coords));
+                        selection.Points.Add(_selectedTileMapLayer.MapToLocal(coords));
                     }
                 }
             }
@@ -268,7 +276,7 @@ namespace Quasar.scenes.work
 
         private void SelectCell(IMultiColorTileMapLayer tileMapLayer, Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
         {
-            if (World.IsInBounds(coords))
+            if (_world.IsInBounds(coords))
             {
                 tileMapLayer.SetCell(coords, atlasCoords, color);
             } 
