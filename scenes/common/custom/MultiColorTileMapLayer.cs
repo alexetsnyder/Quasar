@@ -1,5 +1,4 @@
 using Godot;
-using Quasar.data;
 using Quasar.scenes.common.interfaces;
 using System.Collections.Generic;
 
@@ -24,6 +23,8 @@ namespace Quasar.scenes.custom
 
         public override void _Ready()
         {
+            CreateTileSet();
+
             _atlasTexture = ResourceLoader.Load<Texture2D>(TexturePath);
         }
 
@@ -42,6 +43,13 @@ namespace Quasar.scenes.custom
             }
 
             SetCell(coords, _tileSetSources[color.Value], atlasCoords, _alternateTile);
+        }
+
+        private void CreateTileSet()
+        {
+            TileSet tileSet = new();
+            tileSet.TileSize = TileSize;
+            TileSet = tileSet;
         }
 
         private TileSetAtlasSource CreateTileSetAtlasSource(Color color)

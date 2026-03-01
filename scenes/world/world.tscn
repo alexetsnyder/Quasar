@@ -4,14 +4,8 @@
 [ext_resource type="Shader" uid="uid://b0rqxtga7g767" path="res://assets/shaders/world.gdshader" id="2_1fp7r"]
 [ext_resource type="Script" uid="uid://di86uya3cyg7d" path="res://scenes/common/custom/MultiColorTileMapLayer.cs" id="3_v5dby"]
 
-[sub_resource type="TileSet" id="TileSet_1fp7r"]
-tile_size = Vector2i(18, 18)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_v5dby"]
 shader = ExtResource("2_1fp7r")
-
-[sub_resource type="TileSet" id="TileSet_bq33v"]
-tile_size = Vector2i(18, 18)
 
 [node name="World" type="Node2D" unique_id=1915405860]
 script = ExtResource("1_sl2e5")
@@ -19,7 +13,6 @@ Rows = 20
 Cols = 20
 
 [node name="GridTileMapLayer" type="TileMapLayer" parent="." unique_id=1071080079]
-tile_set = SubResource("TileSet_1fp7r")
 script = ExtResource("3_v5dby")
 TexturePath = "res://assets/textures/CellBorder.png"
 TileSize = Vector2i(18, 18)
@@ -28,7 +21,6 @@ metadata/_custom_type_script = "uid://di86uya3cyg7d"
 [node name="WorldTileMapLayer" type="TileMapLayer" parent="." unique_id=1149641230]
 texture_filter = 2
 material = SubResource("ShaderMaterial_v5dby")
-tile_set = SubResource("TileSet_bq33v")
 script = ExtResource("3_v5dby")
 TexturePath = "res://assets/textures/Haowan_Curses_1440x450.png"
 TileSize = Vector2i(18, 18)
