@@ -110,6 +110,11 @@ namespace Quasar.scenes.cats
             }
         }
 
+        public Path GetCurrentPath()
+        {
+            return _movePath; 
+        }
+
         public bool CanWork()
         {
             return !IsWorking;

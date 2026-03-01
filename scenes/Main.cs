@@ -428,9 +428,13 @@ namespace Quasar.scenes
         {
             if (_selectedCat != null &&
                 _selectedCat.CanWork() &&
-                !_selectedCat.IsMoving() &&
                 !_world.TileOccupied(localPos))
             {
+                if (_selectedCat.IsMoving())
+                {
+                    _pathingSystem.RemovePath(_selectedCat.GetCurrentPath().Id);
+                }
+
                 var path = _pathingSystem.FindPath(_selectedCat.Position, localPos);
                 _pathingSystem.ShowPath(path.Id);
                 _selectedCat.SetPath(path);
