@@ -14,5 +14,12 @@ namespace Quasar.data.enums
         FOREST,
         MOUNTAINS,
         HILLS,
+
+        MINE,
+        BUILD,
+        TILL,
+        FISH,
+        CANCEL,
+        SELECTION,
     }
 }

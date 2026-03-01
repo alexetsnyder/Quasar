@@ -123,7 +123,7 @@ namespace Quasar.scenes.work
             switch(SelectionState)
             {
                 case SelectionState.CANCEL:
-                    return AtlasCoordSelection.CANCEL;
+                    return AtlasConstants.AtlasCoords[TileType.CANCEL][0];
                 case SelectionState.MINING:
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
@@ -146,39 +146,39 @@ namespace Quasar.scenes.work
             
             if (i == startingRow && j == startingCol)
             {
-                atlasCoord = AtlasCoordSelection.LEFT_TOP_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT_TOP];
             }
             else if (i == startingRow && j == endingCol - 1)
             {
-                atlasCoord = AtlasCoordSelection.RIGHT_TOP_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT_TOP];
             }
             else if (i == endingRow - 1 && j == startingCol)
             {
-                atlasCoord = AtlasCoordSelection.LEFT_BOTTOM_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT_BOTTOM];
             }
             else if (i == endingRow - 1 && j == endingCol - 1)
             {
-                atlasCoord = AtlasCoordSelection.RIGHT_BOTTOM_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT_BOTTOM];
             }
             else if (i == startingRow)
             {
-                atlasCoord = AtlasCoordSelection.TOP_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.TOP];
             }
             else if (i == endingRow - 1)
             {
-                atlasCoord = AtlasCoordSelection.BOTTOM_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.BOTTOM];
             }
             else if (j == startingCol)
             {
-                atlasCoord = AtlasCoordSelection.LEFT_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT];
             }
             else if (j == endingCol - 1)
             {
-                atlasCoord = AtlasCoordSelection.RIGHT_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT];
             }
             else
             {
-                atlasCoord = AtlasCoordSelection.MIDDLE_SELECTION;
+                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.MIDDLE];
             }
 
             return atlasCoord;
@@ -189,7 +189,7 @@ namespace Quasar.scenes.work
             switch (SelectionState)
             {
                 case SelectionState.CANCEL:
-                    return ColorConstants.WARNING_RED;
+                    return AtlasConstants.Colors[TileType.CANCEL][0];
                 case SelectionState.MINING:
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
@@ -285,13 +285,13 @@ namespace Quasar.scenes.work
             switch (selectionState)
             {
                 case SelectionState.MINING:
-                    return AtlasCoordSelection.MINE;
+                    return AtlasConstants.AtlasCoords[TileType.MINE][0];
                 case SelectionState.BUILDING:
-                    return AtlasCoordSelection.BUILD;
+                    return AtlasConstants.AtlasCoords[TileType.BUILD][0];
                 case SelectionState.FARMING:
-                    return AtlasCoordSelection.TILL;
+                    return AtlasConstants.AtlasCoords[TileType.TILL][0];
                 case SelectionState.FISHING:
-                    return AtlasCoordSelection.FISH;
+                    return AtlasConstants.AtlasCoords[TileType.FISH][0];
                 case SelectionState.CANCEL:
                     return null;
                 default:
@@ -306,11 +306,13 @@ namespace Quasar.scenes.work
             switch (selectionType)
             {
                 case SelectionState.MINING:
+                    return AtlasConstants.Colors[TileType.MINE][0];
                 case SelectionState.BUILDING:
+                    return AtlasConstants.Colors[TileType.BUILD][0];
                 case SelectionState.FARMING:
-                    return ColorConstants.GREY;
+                    return AtlasConstants.Colors[TileType.TILL][0];
                 case SelectionState.FISHING:
-                    return ColorConstants.ORANGE;
+                    return AtlasConstants.Colors[TileType.FISH][0];
                 case SelectionState.CANCEL:
                     return null;
                 default:

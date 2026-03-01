@@ -20,6 +20,14 @@ namespace Quasar.data
             { TileType.MOUNTAINS, [ new(15, 7), new(14, 1) ] },
             { TileType.HILLS, [ new(15, 14), new(14, 6) ] },
 
+            { TileType.MINE, [ new(0, 0) ] },
+            { TileType.BUILD, [ new(2, 3) ] },
+            { TileType.TILL, [ new(2, 1) ] },
+            { TileType.FISH, [ new(2, 2) ] },
+            { TileType.CANCEL, [ new(2, 0) ] },
+            { TileType.SELECTION, [ new(1, 0), new(0, 1), new(1, 1),
+                                    new(0, 2), new(1, 2), new(0, 3),
+                                    new(1, 3), new(0, 4), new(1, 4) ] },
         };
 
         public static Dictionary<TileType, List<Color>> Colors { get; set; } = new Dictionary<TileType, List<Color>>
@@ -36,6 +44,13 @@ namespace Quasar.data
             { TileType.FOREST, [ ColorConstants.FOREST_GREEN ] },
             { TileType.MOUNTAINS, [ ColorConstants.GREY ] },
             { TileType.HILLS, [ ColorConstants.EMERALD_GREEN ] },
+
+            { TileType.MINE, [ ColorConstants.GREY ] },
+            { TileType.BUILD, [ ColorConstants.GREY ] },
+            { TileType.TILL, [ ColorConstants.GREY ] },
+            { TileType.FISH, [ ColorConstants.ORANGE ] },
+            { TileType.CANCEL, [ ColorConstants.WARNING_RED ] },
+            { TileType.SELECTION, [] },
         };
     }
 }
