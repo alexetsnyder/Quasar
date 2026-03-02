@@ -34,6 +34,8 @@ namespace Quasar.scenes
 
         private BasicLabelDisplay _tileColorDisplay;
 
+        private ToolBarControl _toolBarControl;
+
         private CharacterDisplay _characterDisplay;
 
         private Vector2 _prevCameraZoom;
@@ -65,6 +67,7 @@ namespace Quasar.scenes
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
+            _toolBarControl = GetNode<ToolBarControl>("GUI/ToolBar");
 
             _characterDisplay = InstantiateScene<CharacterDisplay>("res://scenes/gui/character_display.tscn");
             if (_characterDisplay != null)
@@ -160,33 +163,25 @@ namespace Quasar.scenes
             _camera.UpdateZoom(prevZoom);
             _camera.Position = prevPos;
 
-            if (!_map.Visible)
-            {
-                _map.Visible = true;
-                _map.SetProcessUnhandledInput(true);
-                _world.Visible = false;
-                _world.SetProcessUnhandledInput(false);
+            _map.Visible = !_map.Visible;
+            _map.SetProcessUnhandledInput(_map.Visible);
 
-                foreach (var cat in _cats)
-                {
-                    cat.Visible = false;
-                }
-            }
-            else
-            {
-                _map.Visible = false;
-                _map.SetProcessUnhandledInput(false);
-                _world.Visible = true;
-                _world.SetProcessUnhandledInput(true);
-
-                foreach (var cat in _cats)
-                {
-                    cat.Visible = true; 
-                }
-            }
+            ToggleWorld();
 
             SetTyleTypeLabel();
             SetTyleColorLabel();
+        }
+
+        private void ToggleWorld()
+        {
+            _world.Visible = !_world.Visible;
+            _world.SetProcessUnhandledInput(_world.Visible);
+            _selectionSystem.Visible = _world.Visible;
+            _selectionSystem.SetProcessUnhandledInput(_world.Visible);
+            _pathingSystem.Visible = _world.Visible;
+            _cats.ForEach(c => c.Visible = _world.Visible);
+
+            _toolBarControl.Visible = _world.Visible;
         }
 
         private void CreateCats()
