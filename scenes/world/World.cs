@@ -466,7 +466,7 @@ namespace Quasar.scenes.world
 
         private Vector2I GetAtlasCoords(BuildingType buildingType)
         {
-            return AtlasConstants.AtlasCoords[TileType.WALL][(int)buildingType - 1];
+            return AtlasConstants.GetAtlasCoords(TileType.WALL, (int)buildingType - 1);
         }
 
         #endregion

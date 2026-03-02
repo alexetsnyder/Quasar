@@ -123,7 +123,7 @@ namespace Quasar.scenes.work
             switch(SelectionState)
             {
                 case SelectionState.CANCEL:
-                    return AtlasConstants.AtlasCoords[TileType.CANCEL][0];
+                    return AtlasConstants.GetAtlasCoords(TileType.CANCEL);
                 case SelectionState.MINING:
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
@@ -146,39 +146,39 @@ namespace Quasar.scenes.work
             
             if (i == startingRow && j == startingCol)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT_TOP];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.LEFT_TOP);
             }
             else if (i == startingRow && j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT_TOP];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.RIGHT_TOP);
             }
             else if (i == endingRow - 1 && j == startingCol)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT_BOTTOM];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.LEFT_BOTTOM);
             }
             else if (i == endingRow - 1 && j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT_BOTTOM];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.RIGHT_BOTTOM);
             }
             else if (i == startingRow)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.TOP];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.TOP);
             }
             else if (i == endingRow - 1)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.BOTTOM];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.BOTTOM);
             }
             else if (j == startingCol)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.LEFT];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.LEFT);
             }
             else if (j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.RIGHT];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.RIGHT);
             }
             else
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.SELECTION][(int)SelectionIndex.MIDDLE];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.SELECTION, (int)SelectionIndex.MIDDLE);
             }
 
             return atlasCoord;
@@ -189,7 +189,7 @@ namespace Quasar.scenes.work
             switch (SelectionState)
             {
                 case SelectionState.CANCEL:
-                    return AtlasConstants.Colors[TileType.CANCEL][0];
+                    return AtlasConstants.GetColor(TileType.CANCEL);
                 case SelectionState.MINING:
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
@@ -285,13 +285,13 @@ namespace Quasar.scenes.work
             switch (selectionState)
             {
                 case SelectionState.MINING:
-                    return AtlasConstants.AtlasCoords[TileType.MINE][0];
+                    return AtlasConstants.GetAtlasCoords(TileType.MINE);
                 case SelectionState.BUILDING:
-                    return AtlasConstants.AtlasCoords[TileType.BUILD][0];
+                    return AtlasConstants.GetAtlasCoords(TileType.BUILD);
                 case SelectionState.FARMING:
-                    return AtlasConstants.AtlasCoords[TileType.TILL][0];
+                    return AtlasConstants.GetAtlasCoords(TileType.TILL);
                 case SelectionState.FISHING:
-                    return AtlasConstants.AtlasCoords[TileType.FISH][0];
+                    return AtlasConstants.GetAtlasCoords(TileType.FISH);
                 case SelectionState.CANCEL:
                     return null;
                 default:
@@ -306,13 +306,13 @@ namespace Quasar.scenes.work
             switch (selectionType)
             {
                 case SelectionState.MINING:
-                    return AtlasConstants.Colors[TileType.MINE][0];
+                    return AtlasConstants.GetColor(TileType.MINE);
                 case SelectionState.BUILDING:
-                    return AtlasConstants.Colors[TileType.BUILD][0];
+                    return AtlasConstants.GetColor(TileType.BUILD);
                 case SelectionState.FARMING:
-                    return AtlasConstants.Colors[TileType.TILL][0];
+                    return AtlasConstants.GetColor(TileType.TILL);
                 case SelectionState.FISHING:
-                    return AtlasConstants.Colors[TileType.FISH][0];
+                    return AtlasConstants.GetColor(TileType.FISH);
                 case SelectionState.CANCEL:
                     return null;
                 default:

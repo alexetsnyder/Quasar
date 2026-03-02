@@ -52,5 +52,15 @@ namespace Quasar.data
             { TileType.CANCEL, [ ColorConstants.WARNING_RED ] },
             { TileType.SELECTION, [] },
         };
+
+        public static Vector2I GetAtlasCoords(TileType tileType, int index = 0)
+        {
+            return AtlasCoords[tileType][index];
+        }
+
+        public static Color GetColor(TileType tileType, int index = 0)
+        {
+            return Colors[tileType][index];
+        }
     }
 }

@@ -141,7 +141,7 @@ namespace Quasar.scenes.map
                     var coord = new Vector2I(i, j);
 
                     var color = ColorConstants.GREEN;
-                    var atlasCoords = AtlasConstants.AtlasCoords[TileType.GRASSLAND][0];
+                    var atlasCoords = AtlasConstants.GetAtlasCoords(TileType.GRASSLAND);
                     var noiseVal = _heightNoise.GetNoise(j, i) * Math.SigmoidFallOffMapCircular(j, i, Cols, Rows);
                     var varyNoiseVal = _varianceNoise.GetNoise(j, i);
                     GetAtlasCoordsAndColor(noiseVal, varyNoiseVal, ref atlasCoords, ref color);
@@ -204,38 +204,38 @@ namespace Quasar.scenes.map
         {
             if (heightNoiseVal < 25.0f)
             {
-                atlasCoord = AtlasConstants.AtlasCoords[TileType.WATER][0];
-                cellColor = AtlasConstants.Colors[TileType.WATER][0];
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.WATER);
+                cellColor = AtlasConstants.GetColor(TileType.WATER);
             }
             else if (heightNoiseVal < 50.0f)
             {
                 if (varyNoiseVal < 40.0f)
                 {
                     atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.GRASSLAND]);
-                    cellColor = AtlasConstants.Colors[TileType.GRASSLAND][0];
+                    cellColor = AtlasConstants.GetColor(TileType.GRASSLAND);
                 }
                 else //(varyNoiseVal < 100.0f
                 {
                     atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.FOREST]);
-                    cellColor = AtlasConstants.Colors[TileType.FOREST][0]; ;
+                    cellColor = AtlasConstants.GetColor(TileType.FOREST);
                 }
             }
             else if (heightNoiseVal < 70.0f)
             {
                 atlasCoord = VaryTiles(AtlasConstants.AtlasCoords[TileType.HILLS]);
-                cellColor = AtlasConstants.Colors[TileType.HILLS][0];
+                cellColor = AtlasConstants.GetColor(TileType.HILLS);
             }
             else //(heightNoiseVal < 100.0f
             {
                 if (heightNoiseVal < 80.0f)
                 {
-                    atlasCoord = AtlasConstants.AtlasCoords[TileType.MOUNTAINS][0];
-                    cellColor = AtlasConstants.Colors[TileType.MOUNTAINS][0]; ;
+                    atlasCoord = AtlasConstants.GetAtlasCoords(TileType.MOUNTAINS);
+                    cellColor = AtlasConstants.GetColor(TileType.MOUNTAINS);
                 }
                 else //(heightNoiseVal < 100.0f
                 {
-                    atlasCoord = AtlasConstants.AtlasCoords[TileType.MOUNTAINS][1];
-                    cellColor = AtlasConstants.Colors[TileType.MOUNTAINS][0]; ;
+                    atlasCoord = AtlasConstants.GetAtlasCoords(TileType.MOUNTAINS, 1);
+                    cellColor = AtlasConstants.GetColor(TileType.MOUNTAINS);
                 }
             }
         }
