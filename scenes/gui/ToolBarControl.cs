@@ -22,12 +22,13 @@ public partial class ToolBarControl : Control
     public delegate void CancelPressedEventHandler();
 
     private ItemList _buildMenu;
+
 	public override void _Ready()
 	{
 		_buildMenu = GetNode<ItemList>("BuildMenu");
 	}
 
-    private TileType GetTileType(int index)
+    private static TileType GetTileType(int index)
     {
         switch (index)
         {
@@ -66,6 +67,7 @@ public partial class ToolBarControl : Control
 
     private void OnBuildMenuItemSelected(int index)
     {
+        _buildMenu.Visible = false;
         var tileType = GetTileType(index);
         EmitSignal(SignalName.BuildPressed, (int)tileType);
     }
