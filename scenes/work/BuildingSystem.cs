@@ -17,7 +17,7 @@ namespace Quasar.scenes.work
                     return null;
                 }
 
-                return new(_atlasCoords[_atlasIndex], AtlasConstants.GetColor(_current));
+                return new(_current, _atlasCoords[_atlasIndex], AtlasConstants.GetColor(_current));
             }
         }
 

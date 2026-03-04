@@ -198,10 +198,11 @@ namespace Quasar.scenes.world
 
             if (!IsImpassable(coords))
             {
+                var tileType = buildable.TileType;
                 var atlasCoords = buildable.AtlasCoords;
                 var color = buildable.Color;
 
-                _worldCellArray[coords.X, coords.Y] = new(TileType.WALL, atlasCoords, color);
+                _worldCellArray[coords.X, coords.Y] = new(tileType, atlasCoords, color);
 
                 SetCell(_worldTileMapLayer, coords, atlasCoords, color);
             }
