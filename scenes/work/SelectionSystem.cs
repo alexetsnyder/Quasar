@@ -128,6 +128,9 @@ namespace Quasar.scenes.work
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
                 case SelectionState.FISHING:
+                case SelectionState.CUTTING:
+                case SelectionState.HAULING:
+                case SelectionState.GATHERING:
                     return GetAtlasCoordForSelection(i, j, selection);
                 default:
                     GD.Print("Incorrect SelectionState in GetAtlasCoordsForSelecting.");
@@ -194,6 +197,9 @@ namespace Quasar.scenes.work
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
                 case SelectionState.FISHING:
+                case SelectionState.CUTTING:
+                case SelectionState.HAULING:
+                case SelectionState.GATHERING:
                     return SelectionColor;
                 default:
                     GD.Print("Incorrect SelectionState in GetColorForSelecting.");
@@ -212,9 +218,18 @@ namespace Quasar.scenes.work
                 case SelectionState.MINING:
                     filter = (c) => _world.IsMineable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
+                case SelectionState.CUTTING:
+                    filter = (c) => _world.IsTree(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
+                    break;
+                case SelectionState.HAULING:
+                    filter = (c) => _world.HasItemsToHaul(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
+                    break;
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
                     filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
+                    break;
+                case SelectionState.GATHERING:
+                    filter = (c) => _world.IsGatherable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
                 case SelectionState.FISHING:
                     filter = (c) => _world.IsWater(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1; ;
@@ -286,10 +301,16 @@ namespace Quasar.scenes.work
             {
                 case SelectionState.MINING:
                     return AtlasConstants.GetAtlasCoords(TileType.MINE);
+                case SelectionState.CUTTING:
+                    return AtlasConstants.GetAtlasCoords(TileType.CUT);
+                case SelectionState.HAULING:
+                    return AtlasConstants.GetAtlasCoords(TileType.HAUL);
                 case SelectionState.BUILDING:
                     return AtlasConstants.GetAtlasCoords(TileType.BUILD);
                 case SelectionState.FARMING:
                     return AtlasConstants.GetAtlasCoords(TileType.TILL);
+                case SelectionState.GATHERING:
+                    return AtlasConstants.GetAtlasCoords(TileType.GATHER);
                 case SelectionState.FISHING:
                     return AtlasConstants.GetAtlasCoords(TileType.FISH);
                 case SelectionState.CANCEL:
@@ -307,10 +328,16 @@ namespace Quasar.scenes.work
             {
                 case SelectionState.MINING:
                     return AtlasConstants.GetColor(TileType.MINE);
+                case SelectionState.CUTTING:
+                    return AtlasConstants.GetColor(TileType.CUT);
+                case SelectionState.HAULING:
+                    return AtlasConstants.GetColor(TileType.HAUL);
                 case SelectionState.BUILDING:
                     return AtlasConstants.GetColor(TileType.BUILD);
                 case SelectionState.FARMING:
                     return AtlasConstants.GetColor(TileType.TILL);
+                case SelectionState.GATHERING:
+                    return AtlasConstants.GetColor(TileType.GATHER);
                 case SelectionState.FISHING:
                     return AtlasConstants.GetColor(TileType.FISH);
                 case SelectionState.CANCEL:

@@ -10,7 +10,10 @@
 [ext_resource type="Texture2D" uid="uid://d4dhx8rp7sywu" path="res://assets/textures/BuildIcon.png" id="7_r1sxl"]
 [ext_resource type="Texture2D" uid="uid://cdql2irvx48uo" path="res://assets/textures/FarmIcon.png" id="8_6ogpc"]
 [ext_resource type="Texture2D" uid="uid://co2yspy2e0jbv" path="res://assets/textures/FishIcon.png" id="9_6ogpc"]
+[ext_resource type="Texture2D" uid="uid://dmswfqy3wt4im" path="res://assets/textures/AxeIcon.png" id="11_pk1ca"]
 [ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="11_utjv6"]
+[ext_resource type="Texture2D" uid="uid://dy6tbibbacfgx" path="res://assets/textures/GatherIcon.png" id="12_ojp43"]
+[ext_resource type="Texture2D" uid="uid://cp34k6apohgmj" path="res://assets/textures/HaulIcon.png" id="13_nlyd8"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_utjv6"]
 atlas = ExtResource("11_utjv6")
@@ -48,11 +51,15 @@ script = ExtResource("1_g5gns")
 
 [node name="ToolBarMargin" type="MarginContainer" parent="." unique_id=1173881308]
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
+offset_left = -133.0
 offset_top = -34.0
-offset_right = 176.0
+offset_right = 133.0
+grow_horizontal = 2
 grow_vertical = 0
 
 [node name="ToolBarContainer" type="HBoxContainer" parent="ToolBarMargin" unique_id=1946687116]
@@ -84,6 +91,30 @@ button_group = ExtResource("2_akbxs")
 icon = ExtResource("1_a25xm")
 icon_alignment = 1
 
+[node name="CutButton" type="Button" parent="ToolBarMargin/ToolBarContainer" unique_id=2009307297]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/normal = ExtResource("2_nvv0r")
+theme_override_styles/pressed = ExtResource("2_c0fro")
+theme_override_styles/hover = ExtResource("2_c0fro")
+toggle_mode = true
+button_group = ExtResource("2_akbxs")
+icon = ExtResource("11_pk1ca")
+icon_alignment = 1
+
+[node name="HaulButton" type="Button" parent="ToolBarMargin/ToolBarContainer" unique_id=682716082]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/normal = ExtResource("2_nvv0r")
+theme_override_styles/pressed = ExtResource("2_c0fro")
+theme_override_styles/hover = ExtResource("2_c0fro")
+toggle_mode = true
+button_group = ExtResource("2_akbxs")
+icon = ExtResource("13_nlyd8")
+icon_alignment = 1
+
 [node name="BuildButton" type="Button" parent="ToolBarMargin/ToolBarContainer" unique_id=1132722821]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -106,6 +137,18 @@ theme_override_styles/hover = ExtResource("2_c0fro")
 toggle_mode = true
 button_group = ExtResource("2_akbxs")
 icon = ExtResource("8_6ogpc")
+icon_alignment = 1
+
+[node name="GatherButton" type="Button" parent="ToolBarMargin/ToolBarContainer" unique_id=102297180]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/normal = ExtResource("2_nvv0r")
+theme_override_styles/pressed = ExtResource("2_c0fro")
+theme_override_styles/hover = ExtResource("2_c0fro")
+toggle_mode = true
+button_group = ExtResource("2_akbxs")
+icon = ExtResource("12_ojp43")
 icon_alignment = 1
 
 [node name="FishButton" type="Button" parent="ToolBarMargin/ToolBarContainer" unique_id=144863582]
@@ -164,8 +207,11 @@ item_4/icon = SubResource("AtlasTexture_ojp43")
 
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/SelectButton" to="." method="OnSelectButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/MineButton" to="." method="OnMineButtonPressed"]
+[connection signal="pressed" from="ToolBarMargin/ToolBarContainer/CutButton" to="." method="OnCutButtonPressed"]
+[connection signal="pressed" from="ToolBarMargin/ToolBarContainer/HaulButton" to="." method="OnHaulButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/BuildButton" to="." method="OnBuildButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FarmButton" to="." method="OnFarmButtonPressed"]
+[connection signal="pressed" from="ToolBarMargin/ToolBarContainer/GatherButton" to="." method="OnGatherButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FishButton" to="." method="OnFishButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/CancelButton" to="." method="OnCancelButtonPressed"]
 [connection signal="item_selected" from="BuildMenu" to="." method="OnBuildMenuItemSelected"]

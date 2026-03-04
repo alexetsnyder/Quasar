@@ -274,16 +274,22 @@ namespace Quasar.scenes
             _workSystem.RemoveWork(worldPosList);
         }
 
-        private WorkType GetWorkType(SelectionState selectionState)
+        private static WorkType GetWorkType(SelectionState selectionState)
         {
             switch (selectionState)
             {
                 case SelectionState.MINING:
                     return WorkType.MINING;
+                case SelectionState.CUTTING:
+                    return WorkType.CUTTING;
+                case SelectionState.HAULING:
+                    return WorkType.HAULING;
                 case SelectionState.BUILDING:
                     return WorkType.BUILDING;
                 case SelectionState.FARMING:
                     return WorkType.FARMING;
+                case SelectionState.GATHERING:
+                    return WorkType.GATHERING;
                 case SelectionState.FISHING:
                     return WorkType.FISHING;
                 default:
@@ -304,6 +310,18 @@ namespace Quasar.scenes
             _selectionSystem.SelectionState = SelectionState.MINING;
         }
 
+        private void OnToolBarCutPressed()
+        {
+            _buildingSystem.Clear();
+            _selectionSystem.SelectionState = SelectionState.CUTTING;
+        }
+
+        private void OnToolBarHaulPressed()
+        {
+            _buildingSystem.Clear();
+            _selectionSystem.SelectionState = SelectionState.HAULING;
+        }
+
         private void OnToolBarBuildPressed(int tileType)
         {
             _buildingSystem.Clear();
@@ -315,6 +333,12 @@ namespace Quasar.scenes
         {
             _buildingSystem.Clear();
             _selectionSystem.SelectionState = SelectionState.FARMING;
+        }
+
+        private void OnToolBarGatherPressed()
+        {
+            _buildingSystem.Clear();
+            _selectionSystem.SelectionState = SelectionState.GATHERING;
         }
 
         private void OnToolBarFishPressed()
@@ -334,8 +358,11 @@ namespace Quasar.scenes
             switch (selection.SelectionState)
             {
                 case SelectionState.MINING:
+                case SelectionState.CUTTING:
+                case SelectionState.HAULING:
                 case SelectionState.BUILDING:
                 case SelectionState.FARMING:
+                case SelectionState.GATHERING:
                 case SelectionState.FISHING:
                     var workType = GetWorkType(selection.SelectionState);
                     _workSystem.CreateWork(workType, selection.Points, _buildingSystem.Current);

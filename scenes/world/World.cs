@@ -278,6 +278,33 @@ namespace Quasar.scenes.world
             return (IsSolid(coords) || IsWater(coords));
         }
 
+        public bool IsTree(Vector2I coords)
+        {
+            var worldCell = GetWorldCell(coords);
+            if (worldCell == null)
+            {
+                return true;
+            }
+
+            return (worldCell.TileType == TileType.TREE);
+        }
+
+        public bool IsGatherable(Vector2I coords)
+        {
+            var worldCell = GetWorldCell(coords);
+            if (worldCell == null)
+            {
+                return true;
+            }
+
+            return (worldCell.TileType == TileType.GRASS);
+        }
+
+        public bool HasItemsToHaul(Vector2I coords)
+        {
+            return true;
+        }
+
         public bool IsInBounds(Vector2I coords)
         {
             if (coords.X < 0 || coords.Y < 0 ||
