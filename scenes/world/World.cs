@@ -4,6 +4,7 @@ using Quasar.data.enums;
 using Quasar.math;
 using Quasar.scenes.common.interfaces;
 using Quasar.scenes.systems.building;
+using Quasar.system;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +22,9 @@ namespace Quasar.scenes.world
 
         [Export]
         public bool ShowGrid { get; set; } = false;
+
+        [Export]
+        public Node ItemSystemNode { get; set; }
 
         #endregion
 
@@ -47,6 +51,8 @@ namespace Quasar.scenes.world
 
         #region Private Variables
 
+        private IItemSystem _itemSystem;
+
         private SimplexNoise _heightNoise;
 
         private RandomNumberGenerator _rng = new();
@@ -59,6 +65,8 @@ namespace Quasar.scenes.world
 
         public override void _Ready()
         {
+            GlobalSystem.Instance.LoadInterface<IItemSystem>(ItemSystemNode, out _itemSystem);
+
             _gridTileMapLayer = GetNode<IMultiColorTileMapLayer>("GridTileMapLayer");
             _worldTileMapLayer = GetNode<IMultiColorTileMapLayer>("WorldTileMapLayer");
 
@@ -152,6 +160,24 @@ namespace Quasar.scenes.world
             return [..GetAdjacentCells(_worldTileMapLayer.LocalToMap(localPos), includeDiagonals).Select(a => _worldTileMapLayer.MapToLocal(a))];
         }
 
+        public List<Vector2> AllStorage()
+        {
+            List<Vector2> storagePosList = [];
+
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    if (_worldCellArray[i, j].TileType == TileType.STORAGE)
+                    {
+                        storagePosList.Add(_worldTileMapLayer.MapToLocal(new(i, j)));
+                    }
+                }
+            }
+
+            return storagePosList;
+        }
+
         public void Work(WorkType workType, Vector2 localPos, Buildable buildable)
         {
             switch(workType)
@@ -181,6 +207,8 @@ namespace Quasar.scenes.world
             if (IsSolid(coords))
             {
                 UpdateWorldTile(TileType.DIRT, coords);
+
+                _itemSystem.CreateItem(TileType.STONE, localPos);
 
                 foreach (var adjCell in GetAdjacentCells(coords, true))
                 {

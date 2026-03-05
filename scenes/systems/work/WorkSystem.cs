@@ -3,10 +3,12 @@ using Quasar.data.enums;
 using Quasar.scenes.cats;
 using Quasar.scenes.common.interfaces;
 using Quasar.scenes.systems.building;
+using Quasar.scenes.systems.items;
 using Quasar.scenes.systems.pathing;
 using Quasar.system;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.scenes.systems.work
 {
@@ -44,14 +46,23 @@ namespace Quasar.scenes.systems.work
             return null;
         }
 
-        public void CreateWork(WorkType workType, List<Vector2> worldPosList, Buildable buildable = null)
+        public void CreateWork(WorkType workType, List<Vector2> worldPosList, bool isAssigned = false, Buildable buildable = null, Item item = null)
         {
             _allWork.TryAdd(workType, []);
             
             foreach (var worldPos in worldPosList)
             {
-                _allWork[workType].Add(_nextId, new(_nextId++, workType, worldPos, buildable));
+                _allWork[workType].Add(_nextId, new(_nextId++, workType, worldPos, isAssigned, buildable, item));
             }
+        }
+
+        public Work CreateWork(WorkType workType, Vector2 worldPos, bool isAssigned = false, Buildable buildable = null, Item item = null)
+        {
+            _allWork.TryAdd(workType, []);
+
+            _allWork[workType].Add(_nextId, new(_nextId, workType, worldPos, isAssigned, buildable, item));
+
+            return _allWork[workType][_nextId++];
         }
 
         public void RemoveWork(Work work)
@@ -102,10 +113,11 @@ namespace Quasar.scenes.systems.work
             {
                 if (workDict.Count > 0)
                 {
-                    var shortestPath = ShortestPath([.. workDict.Values], cat, out Work work);
+                    var shortestPath = ShortestPath([.. workDict.Values.Where(w => !w.IsAssigned)], cat, out Work work);
 
                     if (work != null)
                     {
+                        work.IsAssigned = true;
                         return new(work, shortestPath);
                     }
                 }

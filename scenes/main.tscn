@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cpp3jevx3bead" path="res://scenes/systems/selection/selection_system.tscn" id="2_tipki"]
 [ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="3_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://crkmkjor1kvsn" path="res://scenes/systems/items/item_system.tscn" id="5_eb6dy"]
 [ext_resource type="PackedScene" uid="uid://dpl7bqssfeyxe" path="res://scenes/systems/pathing/pathing_system.tscn" id="6_85g3d"]
 [ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/time_display_control.tscn" id="7_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/basic_label_display.tscn" id="8_tipki"]
@@ -29,22 +30,17 @@ PathingSystemNode = NodePath("../PathingSystem")
 WorldNode = NodePath("../World")
 metadata/_custom_type_script = "uid://c11836ohje6pr"
 
-[node name="World" parent="." unique_id=1915405860 instance=ExtResource("2_sugp2")]
-Rows = 192
-Cols = 192
-
 [node name="Map" parent="." unique_id=692249368 instance=ExtResource("3_jyhfs")]
 visible = false
 Rows = 192
 Cols = 192
 
-[node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
-position = Vector2(576, 324)
-zoom = Vector2(0.25, 0.25)
-ZoomInLimit = 0.75
-ZoomOutLimit = 0.25
-WorldSize = Vector2(3456, 3456)
-WorldMargins = Vector4(80, 80, 80, 80)
+[node name="World" parent="." unique_id=1915405860 node_paths=PackedStringArray("ItemSystemNode") instance=ExtResource("2_sugp2")]
+Rows = 192
+Cols = 192
+ItemSystemNode = NodePath("../ItemSystem")
+
+[node name="ItemSystem" parent="." unique_id=722635205 instance=ExtResource("5_eb6dy")]
 
 [node name="SelectionSystem" parent="." unique_id=1554002201 node_paths=PackedStringArray("WorldNode") instance=ExtResource("2_tipki")]
 SelectionState = 1
@@ -54,6 +50,14 @@ WorldNode = NodePath("../World")
 WorldNode = NodePath("../World")
 
 [node name="BuildingSystem" parent="." unique_id=598471193 instance=ExtResource("8_ya4ey")]
+
+[node name="MapCamera2D" parent="." unique_id=494377324 instance=ExtResource("3_sugp2")]
+position = Vector2(576, 324)
+zoom = Vector2(0.25, 0.25)
+ZoomInLimit = 0.75
+ZoomOutLimit = 0.25
+WorldSize = Vector2(3456, 3456)
+WorldMargins = Vector4(80, 80, 80, 80)
 
 [node name="DebugGUI" type="CanvasLayer" parent="." unique_id=809005585]
 

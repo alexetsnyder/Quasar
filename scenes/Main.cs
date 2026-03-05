@@ -6,12 +6,14 @@ using Quasar.scenes.cats;
 using Quasar.scenes.gui;
 using Quasar.scenes.map;
 using Quasar.scenes.systems.building;
+using Quasar.scenes.systems.items;
 using Quasar.scenes.systems.pathing;
 using Quasar.scenes.systems.selection;
 using Quasar.scenes.systems.work;
 using Quasar.scenes.world;
 using Quasar.system;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.scenes
 {
@@ -30,6 +32,8 @@ namespace Quasar.scenes
         private BuildingSystem _buildingSystem;
 
         private WorkSystem _workSystem;
+
+        private ItemSystem _itemSystem;
 
         private CanvasLayer _debugGUI;
 
@@ -56,6 +60,7 @@ namespace Quasar.scenes
             new("Fig", "Black Shorthair Cat", "Sad", 100, WorkType.BUILDING),
             new("Pepper", "Longhair Cat", "Wary", 100, WorkType.FARMING),
             new("New Year", "Russian Blue Cat", "Curious", 100, WorkType.FISHING),
+            new("Maslow", "Orange", "Timid", 100, WorkType.HAULING),
         ];
 
         public override void _Ready()
@@ -68,6 +73,7 @@ namespace Quasar.scenes
             _pathingSystem = GetNode<PathingSystem>("PathingSystem");
             _buildingSystem = GetNode<BuildingSystem>("BuildingSystem");
             _workSystem = GetNode<WorkSystem>("WorkSystem");
+            _itemSystem = GetNode<ItemSystem>("ItemSystem");
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
@@ -197,7 +203,7 @@ namespace Quasar.scenes
 
         private void CreateCats()
         {
-            int n = 4;
+            int n = _catDataList.Count;
             var spawnPoints = _world.GetSpawnPoints(_world.Center, n);
 
             var spawnPointsStr = "";
@@ -255,7 +261,7 @@ namespace Quasar.scenes
         {
             foreach (var cat in _cats)
             {
-                if (cat.CanWork())
+                if (cat.CanWork() && !cat.IsMoving())
                 {
                     var workTuple = _workSystem.CheckForWork(cat);
                     if (workTuple != null)
@@ -368,7 +374,7 @@ namespace Quasar.scenes
                 case SelectionState.GATHERING:
                 case SelectionState.FISHING:
                     var workType = GetWorkType(selection.SelectionState);
-                    _workSystem.CreateWork(workType, selection.Points, _buildingSystem.Current);
+                    _workSystem.CreateWork(workType, selection.Points, false, _buildingSystem.Current);
                     break;
                 case SelectionState.CANCEL:
                     RemoveWork(selection.Points);
@@ -424,7 +430,29 @@ namespace Quasar.scenes
 
             if (work != null)
             {
-                _world.Work(work.WorkType, worldPos, work.Buildable);
+                if (work.WorkType == WorkType.HAULING)
+                {
+                    var items = _itemSystem.GetItems(worldPos);
+                    var allStorage = _world.AllStorage();
+                    var adjTiles = allStorage.SelectMany(s => _world.GetAdjacentTiles(s));
+                    var shortestPath = _pathingSystem.ShortestPath(cat.Position, [.. adjTiles]);
+
+                    if (items.Count > 0 && allStorage.Count > 0 && shortestPath != null)
+                    {
+                        _itemSystem.PickUpItem(items.First());
+                        var newWork = _workSystem.CreateWork(WorkType.STORING, shortestPath.Points.Last(), true, null, items.First());
+                        StartWork(cat, newWork, shortestPath);
+                    }
+                }
+                else if (work.WorkType == WorkType.STORING)
+                {
+                    _itemSystem.PlaceItem(work.Item, worldPos);
+                }
+                else
+                {
+                    _world.Work(work.WorkType, worldPos, work.Buildable);
+                }
+                
                 _selectionSystem.Deselect(worldPos);
 
                 switch (work.WorkType)

@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://crkmkjor1kvsn"]
+
+[ext_resource type="Script" uid="uid://cdqe4ctypvwya" path="res://scenes/systems/items/ItemSystem.cs" id="1_6xwi0"]
+[ext_resource type="Script" uid="uid://di86uya3cyg7d" path="res://scenes/common/custom/MultiColorTileMapLayer.cs" id="1_xxrpm"]
+
+[node name="ItemSystem" type="Node2D" unique_id=722635205]
+script = ExtResource("1_6xwi0")
+
+[node name="ItemTileMapLayer" type="TileMapLayer" parent="." unique_id=850223391]
+script = ExtResource("1_xxrpm")
+TexturePath = "res://assets/textures/Haowan_Curses_1440x450.png"
+TileSize = Vector2i(18, 18)
+metadata/_custom_type_script = "uid://di86uya3cyg7d"

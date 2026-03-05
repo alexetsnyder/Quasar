@@ -6,6 +6,7 @@ namespace Quasar.data.enums
         MINING,
         CUTTING,
         HAULING,
+        STORING,
         BUILDING,
         FARMING,
         GATHERING,
