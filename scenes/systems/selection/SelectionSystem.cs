@@ -9,7 +9,7 @@ namespace Quasar.scenes.systems.selection
     public partial class SelectionSystem : Node2D, ISelectionSystem
     {
         [Export]
-        public SelectionState SelectionState { get; set; } = SelectionState.NONE;
+        public WorkType WorkType { get; set; } = WorkType.NONE;
 
         [Export]
         public Color SelectionColor { get; set; } = new Color(1.0f, 0.0f, 0.0f, 1.0f);
@@ -64,11 +64,11 @@ namespace Quasar.scenes.systems.selection
                 {
                     if (@event.IsPressed())
                     {
-                        if (SelectionState == SelectionState.SINGLE)
+                        if (WorkType == WorkType.NONE)
                         {
                             EmitSignal(SignalName.TileSelected, GetGlobalMousePosition());
                         }
-                        else if (SelectionState != SelectionState.NONE)
+                        else if (WorkType != WorkType.NONE)
                         {
                             _isSelecting = true;
                             _selectionStart = GetGlobalMousePosition();
@@ -128,17 +128,17 @@ namespace Quasar.scenes.systems.selection
 
         private Vector2I? GetAtlasCoordsForSelecting(int i, int j, Rect2I selection)
         {
-            switch(SelectionState)
+            switch(WorkType)
             {
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     return AtlasConstants.GetAtlasCoords(TileType.CANCEL);
-                case SelectionState.MINING:
-                case SelectionState.BUILDING:
-                case SelectionState.FARMING:
-                case SelectionState.FISHING:
-                case SelectionState.CUTTING:
-                case SelectionState.HAULING:
-                case SelectionState.GATHERING:
+                case WorkType.MINING:
+                case WorkType.BUILDING:
+                case WorkType.FARMING:
+                case WorkType.FISHING:
+                case WorkType.CUTTING:
+                case WorkType.HAULING:
+                case WorkType.GATHERING:
                     return GetAtlasCoordForSelection(i, j, selection);
                 default:
                     GD.Print("Incorrect SelectionState in GetAtlasCoordsForSelecting.");
@@ -197,17 +197,17 @@ namespace Quasar.scenes.systems.selection
 
         private Color? GetColorForSelecting()
         {
-            switch (SelectionState)
+            switch (WorkType)
             {
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     return AtlasConstants.GetColor(TileType.CANCEL);
-                case SelectionState.MINING:
-                case SelectionState.BUILDING:
-                case SelectionState.FARMING:
-                case SelectionState.FISHING:
-                case SelectionState.CUTTING:
-                case SelectionState.HAULING:
-                case SelectionState.GATHERING:
+                case WorkType.MINING:
+                case WorkType.BUILDING:
+                case WorkType.FARMING:
+                case WorkType.FISHING:
+                case WorkType.CUTTING:
+                case WorkType.HAULING:
+                case WorkType.GATHERING:
                     return SelectionColor;
                 default:
                     GD.Print("Incorrect SelectionState in GetColorForSelecting.");
@@ -221,28 +221,28 @@ namespace Quasar.scenes.systems.selection
 
             System.Func<Vector2I, bool> filter;
 
-            switch (SelectionState)
+            switch (WorkType)
             {
-                case SelectionState.MINING:
+                case WorkType.MINING:
                     filter = (c) => _world.IsMineable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.CUTTING:
+                case WorkType.CUTTING:
                     filter = (c) => _world.IsTree(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.HAULING:
+                case WorkType.HAULING:
                     filter = (c) => _world.HasItemsToHaul(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.BUILDING:
-                case SelectionState.FARMING:
+                case WorkType.BUILDING:
+                case WorkType.FARMING:
                     filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.GATHERING:
+                case WorkType.GATHERING:
                     filter = (c) => _world.IsGatherable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.FISHING:
+                case WorkType.FISHING:
                     filter = (c) => _world.IsWater(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     filter = (c) => _selectedTileMapLayer.GetCellSourceId(c) != -1;
                     break;
                 default:
@@ -258,10 +258,10 @@ namespace Quasar.scenes.systems.selection
         {
             var mapSelection = GetMapSelection(_selectingTileMapLayer);
 
-            var atlasCoords = GetAtlasCoordsForSelected(SelectionState);
-            var color = GetCellColorForSelected(SelectionState);
+            var atlasCoords = GetAtlasCoordsForSelected(WorkType);
+            var color = GetCellColorForSelected(WorkType);
 
-            Selection selection = new(SelectionState, []);
+            Selection selection = new(WorkType, []);
 
             for (int i = mapSelection.Position.X; i < mapSelection.End.X; i++)
             {
@@ -303,25 +303,25 @@ namespace Quasar.scenes.systems.selection
             } 
         }
 
-        private static Vector2I? GetAtlasCoordsForSelected(SelectionState selectionState)
+        private static Vector2I? GetAtlasCoordsForSelected(WorkType workType)
         {
-            switch (selectionState)
+            switch (workType)
             {
-                case SelectionState.MINING:
+                case WorkType.MINING:
                     return AtlasConstants.GetAtlasCoords(TileType.MINE);
-                case SelectionState.CUTTING:
+                case WorkType.CUTTING:
                     return AtlasConstants.GetAtlasCoords(TileType.CUT);
-                case SelectionState.HAULING:
+                case WorkType.HAULING:
                     return AtlasConstants.GetAtlasCoords(TileType.HAUL);
-                case SelectionState.BUILDING:
+                case WorkType.BUILDING:
                     return AtlasConstants.GetAtlasCoords(TileType.BUILD);
-                case SelectionState.FARMING:
+                case WorkType.FARMING:
                     return AtlasConstants.GetAtlasCoords(TileType.TILL);
-                case SelectionState.GATHERING:
+                case WorkType.GATHERING:
                     return AtlasConstants.GetAtlasCoords(TileType.GATHER);
-                case SelectionState.FISHING:
+                case WorkType.FISHING:
                     return AtlasConstants.GetAtlasCoords(TileType.FISH);
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     return null;
                 default:
                     GD.Print("Incorrect WorkType in GetAtlasCoords(workType).");
@@ -330,25 +330,25 @@ namespace Quasar.scenes.systems.selection
             }
         }
 
-        private static Color? GetCellColorForSelected(SelectionState selectionType)
+        private static Color? GetCellColorForSelected(WorkType workType)
         {
-            switch (selectionType)
+            switch (workType)
             {
-                case SelectionState.MINING:
+                case WorkType.MINING:
                     return AtlasConstants.GetColor(TileType.MINE);
-                case SelectionState.CUTTING:
+                case WorkType.CUTTING:
                     return AtlasConstants.GetColor(TileType.CUT);
-                case SelectionState.HAULING:
+                case WorkType.HAULING:
                     return AtlasConstants.GetColor(TileType.HAUL);
-                case SelectionState.BUILDING:
+                case WorkType.BUILDING:
                     return AtlasConstants.GetColor(TileType.BUILD);
-                case SelectionState.FARMING:
+                case WorkType.FARMING:
                     return AtlasConstants.GetColor(TileType.TILL);
-                case SelectionState.GATHERING:
+                case WorkType.GATHERING:
                     return AtlasConstants.GetColor(TileType.GATHER);
-                case SelectionState.FISHING:
+                case WorkType.FISHING:
                     return AtlasConstants.GetColor(TileType.FISH);
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     return null;
                 default:
                     GD.Print("Incorrect WorkType in GetCellColor(workType).");

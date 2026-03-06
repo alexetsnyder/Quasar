@@ -121,7 +121,7 @@ namespace Quasar.scenes
             }
             else if (@event.IsActionPressed("SwitchBuildable"))
             {
-                if (_selectionSystem.SelectionState == SelectionState.BUILDING)
+                if (_selectionSystem.WorkType == WorkType.BUILDING)
                 {
                     _buildingSystem.NextBuildable();
                 }
@@ -287,101 +287,77 @@ namespace Quasar.scenes
             _workSystem.RemoveWork(worldPosList);
         }
 
-        private static WorkType GetWorkType(SelectionState selectionState)
-        {
-            switch (selectionState)
-            {
-                case SelectionState.MINING:
-                    return WorkType.MINING;
-                case SelectionState.CUTTING:
-                    return WorkType.CUTTING;
-                case SelectionState.HAULING:
-                    return WorkType.HAULING;
-                case SelectionState.BUILDING:
-                    return WorkType.BUILDING;
-                case SelectionState.FARMING:
-                    return WorkType.FARMING;
-                case SelectionState.GATHERING:
-                    return WorkType.GATHERING;
-                case SelectionState.FISHING:
-                    return WorkType.FISHING;
-                default:
-                    GD.Print("Incorrect SelectionState in GetWorkType");
-                    return WorkType.NONE;
-            }
-        }
-
         private void OnToolBarSelectPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.SINGLE;
+            _selectionSystem.WorkType = WorkType.NONE;
         }
 
         private void OnToolBarMinePressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.MINING;
+            _selectionSystem.WorkType = WorkType.MINING;
         }
 
         private void OnToolBarCutPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.CUTTING;
+            _selectionSystem.WorkType = WorkType.CUTTING;
         }
 
         private void OnToolBarHaulPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.HAULING;
+            _selectionSystem.WorkType = WorkType.HAULING;
         }
 
         private void OnToolBarBuildPressed(int tileType)
         {
             _buildingSystem.Clear();
             _buildingSystem.SetCurrent((TileType)tileType);
-            _selectionSystem.SelectionState = SelectionState.BUILDING;
+            _selectionSystem.WorkType = WorkType.BUILDING;
         }
 
         private void OnToolBarFarmPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.FARMING;
+            _selectionSystem.WorkType = WorkType.FARMING;
         }
 
         private void OnToolBarGatherPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.GATHERING;
+            _selectionSystem.WorkType = WorkType.GATHERING;
         }
 
         private void OnToolBarFishPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.FISHING;
+            _selectionSystem.WorkType = WorkType.FISHING;
         }
 
         private void OnToolBarCancelPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.SelectionState = SelectionState.CANCEL;
+            _selectionSystem.WorkType = WorkType.CANCEL;
         }
 
         private void OnSelectionCreated(Selection selection)
         {
-            switch (selection.SelectionState)
+            switch (selection.WorkType)
             {
-                case SelectionState.HAULING:
+                case WorkType.HAULING:
                     CreateHaulingWork(selection);
                     break;
-                case SelectionState.MINING:
-                case SelectionState.CUTTING:       
-                case SelectionState.BUILDING:
-                case SelectionState.FARMING:
-                case SelectionState.GATHERING:
-                case SelectionState.FISHING:
+                case WorkType.MINING:
+                case WorkType.CUTTING:       
+                case WorkType.BUILDING:
+                case WorkType.FARMING:
+                case WorkType.GATHERING:
+                case WorkType.FISHING:
                     CreateWork(selection);
                     break;
-                case SelectionState.CANCEL:
+                case WorkType.CANCEL:
                     RemoveWork(selection.Points);
                     break;
                 default:
@@ -422,10 +398,9 @@ namespace Quasar.scenes
 
         private void CreateWork(Selection selection)
         {
-            var workType = GetWorkType(selection.SelectionState);
             foreach (var point in selection.Points)
             {
-                _workSystem.CreateWork(workType, point);
+                _workSystem.CreateWork(selection.WorkType, point);
             }
         }
 
