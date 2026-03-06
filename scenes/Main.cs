@@ -13,7 +13,6 @@ using Quasar.scenes.systems.work;
 using Quasar.scenes.world;
 using Quasar.system;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Quasar.scenes
 {
@@ -221,6 +220,9 @@ namespace Quasar.scenes
                     {
                         AddChild(cat);
 
+                        cat.World = _world;
+                        cat.PathingSystem = _pathingSystem;
+
                         var catPos = spawnPoints[i];
                         cat.Position = catPos;
                         _world.PlaceItem(catPos);
@@ -427,42 +429,39 @@ namespace Quasar.scenes
             _pathingSystem.RemovePath(path.Id);
         }
 
-        private void OnCatWork(Cat cat, Vector2 worldPos)
+        private void OnCatWork(Cat cat, Work work)
         {
-            var work = _workSystem.GetWork(cat.WorkId);
-            cat.CompleteWork();
+            //var work = _workSystem.GetWork(cat.WorkId);
+            //cat.CompleteWork();
 
-            if (work != null)
+            if (_workSystem.GetWork(work.WorkId) != null)
             {
-            //    if (work.WorkType == WorkType.HAULING)
-            //    {
-            //        var items = _itemSystem.GetItems(worldPos);
-            //        var allStorage = _world.AllStorage();
-            //        var adjTiles = allStorage.SelectMany(s => _world.GetAdjacentTiles(s));
-            //        var shortestPath = _pathingSystem.ShortestPath(cat.Position, [.. adjTiles]);
+                //    if (work.WorkType == WorkType.HAULING)
+                //    {
+                //        var items = _itemSystem.GetItems(worldPos);
+                //        var allStorage = _world.AllStorage();
+                //        var adjTiles = allStorage.SelectMany(s => _world.GetAdjacentTiles(s));
+                //        var shortestPath = _pathingSystem.ShortestPath(cat.Position, [.. adjTiles]);
 
-            //        if (items.Count > 0 && allStorage.Count > 0 && shortestPath != null)
-            //        {
-            //            _itemSystem.PickUpItem(items.First());
-            //            var newWork = _workSystem.CreateWork(WorkType.STORING, shortestPath.Points.Last(), true, null, items.First());
-            //            StartWork(cat, newWork, shortestPath);
-            //        }
-            //    }
-            //    else if (work.WorkType == WorkType.STORING)
-            //    {
-            //        _itemSystem.PlaceItem(work.Item, worldPos);
-            //    }
-            //    else
-            //    {
-            //        _world.Work(work.WorkType, worldPos, work.Buildable);
-            //    }
-                
-                foreach (var command in work.Commands)
-                {
-                    command.Execute();
-                }
+                //        if (items.Count > 0 && allStorage.Count > 0 && shortestPath != null)
+                //        {
+                //            _itemSystem.PickUpItem(items.First());
+                //            var newWork = _workSystem.CreateWork(WorkType.STORING, shortestPath.Points.Last(), true, null, items.First());
+                //            StartWork(cat, newWork, shortestPath);
+                //        }
+                //    }
+                //    else if (work.WorkType == WorkType.STORING)
+                //    {
+                //        _itemSystem.PlaceItem(work.Item, worldPos);
+                //    }
+                //    else
+                //    {
+                //        _world.Work(work.WorkType, worldPos, work.Buildable);
+                //    }
 
-                _selectionSystem.Deselect(worldPos);
+                work.Command.Execute();
+
+                //_selectionSystem.Deselect(work.LocalPos);
 
                 _workSystem.RemoveWork(work);
             }

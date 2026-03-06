@@ -25,7 +25,11 @@ namespace Quasar.scenes.cats
         public delegate void PathCompleteEventHandler(Path path);
 
         [Signal]
-        public delegate void CatWorkEventHandler(Cat cat, Vector2 workPos);
+        public delegate void CatWorkEventHandler(Cat cat, Work work);
+
+        public IWorld World { get; set; }
+
+        public IPathingSystem PathingSystem { get; set; }
 
         public int ID { get; set; }
 
@@ -33,7 +37,8 @@ namespace Quasar.scenes.cats
 
         public bool IsWorking { get; private set; } = false;
 
-        public int WorkId { get; set; }
+        //public int WorkId { get; set; }
+        private Queue<Work> _workQueue = [];
 
         public float Width { get => _catSprite.GetRect().Size.X;  }
 
@@ -47,7 +52,7 @@ namespace Quasar.scenes.cats
 
         private Path _movePath = null;
 
-        private Queue<Vector2> _movePathQueue = [];
+        private readonly Queue<Vector2> _movePathQueue = [];
 
         private Vector2 _lastPos = new();
 
@@ -88,7 +93,7 @@ namespace Quasar.scenes.cats
 
         public void SetWork(Work work, Path path)
         {
-            WorkId = work.WorkId;
+            _workQueue.Enqueue(work);
             SetPath(path);
             IsWorking = true;
             CatData.WorkPos = work.LocalPos;
@@ -98,9 +103,21 @@ namespace Quasar.scenes.cats
 
         public void CompleteWork()
         {
-            IsWorking = false;
             _workProgress.Visible = false;
-            CatData.WorkPos = null;
+
+            var work = _workQueue.Dequeue();
+
+            EmitSignal(SignalName.CatWork, this, work);
+
+            if (_workQueue.Count > 0)
+            {
+                StartNextWork();
+            }
+            else
+            {
+                IsWorking = false;
+                CatData.WorkPos = null;
+            }     
         }
 
         public void SetPath(Path path)
@@ -152,9 +169,22 @@ namespace Quasar.scenes.cats
 
             if (ElapsedWorkTime >= WorkTicks)
             {
-                EmitSignal(SignalName.CatWork, this, CatData.WorkPos.Value);
+                CompleteWork();
+                //EmitSignal(SignalName.CatWork, this, CatData.WorkPos.Value);
                 ElapsedWorkTime %= WorkTicks;
             }
+        }
+
+        private void StartNextWork()
+        {
+            var work = _workQueue.Peek();
+            var path = PathingSystem.ShortestPath(Position, World.GetAdjacentTiles(work.LocalPos, true));
+
+            SetPath(path);
+            CatData.WorkPos = work.LocalPos;
+
+            _workProgress.Value = 0;
+            _workProgress.Visible = true;
         }
 
         private void OnCatAreaInputEvent(Viewport viewport, InputEvent @event, long shapeIdx)

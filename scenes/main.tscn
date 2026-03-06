@@ -25,19 +25,19 @@ offset_bottom = 3536.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="CommandFactory" type="Node" parent="." unique_id=276563073 node_paths=PackedStringArray("WorldNode", "PathingSystemNode", "ItemSystemNode", "BuildingSystemNode")]
+[node name="CommandFactory" type="Node" parent="." unique_id=276563073 node_paths=PackedStringArray("WorldNode", "PathingSystemNode", "ItemSystemNode", "BuildingSystemNode", "SelectionSystemNode")]
 script = ExtResource("9_trceg")
 WorldNode = NodePath("../World")
 PathingSystemNode = NodePath("../PathingSystem")
 ItemSystemNode = NodePath("../ItemSystem")
 BuildingSystemNode = NodePath("../BuildingSystem")
+SelectionSystemNode = NodePath("../SelectionSystem")
 metadata/_custom_type_script = "uid://c3jqhc2yy0sqe"
 
-[node name="WorkSystem" type="Node" parent="." unique_id=826126942 node_paths=PackedStringArray("PathingSystemNode", "WorldNode", "ItemSystemNode", "CommandFactory")]
+[node name="WorkSystem" type="Node" parent="." unique_id=826126942 node_paths=PackedStringArray("PathingSystemNode", "WorldNode", "CommandFactory")]
 script = ExtResource("2_choun")
 PathingSystemNode = NodePath("../PathingSystem")
 WorldNode = NodePath("../World")
-ItemSystemNode = NodePath("../ItemSystem")
 CommandFactory = NodePath("../CommandFactory")
 metadata/_custom_type_script = "uid://c11836ohje6pr"
 

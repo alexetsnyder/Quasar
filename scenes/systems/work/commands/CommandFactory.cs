@@ -20,6 +20,9 @@ namespace Quasar.scenes.systems.work.commands
         [Export]
         public Node BuildingSystemNode { get; set; }
 
+        [Export]
+        public Node SelectionSystemNode { get; set; }
+
         private IWorld _world;
 
         private IPathingSystem _pathingSystem;
@@ -28,22 +31,29 @@ namespace Quasar.scenes.systems.work.commands
 
         private IBuildingSystem _buildingSystem;
 
+        private ISelectionSystem _selectionSystem;
+
         public override void _Ready()
         {
             GlobalSystem.Instance.LoadInterface<IWorld>(WorldNode, out _world);
             GlobalSystem.Instance.LoadInterface<IPathingSystem>(PathingSystemNode, out _pathingSystem);
             GlobalSystem.Instance.LoadInterface<IItemSystem>(ItemSystemNode, out _itemSystem);
             GlobalSystem.Instance.LoadInterface<IBuildingSystem>(BuildingSystemNode, out _buildingSystem);
+            GlobalSystem.Instance.LoadInterface<ISelectionSystem>(SelectionSystemNode, out _selectionSystem);
         }
 
-        public ICommand CreateMiningCommand(Vector2 localPos)
+        public ICommand BuildCommand(WorkType workType, Vector2 localPos)
         {
-           return new MiningCommand(_world, _itemSystem, _pathingSystem, localPos, TileType.STONE);
-        }
-
-        public ICommand CreateBuildingCommand(Vector2 localPos)
-        {
-            return new BuildingCommand(_world, _pathingSystem, localPos, _buildingSystem.Current);
+            switch (workType)
+            {
+                case WorkType.MINING:
+                    return new MiningCommand(_world, _itemSystem, _pathingSystem, _selectionSystem, localPos, TileType.STONE);
+                case WorkType.BUILDING:
+                    return new BuildingCommand(_world, _pathingSystem, _selectionSystem, localPos, _buildingSystem.Current);
+                default:
+                    GD.Print($"Could not create command for WorkType {workType} at {localPos}.");
+                    return null;
+            }
         }
     }
 }

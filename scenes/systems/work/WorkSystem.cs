@@ -50,26 +50,25 @@ namespace Quasar.scenes.systems.work
             return null;
         }
         
-        public void CreateWork(WorkType workType, Vector2 localPos)
+        public bool CreateWork(WorkType workType, Vector2 localPos)
         {
             _allWork.TryAdd(workType, []);
 
             Work work = null;
 
-            switch (workType)
+            var command = CommandFactory.BuildCommand(workType, localPos);
+            if (command != null)
             {
-                case WorkType.MINING:
-                    work = new(_nextId, localPos, workType, [ CommandFactory.CreateMiningCommand(localPos) ]);
-                    break;
-                case WorkType.BUILDING:
-                    work = new(_nextId, localPos, workType, [ CommandFactory.CreateBuildingCommand(localPos) ]);
-                    break;
+                work = new(_nextId, workType, localPos, command);
             }
 
             if (work != null)
             {
                 _allWork[workType].Add(_nextId++, work);
+                return true;
             }
+
+            return false;
         }
 
         public void RemoveWork(Work work)

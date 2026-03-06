@@ -6,7 +6,7 @@ using Quasar.system;
 
 namespace Quasar.scenes.systems.selection
 {
-    public partial class SelectionSystem : Node2D
+    public partial class SelectionSystem : Node2D, ISelectionSystem
     {
         [Export]
         public SelectionState SelectionState { get; set; } = SelectionState.NONE;
