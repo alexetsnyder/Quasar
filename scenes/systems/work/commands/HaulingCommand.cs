@@ -4,8 +4,10 @@ using Quasar.scenes.common.interfaces;
 
 namespace Quasar.scenes.systems.work.commands
 {
-    public partial class HaulingCommand(IItemSystem itemSystem, ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
+    public partial class HaulingCommand(IWorld world, IItemSystem itemSystem, ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
     {
+        private readonly IWorld _world = world;
+
         private readonly IItemSystem _itemSystem = itemSystem;
 
         private readonly ISelectionSystem _selectionSystem = selectionSystem;
@@ -25,9 +27,9 @@ namespace Quasar.scenes.systems.work.commands
                 if (items.Count > 0)
                 {
                     cat.Item = items[0];
-                    _itemSystem.PickUpItem(cat.Item);
+                    _itemSystem.PickUpItem(cat.Id, cat.Item);
 
-                    if (items.Count == 1)
+                    if (items.Count <= 0)
                     {
                         _selectionSystem.Deselect(_localPos);
                     }
@@ -35,7 +37,16 @@ namespace Quasar.scenes.systems.work.commands
             }
             else
             {
-                _itemSystem.PlaceItem(cat.Item, _localPos);
+                var storageId = _world.GetWorldCellId(_localPos);
+                if (storageId == -1)
+                {
+                    _itemSystem.PlaceItem(cat.Id, cat.Item, _localPos);
+                }
+                else
+                {
+                    _itemSystem.StoreItem(cat.Id, storageId, cat.Item, _localPos);
+                }
+                
                 cat.Item = null;
             } 
         }

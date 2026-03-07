@@ -11,6 +11,8 @@ namespace Quasar.scenes.common.interfaces
 
         public int Cols { get; }
 
+        public int GetWorldCellId(Vector2 localPos);
+
         public TileType GetTileType(Vector2 localPos);
 
         public Color? GetTileColor(Vector2 localPos);

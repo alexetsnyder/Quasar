@@ -33,7 +33,7 @@ namespace Quasar.scenes.cats
 
         public IPathingSystem PathingSystem { get; set; }
 
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         public CatData CatData { get; private set; }
 

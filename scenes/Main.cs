@@ -4,6 +4,7 @@ using Quasar.data.enums;
 using Quasar.scenes.camera;
 using Quasar.scenes.cats;
 using Quasar.scenes.gui;
+using Quasar.scenes.gui.items;
 using Quasar.scenes.map;
 using Quasar.scenes.systems.building;
 using Quasar.scenes.systems.items;
@@ -46,6 +47,8 @@ namespace Quasar.scenes
 
         private CharacterDisplay _characterDisplay;
 
+        private InventoryControl _inventoryControl;
+
         private Vector2 _prevCameraZoom;
 
         private Vector2 _prevCameraPos;
@@ -85,6 +88,13 @@ namespace Quasar.scenes
             {
                 _gui.AddChild(_characterDisplay);
                 _characterDisplay.Visible = false;
+            }
+
+            _inventoryControl = InstantiateScene<InventoryControl>("res://scenes/gui/items/inventory_control.tscn");
+            if (_inventoryControl != null)
+            {
+                _gui.AddChild(_inventoryControl);
+                _inventoryControl.Visible = false;
             }
 
             CreateCats();
@@ -406,7 +416,20 @@ namespace Quasar.scenes
 
         private void OnTileSelected(Vector2 localPos)
         {
-            if (_selectedCat != null &&
+            if (_world.IsSolid(localPos) && _world.GetWorldCellId(localPos) != -1)
+            {
+                var items = _itemSystem.GetStoredItems(_world.GetWorldCellId(localPos));
+                foreach (var item in items)
+                {
+                    _inventoryControl.Add(item);
+                }
+
+                if (items.Count > 0)
+                {
+                    _inventoryControl.Visible = true;
+                }
+            }
+            else if (_selectedCat != null &&
                 _selectedCat.CanWork() &&
                 !_world.TileOccupied(localPos))
             {

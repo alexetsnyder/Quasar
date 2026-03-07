@@ -5,6 +5,8 @@ namespace Quasar.scenes.world
 {
     public partial class WorldCell(TileType tileType, Vector2I atlasCoords, Color color)
     {
+        public int Id { get; set; } = -1;
+
         public TileType TileType { get; set; } = tileType;
 
         public Vector2I AtlasCoords { get; set; } = atlasCoords;

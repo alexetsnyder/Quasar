@@ -51,6 +51,8 @@ namespace Quasar.scenes.world
 
         #region Private Variables
 
+        private int _nextId = 0;
+
         private IItemSystem _itemSystem;
 
         private SimplexNoise _heightNoise;
@@ -167,6 +169,18 @@ namespace Quasar.scenes.world
             return [..GetAdjacentCells(_worldTileMapLayer.LocalToMap(localPos), includeDiagonals).Select(a => _worldTileMapLayer.MapToLocal(a))];
         }
 
+        public int GetWorldCellId(Vector2 localPos)
+        {
+            var coords = _worldTileMapLayer.LocalToMap(localPos);
+            var wordCell = GetWorldCell(coords);
+            if (wordCell == null)
+            {
+                return -1;
+            }
+
+            return wordCell.Id;
+        }
+
         public List<Vector2> AllStorage()
         {
             List<Vector2> storagePosList = [];
@@ -215,6 +229,11 @@ namespace Quasar.scenes.world
 
                 _worldCellArray[coords.X, coords.Y] = new(tileType, atlasCoords, color);
 
+                if (tileType == TileType.STORAGE)
+                {
+                    _worldCellArray[coords.X, coords.Y].Id = _nextId++;
+                }
+
                 SetCell(_worldTileMapLayer, coords, atlasCoords, color);
             }
         }
@@ -257,6 +276,12 @@ namespace Quasar.scenes.world
             {
 
             }
+        }
+
+        public bool IsSolid(Vector2 localPos)
+        {
+            var coords = _worldTileMapLayer.LocalToMap(localPos);
+            return IsSolid(coords);
         }
 
         public bool IsSolid(Vector2I coords)
@@ -334,7 +359,7 @@ namespace Quasar.scenes.world
 
         public bool HasItemsToHaul(Vector2I coords)
         {  
-            return _itemSystem.GetItems(_worldTileMapLayer.MapToLocal(coords)).Count > 0;
+            return !IsSolid(coords) && _itemSystem.GetItems(_worldTileMapLayer.MapToLocal(coords)).Count > 0;
         }
 
         public bool IsInBounds(Vector2I coords)

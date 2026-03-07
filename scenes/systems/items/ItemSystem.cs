@@ -13,6 +13,10 @@ namespace Quasar.scenes.systems.items
 
         private readonly Dictionary<Vector2I, List<Item>> _items = [];
 
+        private readonly Dictionary<int, List<Item>> _moving = [];
+
+        private readonly Dictionary<int, List<Item>> _storage = [];
+
         private IMultiColorTileMapLayer _itemTileMapLayer;
 
         public override void _Ready()
@@ -35,13 +39,18 @@ namespace Quasar.scenes.systems.items
             SetCell(coords, atlasCoords, color);
         }
 
+        public void TryAddStorage(int storageId)
+        {
+            _storage.TryAdd(storageId, []);
+        }
+
         public void RemoveItem(Item item)
         {
             var coords = _itemTileMapLayer.LocalToMap(item.Position);
 
             _items[coords].Remove(item);
 
-            SetCell(coords);
+            TryClearCell(coords);
         }
 
         public List<Item> GetItems(Vector2 localPos)
@@ -56,22 +65,43 @@ namespace Quasar.scenes.systems.items
             return [];
         }
 
-        public void PickUpItem(Item item)
+        public List<Item> GetStoredItems(int storageId)
         {
-            var coords = _itemTileMapLayer.LocalToMap(item.Position);
-            SetCell(coords);
-        }
-
-        public void PlaceItem(Item item, Vector2 localPos)
-        {
-            var originalCoords = _itemTileMapLayer.LocalToMap(item.Position);
-            if (_itemTileMapLayer.GetCellSourceId(originalCoords) != -1)
+            if (_storage.TryGetValue(storageId, out List<Item> items))
             {
-                SetCell(originalCoords);
+                return items;
             }
 
-            _items[originalCoords].Remove(item);
+            return [];
+        }
 
+        public void PickUpItem(int id, Item item)
+        {
+            var coords = _itemTileMapLayer.LocalToMap(item.Position);
+
+            _moving.TryAdd(id, []);
+            _moving[id].Add(item);
+
+            RemoveItem(item);
+        }
+
+        public void StoreItem(int agentId, int storageId, Item item, Vector2 localPos)
+        {
+            item.Position = localPos;
+
+            var coords = _itemTileMapLayer.LocalToMap(localPos);
+
+            _items.TryAdd(coords, []);
+            _items[coords].Add(item);
+
+            TryAddStorage(storageId);
+
+            _storage[storageId].Add(item);
+            _moving[agentId].Remove(item);
+        }
+
+        public void PlaceItem(int id, Item item, Vector2 localPos)
+        {
             item.Position = localPos;
 
             var coords = _itemTileMapLayer.LocalToMap(localPos);
@@ -81,7 +111,17 @@ namespace Quasar.scenes.systems.items
             _items.TryAdd(coords, []);
             _items[coords].Add(item);
 
+            _moving[id].Remove(item);
+
             SetCell(coords, atlasCoords, color);
+        }
+
+        private void TryClearCell(Vector2I coords)
+        {
+            if (_items[coords].Count == 0)
+            {
+                SetCell(coords);
+            }
         }
 
         private void SetCell(Vector2I coords, Vector2I? atlasCoords = null, Color? color = null)
