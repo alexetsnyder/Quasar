@@ -13,7 +13,7 @@ namespace Quasar.scenes.gui.items
 
         public override void _Ready()
         {
-            _grid = GetNode<GridContainer>("GridContainer");
+            _grid = GetNode<GridContainer>("PanelContainer/MarginContainer/GridContainer");
         }
 
         public void Add(Item item)

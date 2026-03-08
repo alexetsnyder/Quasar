@@ -413,6 +413,7 @@ namespace Quasar.scenes
 
                 if (items.Count > 0)
                 {
+                    _inventoryControl.Position = new(100.0f, 100.0f);
                     _inventoryControl.Visible = true;
                 }
             }
