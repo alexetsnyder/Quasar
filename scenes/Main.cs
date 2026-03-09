@@ -237,7 +237,7 @@ namespace Quasar.scenes
 
                         var catPos = spawnPoints[i];
                         cat.Position = catPos;
-                        _world.PlaceItem(catPos);
+                        PlaceCat(catPos);
 
                         cat.Speed = 8;
                         cat.SetCatData(_catDataList[i]);
@@ -256,6 +256,11 @@ namespace Quasar.scenes
             cat.MovedOne += OnCatMovedOne;
             cat.PathComplete += OnCatPathComplete;
             cat.CatWork += OnCatWork;
+        }
+
+        private void PlaceCat(Vector2 newPos, Vector2? lastPos = null)
+        {
+            _world.PlaceItem(newPos, lastPos);
         }
 
         private void CheckForWork()
@@ -445,7 +450,7 @@ namespace Quasar.scenes
 
         private void OnCatMovedOne(Vector2 lastPos, Vector2 newPos)
         {
-            _world.PlaceItem(newPos, lastPos);
+            PlaceCat(newPos, lastPos);
         }
 
         private void OnCatPathComplete(Path path)
