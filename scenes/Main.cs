@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.core.common;
 using Quasar.data;
 using Quasar.data.enums;
 using Quasar.scenes.camera;
@@ -69,6 +70,8 @@ namespace Quasar.scenes
 
         public override void _Ready()
         {
+            GD.Print($"FastName: {Constants.Self}");
+
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
             _gui = GetNode<CanvasLayer>("GUI");
             _map = GetNode<Map>("Map");

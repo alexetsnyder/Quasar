@@ -10,7 +10,7 @@ namespace Quasar.scenes.ai.goap
     public partial class WorldState
     {
         public WorkType agentProf { get; set; }
-
+         
         public Vector2 agentPos { get; set; }
 
         public Dictionary<Vector2, WorkType> Work {  get; set; }
