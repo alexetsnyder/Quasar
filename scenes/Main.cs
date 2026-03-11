@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.core.blackboard;
 using Quasar.core.common;
 using Quasar.data;
 using Quasar.data.enums;
@@ -70,7 +71,14 @@ namespace Quasar.scenes
 
         public override void _Ready()
         {
-            GD.Print($"FastName: {Constants.Self}");
+            Blackboard blackboard = new();
+
+            blackboard.Set(Constants.Self, Position);
+
+            if (blackboard.TryGetVector2(Constants.Self, out Vector2 value))
+            {
+                GD.Print($"Blackboard Value: {value}");
+            }
 
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
             _gui = GetNode<CanvasLayer>("GUI");
