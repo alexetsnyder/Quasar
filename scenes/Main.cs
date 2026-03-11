@@ -73,9 +73,9 @@ namespace Quasar.scenes
         {
             Blackboard blackboard = new();
 
-            blackboard.Set(Constants.Self, Position);
+            blackboard.Set(Constants.Names.Self, Position);
 
-            if (blackboard.TryGetVector2(Constants.Self, out Vector2 value))
+            if (blackboard.TryGetVector2(Constants.Names.Self, out Vector2 value))
             {
                 GD.Print($"Blackboard Value: {value}");
             }
