@@ -8,12 +8,14 @@ namespace Quasar.core.goap.actions
 {
     public partial class Mine : IAction
     {
+        public FastName Name { get; set; } = new("MiningAction");
+
         public int Cost { get; set; } = 1;
 
         private readonly Dictionary<FastName, bool> _preconditions = new()
         {
+            { Constants.Names.HasWork, true }, 
             { Constants.Names.IsAdjToWork, true },
-            { Constants.Names.HasWork, true },
         };
 
         private readonly Dictionary<FastName, bool> _effects = new()
@@ -24,6 +26,19 @@ namespace Quasar.core.goap.actions
         public Dictionary<FastName, bool> GetPreconds()
         {
             return _preconditions; 
+        }
+
+        public bool SatisfyGoal(KeyValuePair<FastName, bool> goal)
+        {
+            if (_effects.TryGetValue(goal.Key, out var value))
+            {
+                if (goal.Value == value)
+                {
+                    return true; 
+                }
+            }
+
+            return false;
         }
 
         public bool SatisfyPreconds(Blackboard blackboard)

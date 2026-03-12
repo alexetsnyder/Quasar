@@ -20,7 +20,7 @@ namespace Quasar.core.goap
 
             blackboard.Set(Constants.Names.Position, _cat.Position);
 
-            var workInfo = _workSystem.CheckForWork(_cat);
+            var workInfo = _workSystem.CheckForWork(_cat, false);
 
             if (workInfo == null)
             {

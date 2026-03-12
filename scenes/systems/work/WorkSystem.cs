@@ -125,7 +125,7 @@ namespace Quasar.scenes.systems.work
             return null;
         }
 
-        public Tuple<List<Work>, Path> CheckForWork(Cat cat)
+        public Tuple<List<Work>, Path> CheckForWork(Cat cat, bool assign = true)
         {
             var workType = cat.CatData.WorkType;
 
@@ -137,7 +137,7 @@ namespace Quasar.scenes.systems.work
 
                     if (work != null)
                     {
-                        work.IsAssigned = true;
+                        work.IsAssigned = assign;
                         List<Work> workList = [work];
 
                         if (work.LinkedWorkId != -1)
@@ -145,7 +145,7 @@ namespace Quasar.scenes.systems.work
                             var linkedWork = GetWork(work.LinkedWorkId);
                             if (linkedWork != null)
                             {
-                                linkedWork.IsAssigned = true;
+                                linkedWork.IsAssigned = assign;
                                 workList.Add(linkedWork);
                             }
                         }

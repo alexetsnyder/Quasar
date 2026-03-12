@@ -11,6 +11,6 @@ namespace Quasar.scenes.common.interfaces
     {
         public List<Work> GetWork(WorkType workType);
 
-        public Tuple<List<Work>, Path> CheckForWork(Cat cat);
+        public Tuple<List<Work>, Path> CheckForWork(Cat cat, bool assign = true);
     }
 }

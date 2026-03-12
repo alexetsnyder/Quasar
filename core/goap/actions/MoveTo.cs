@@ -8,6 +8,8 @@ namespace Quasar.core.goap.actions
 {
     public partial class MoveTo : IAction
     {
+        public FastName Name { get; set; } = new("MoveToAction");
+
         public int Cost { get; set; } = 2;
 
         private readonly Dictionary<FastName, bool> _preconditions = new()
@@ -23,6 +25,19 @@ namespace Quasar.core.goap.actions
         public Dictionary<FastName, bool> GetPreconds()
         {
             return _preconditions; 
+        }
+
+        public bool SatisfyGoal(KeyValuePair<FastName, bool> goal)
+        {
+            if (_effects.TryGetValue(goal.Key, out var value))
+            {
+                if (goal.Value == value)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public bool SatisfyPreconds(Blackboard blackboard)

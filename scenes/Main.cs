@@ -1,6 +1,7 @@
 using Godot;
 using Quasar.core.blackboard;
 using Quasar.core.common;
+using Quasar.core.goap;
 using Quasar.data;
 using Quasar.data.enums;
 using Quasar.scenes.camera;
@@ -59,6 +60,8 @@ namespace Quasar.scenes
 
         private Cat _selectedCat = null;
 
+        private Planner _planner;
+
         private readonly List<CatData> _catDataList = [
             new("Fern", "Black Shorthair Cat", "Playful", 100, WorkType.MINING),
             new("Fig", "Black Shorthair Cat", "Sad", 100, WorkType.BUILDING),
@@ -71,15 +74,6 @@ namespace Quasar.scenes
 
         public override void _Ready()
         {
-            Blackboard blackboard = new();
-
-            blackboard.Set(Constants.Names.Self, Position);
-
-            if (blackboard.TryGetVector2(Constants.Names.Self, out Vector2 value))
-            {
-                GD.Print($"Blackboard Value: {value}");
-            }
-
             _debugGUI = GetNode<CanvasLayer>("DebugGUI");
             _gui = GetNode<CanvasLayer>("GUI");
             _map = GetNode<Map>("Map");
@@ -278,6 +272,20 @@ namespace Quasar.scenes
         {
             foreach (var cat in _cats)
             {
+                if (cat.CatData.WorkType == WorkType.MINING)
+                {
+                    _planner = new(cat, _workSystem);
+                    var plan = _planner.Plan();
+                    if (plan.Count > 0)
+                    {
+                        while (plan.Count > 0)
+                        {
+                            var action = plan.Dequeue();
+                            GD.Print($"Action: {action.Name}");
+                        }
+                    }
+                }
+
                 if (cat.CanWork() && !cat.IsMoving())
                 {
                     var workTuple = _workSystem.CheckForWork(cat);
