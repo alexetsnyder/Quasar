@@ -58,10 +58,13 @@ namespace Quasar.core.goap.actions
         {
             foreach (var cond in _preconditions.Values)
             {
-                cond.Satisify(blackboard);
+                if (!cond.Satisify(blackboard))
+                {
+                    return false;
+                }
             }
 
-            return false;
+            return true;
         }
     }
 }
