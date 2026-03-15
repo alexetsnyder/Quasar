@@ -3,8 +3,6 @@ using Quasar.core.common;
 using Quasar.core.goap.interfaces;
 using Quasar.core.naming;
 using Quasar.data.enums;
-using Quasar.scenes.common.interfaces;
-using Quasar.scenes.systems.work;
 using System.Linq;
 
 namespace Quasar.core.goap.goals
@@ -39,24 +37,29 @@ namespace Quasar.core.goap.goals
                     }
                 }
 
-                if (blackboard.TryGetWorkList(new(WorkType.MINING.ToString()), out var workList))
+                if (blackboard.TryGetInt(Constants.Names.SelectedWorkType, out var workTypeInt))
                 {
-                    if (workList.Count > 0)
-                    {
-                        foreach (var work in workList.ToDictionary(w => w, w => w.AdjPos ?? []))
-                        {
-                            foreach (var adjPos in work.Value)
-                            {
-                                if (adjPos.IsEqualApprox(agentPos))
-                                {
-                                    blackboard.Set(Constants.Names.SelectedWork, work.Key);
-                                    return true;
-                                }
-                            }
+                    var workType = (WorkType)workTypeInt;
 
+                    if (blackboard.TryGetWorkList(new(workType.ToString()), out var workList))
+                    {
+                        if (workList.Count > 0)
+                        {
+                            foreach (var work in workList.ToDictionary(w => w, w => w.AdjPos ?? []))
+                            {
+                                foreach (var adjPos in work.Value)
+                                {
+                                    if (adjPos.IsEqualApprox(agentPos))
+                                    {
+                                        blackboard.Set(Constants.Names.SelectedWork, work.Key);
+                                        return true;
+                                    }
+                                }
+
+                            }
                         }
                     }
-                }
+                } 
             }
 
             return false;

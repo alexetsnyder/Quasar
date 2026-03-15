@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Quasar.core.goap.goals
 {
-    public partial class HasPathGoal(WorkType workType, IPathingSystem pathingSystem) : IGoal
+    public partial class HasPathGoal(IPathingSystem pathingSystem) : IGoal
     {
         public FastName Key => _key;
 
@@ -17,8 +17,6 @@ namespace Quasar.core.goap.goals
         private readonly FastName _key = new("HasPath");
 
         private readonly bool _value = true;
-
-        private readonly WorkType _workType = workType;
 
         private readonly IPathingSystem _pathingSystem = pathingSystem;
 
@@ -55,32 +53,37 @@ namespace Quasar.core.goap.goals
                     }
                 }
 
-                if (blackboard.TryGetWorkList(new(_workType.ToString()), out var workList))
+                if (blackboard.TryGetInt(Constants.Names.SelectedWorkType, out var workTypeInt))
                 {
-                    if (workList.Count > 0)
-                    {
-                        foreach (var work in workList.ToDictionary(w => w, w => w.AdjPos ?? []))
-                        {
-                            foreach (var adjPos in work.Value)
-                            {
-                                if (agentPos.IsEqualApprox(adjPos))
-                                {
-                                    blackboard.Set(Constants.Names.SelectedWork, work.Key);
-                                    blackboard.Set(Constants.Names.SelectedPath, _pathingSystem.CreateEmptyPath());
-                                    return true;
-                                }
+                    var workType = (WorkType)workTypeInt;
 
-                                var path = _pathingSystem.FindPath(agentPos, adjPos);
-                                if (path != null)
+                    if (blackboard.TryGetWorkList(new(workType.ToString()), out var workList))
+                    {
+                        if (workList.Count > 0)
+                        {
+                            foreach (var work in workList.ToDictionary(w => w, w => w.AdjPos ?? []))
+                            {
+                                foreach (var adjPos in work.Value)
                                 {
-                                    blackboard.Set(Constants.Names.SelectedWork, work.Key);
-                                    blackboard.Set(Constants.Names.SelectedPath, path);
-                                    return true;
+                                    if (agentPos.IsEqualApprox(adjPos))
+                                    {
+                                        blackboard.Set(Constants.Names.SelectedWork, work.Key);
+                                        blackboard.Set(Constants.Names.SelectedPath, _pathingSystem.CreateEmptyPath());
+                                        return true;
+                                    }
+
+                                    var path = _pathingSystem.FindPath(agentPos, adjPos);
+                                    if (path != null)
+                                    {
+                                        blackboard.Set(Constants.Names.SelectedWork, work.Key);
+                                        blackboard.Set(Constants.Names.SelectedPath, path);
+                                        return true;
+                                    }
                                 }
                             }
                         }
                     }
-                } 
+                }
             }
 
             return false;

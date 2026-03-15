@@ -22,7 +22,7 @@ namespace Quasar.core.goap
 
     public partial class Planner
     {
-        private WorldState _worldState = null;
+        private readonly WorldState _worldState = null;
 
         List<IGoal> _goals =
         [

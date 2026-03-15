@@ -1,25 +1,20 @@
 using Quasar.core.blackboard;
-using Quasar.core.goap.actions;
+using Quasar.core.common;
 using Quasar.core.goap.interfaces;
 using Quasar.core.naming;
 using Quasar.data.enums;
-using Quasar.scenes.common.interfaces;
 
 namespace Quasar.core.goap.goals
 {
-    public partial class MineWorkGoal(WorkType workType, IWorkSystem workSystem) : IGoal
+    public partial class MineWorkGoal : IGoal
     {
         public FastName Key => _key;
 
         public bool Value => _value;
 
-        private readonly FastName _key = MineAction.Name;
+        private readonly FastName _key = new("MineWork");
 
         private readonly bool _value = true;
-
-        private readonly WorkType _workType = workType;
-
-        private readonly IWorkSystem _workSystem = workSystem;
 
         public bool Satisify(IGoal goal)
         {
@@ -28,8 +23,14 @@ namespace Quasar.core.goap.goals
 
         public bool Satisify(Blackboard blackboard)
         {
-            if (blackboard.TryGetWorkList(new(_workType.ToString()), out var workList))
+            if (blackboard.TryGetWorkList(new(WorkType.MINING.ToString()), out var workList))
             {
+                if (workList.Count > 0)
+                {
+                    blackboard.Set(Constants.Names.SelectedWorkType, (int)WorkType.MINING);
+
+                    return true;
+                }
                 return workList.Count > 0;
             }
             

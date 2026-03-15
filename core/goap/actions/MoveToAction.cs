@@ -26,22 +26,16 @@ namespace Quasar.core.goap.actions
 
         private readonly Dictionary<FastName, IGoal> _effects = [];
 
-        private readonly WorkType _workType;
-
-        private readonly IWorkSystem _workSystem;
-
         private readonly IPathingSystem _pathingSystem;
 
         public MoveToAction(WorkType workType, IWorkSystem workSystem, IPathingSystem pathingSystem)
         {
-            _workType = workType;
-            _workSystem = workSystem;
             _pathingSystem = pathingSystem;
 
             AdjToGoal adjToGoal = new();
             _effects.Add(adjToGoal.Key, adjToGoal);
 
-            HasPathGoal hasPathGoal = new(_workType, _pathingSystem);
+            HasPathGoal hasPathGoal = new(_pathingSystem);
             _preconditions.Add(hasPathGoal.Key, hasPathGoal);
         }
 

@@ -27,7 +27,7 @@ namespace Quasar.core.goap.actions
             _effects.Add(workGoal.Key, workGoal);
 
             AdjToGoal adjToGoal = new();
-            MineWorkGoal mineWorkGoal = new(workType, workSystem);
+            MineWorkGoal mineWorkGoal = new();
             _preconditions.Add(adjToGoal.Key, adjToGoal);
             _preconditions.Add(mineWorkGoal.Key, mineWorkGoal);
         }
