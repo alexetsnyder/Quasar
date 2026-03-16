@@ -85,19 +85,19 @@ namespace Quasar.scenes.systems.work
             }
         }
 
-        public void LinkWork(int workId1, int workId2)
-        {
-            var work1 = GetWork(workId1);
-            var work2 = GetWork(workId2);
+        //public void LinkWork(int workId1, int workId2)
+        //{
+        //    var work1 = GetWork(workId1);
+        //    var work2 = GetWork(workId2);
 
-            if (work1 != null && work2 != null)
-            {
-                work1.LinkedWorkId = workId2;
-                work2.LinkedWorkId = workId1;
+        //    if (work1 != null && work2 != null)
+        //    {
+        //        work1.LinkedWorkId = workId2;
+        //        work2.LinkedWorkId = workId1;
 
-                work2.IsDependent = true;
-            }
-        }
+        //        work2.IsDependent = true;
+        //    }
+        //}
 
         public void RemoveWork(Work work)
         {
@@ -162,22 +162,22 @@ namespace Quasar.scenes.systems.work
             {
                 if (workDict.Count > 0)
                 {
-                    var shortestPath = ShortestPath([.. workDict.Values.Where(w => !w.IsAssigned && !w.IsDependent)], cat, out Work work);
+                    var shortestPath = ShortestPath([.. workDict.Values.Where(w => !w.IsAssigned)], cat, out Work work);
 
                     if (work != null)
                     {
                         work.IsAssigned = assign;
                         List<Work> workList = [work];
 
-                        if (work.LinkedWorkId != -1)
-                        {
-                            var linkedWork = GetWork(work.LinkedWorkId);
-                            if (linkedWork != null)
-                            {
-                                linkedWork.IsAssigned = assign;
-                                workList.Add(linkedWork);
-                            }
-                        }
+                        //if (work.LinkedWorkId != -1)
+                        //{
+                        //    var linkedWork = GetWork(work.LinkedWorkId);
+                        //    if (linkedWork != null)
+                        //    {
+                        //        linkedWork.IsAssigned = assign;
+                        //        workList.Add(linkedWork);
+                        //    }
+                        //}
 
                         return new(workList, shortestPath);
                     }

@@ -11,7 +11,7 @@ namespace Quasar.scenes.systems.work
 
         public bool IsAssigned { get; set; } = false;
 
-        public bool IsDependent { get; set; } = false;
+        //public bool IsDependent { get; set; } = false;
 
         public Vector2 LocalPos { get; set; } = localPos;
 
@@ -21,6 +21,6 @@ namespace Quasar.scenes.systems.work
 
         public ICommand Command { get; set; } = command;
 
-        public int LinkedWorkId { get; set; } = -1;
+        //public int LinkedWorkId { get; set; } = -1;
     }
 }

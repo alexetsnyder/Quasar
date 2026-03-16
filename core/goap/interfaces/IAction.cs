@@ -2,7 +2,6 @@ using Quasar.core.blackboard;
 using Quasar.core.naming;
 using Quasar.scenes.cats;
 using System.Collections.Generic;
-using System.Windows.Input;
 
 namespace Quasar.core.goap.interfaces
 {

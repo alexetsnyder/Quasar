@@ -327,8 +327,8 @@ namespace Quasar.scenes
             switch (selection.WorkType)
             {
                 case WorkType.HAULING:
-                    CreateHaulingWork(selection);
-                    break;
+                    //CreateHaulingWork(selection);
+                    //break;
                 case WorkType.MINING:
                 case WorkType.CUTTING:       
                 case WorkType.BUILDING:
@@ -361,7 +361,7 @@ namespace Quasar.scenes
                         {
                             int workId1 = _workSystem.CreateWork(WorkType.HAULING, point);
                             int workId2 = _workSystem.CreateWork(WorkType.HAULING, closestStoragePos.Value);
-                            _workSystem.LinkWork(workId1, workId2);
+                            //_workSystem.LinkWork(workId1, workId2);
                         }
                         else
                         {

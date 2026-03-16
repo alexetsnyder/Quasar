@@ -43,34 +43,39 @@ namespace Quasar.core.goap
             };
 
             List<Leaf> leaves = [];
-            BuildPlanRec(root, leaves, goal);
-
-            Queue<IAction> minCostPlan = [];
-            int minCost = int.MaxValue;
-            Blackboard blackboard = null;
-
-            foreach (var leaf in leaves)
+            if (BuildPlanRec(root, leaves, goal))
             {
-                if (leaf.IsEnd && leaf.IsSuccess && leaf.CumulativeCost < minCost)
+                Queue<IAction> minCostPlan = [];
+                int minCost = int.MaxValue;
+                Blackboard blackboard = null;
+
+                foreach (var leaf in leaves)
                 {
-                    AssemblePlan(leaf, minCostPlan);
-                    minCost = leaf.CumulativeCost;
-                    blackboard = leaf.Blackboard;
+                    if (leaf.IsEnd && leaf.IsSuccess && leaf.CumulativeCost < minCost)
+                    {
+                        AssemblePlan(leaf, minCostPlan);
+                        minCost = leaf.CumulativeCost;
+                        blackboard = leaf.Blackboard;
+                    }
                 }
+
+                return new(blackboard, minCostPlan);
             }
 
-            return new(blackboard, minCostPlan);
+            return null;
         }
 
         private bool BuildPlanRec(Leaf current, List<Leaf> leaves, IGoal goal)
         {
-            bool succes = false;
+            bool success = false;
 
             foreach (var action in _worldState.AvailableActions)
             {
+                bool actionSuccess = false;
+
                 if (action.SatisfyGoal(goal))
                 {
-                    succes = true;
+                    actionSuccess = true;
 
                     Leaf leaf = new()
                     {
@@ -92,7 +97,7 @@ namespace Quasar.core.goap
                         {
                             if (!BuildPlanRec(leaf, leaves, precondition))
                             {
-                                succes = false;
+                                actionSuccess = false;
                                 break;
                             }
                         }
@@ -100,13 +105,14 @@ namespace Quasar.core.goap
                     else
                     {
                         leaf.IsEnd = true;
+                        leaf.IsSuccess = true;
                     }
-
-                    leaf.IsSuccess = succes;
                 }
+
+                success = success || actionSuccess;
             }
 
-            return succes;
+            return success;
         }
 
         private static void AssemblePlan(Leaf leaf, Queue<IAction> plan)
