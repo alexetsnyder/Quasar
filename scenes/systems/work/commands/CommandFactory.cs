@@ -51,6 +51,7 @@ namespace Quasar.scenes.systems.work.commands
                 case WorkType.BUILDING:
                     return new BuildingCommand(_world, _pathingSystem, _selectionSystem, localPos, _buildingSystem.Current);
                 case WorkType.HAULING:
+                case WorkType.GET_ITEM:
                     return new HaulingCommand(_world, _itemSystem, _selectionSystem, localPos);
                 case WorkType.CUTTING:
                     return new CuttingCommand(_world, _itemSystem, _pathingSystem, _selectionSystem, localPos);

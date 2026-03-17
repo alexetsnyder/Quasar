@@ -1,8 +1,11 @@
 using Quasar.core.blackboard;
 using Quasar.core.goap.interfaces;
+using Quasar.core.naming;
+using Quasar.data.enums;
 using Quasar.scenes.common.interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Quasar.core.goap
 {
@@ -45,8 +48,18 @@ namespace Quasar.core.goap
                 IsEnd = false,
             };
 
+            int index = 0;
+            FastName fastName = new(WorkType.HAULING.ToString());
+            if (_worldState.GetBlackboard().TryGetWorkList(fastName, out var workList))
+            {
+                if (workList.Count > 0)
+                {
+                    index++;
+                }   
+            }
+
             List<Leaf> leaves = [];
-            if (BuildPlanRec(root, leaves, goal, nextActionId: 0))
+            if (BuildPlanRec(root, leaves, goal, nextActionId: 0, isEnd: true))
             {
                 Queue<IAction> minCostPlan = [];
                 int minCost = int.MaxValue;
@@ -68,7 +81,7 @@ namespace Quasar.core.goap
             return null;
         }
 
-        private bool BuildPlanRec(Leaf current, List<Leaf> leaves, IGoal goal, int nextActionId)
+        private bool BuildPlanRec(Leaf current, List<Leaf> leaves, IGoal goal, int nextActionId, bool isEnd)
         {
             bool success = false;
 
@@ -103,11 +116,12 @@ namespace Quasar.core.goap
 
                     if (!action.SatisfyPreconditions(_worldState, leaf.Blackboard))
                     {
-                        var preconditons = action.GetUnsatisfiedPreconditions(_worldState, leaf.Blackboard);
+                        var preconditions = action.GetUnsatisfiedPreconditions(_worldState, leaf.Blackboard);
 
-                        foreach (var precondition in preconditons)
+                        for (int i = 0; i < preconditions.Count; i++)
                         {
-                            if (!BuildPlanRec(leaf, leaves, precondition, nextActionId))
+                            var precondition = preconditions[i];
+                            if (!BuildPlanRec(leaf, leaves, precondition, nextActionId, isEnd && (i + 1) == preconditions.Count))
                             {
                                 actionSuccess = false;
                                 break;
@@ -116,8 +130,11 @@ namespace Quasar.core.goap
                     }
                     else
                     {
-                        leaf.IsEnd = true;
-                        leaf.IsSuccess = true;
+                        if (isEnd)
+                        {
+                            leaf.IsEnd = true;
+                            leaf.IsSuccess = true;
+                        }  
                     }
                 }
 

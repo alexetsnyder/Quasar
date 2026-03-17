@@ -27,6 +27,8 @@ namespace Quasar.core.goap
         [
             WorkType.MINING,
             WorkType.BUILDING,
+            WorkType.HAULING,
+            WorkType.GET_ITEM,
         ];
 
         public enum Actions

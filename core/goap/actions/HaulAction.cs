@@ -17,8 +17,8 @@ namespace Quasar.core.goap.actions
             _effects.Add(workGoal);
       
             HaulWorkGoal haulWorkGoal = new();
+            NullAdjToGoal adjToGoal = new();
             HasItemGoal hasItemGoal = new();
-            AdjToGoal adjToGoal = new();
             _preconditions.Add(haulWorkGoal);
             _preconditions.Add(adjToGoal);
             _preconditions.Add(hasItemGoal);

@@ -1,8 +1,6 @@
 using Quasar.core.blackboard;
-using Quasar.core.common;
 using Quasar.core.goap.goals;
 using Quasar.core.naming;
-using Quasar.data.enums;
 using Quasar.scenes.cats;
 using Quasar.scenes.common.interfaces;
 using Quasar.scenes.systems.work.commands;
