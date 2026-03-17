@@ -1,7 +1,7 @@
 using Quasar.core.blackboard;
 using Quasar.core.goap.interfaces;
 using Quasar.scenes.common.interfaces;
-using Quasar.scenes.systems.items;
+using System;
 using System.Collections.Generic;
 
 namespace Quasar.core.goap
@@ -12,7 +12,7 @@ namespace Quasar.core.goap
 
         public int CumulativeCost { get; set; }
 
-        public Blackboard Blackboard { get; set; }
+        public Blackboard<int> Blackboard { get; set; }
 
         public IAction Action { get; set; }
 
@@ -39,18 +39,18 @@ namespace Quasar.core.goap
             {
                 Parent = null,
                 CumulativeCost = 0,
-                Blackboard = new(_worldState.GetBlackboard()),
+                Blackboard = new(),
                 Action = null,
                 IsSuccess = false,
                 IsEnd = false,
             };
 
             List<Leaf> leaves = [];
-            if (BuildPlanRec(root, leaves, goal))
+            if (BuildPlanRec(root, leaves, goal, nextActionId: 0))
             {
                 Queue<IAction> minCostPlan = [];
                 int minCost = int.MaxValue;
-                Blackboard blackboard = null;
+                Blackboard<int> blackboard = null;
 
                 foreach (var leaf in leaves)
                 {
@@ -68,17 +68,26 @@ namespace Quasar.core.goap
             return null;
         }
 
-        private bool BuildPlanRec(Leaf current, List<Leaf> leaves, IGoal goal)
+        private bool BuildPlanRec(Leaf current, List<Leaf> leaves, IGoal goal, int nextActionId)
         {
             bool success = false;
 
-            foreach (var action in _worldState.AvailableActions)
+            foreach (WorldState.Actions actionType in Enum.GetValues(typeof(WorldState.Actions)))
             {
+                if (actionType == WorldState.Actions.NONE)
+                {
+                    continue;
+                }
+
                 bool actionSuccess = false;
 
+                var action = _worldState.BuildAction(actionType);
+                
                 if (action.SatisfyGoal(goal))
                 {
                     actionSuccess = true;
+
+                    action.SetId(nextActionId++);
 
                     Leaf leaf = new()
                     {
@@ -92,13 +101,13 @@ namespace Quasar.core.goap
 
                     leaves.Add(leaf);
 
-                    if (!action.SatisfyPreconditions(leaf.Blackboard))
+                    if (!action.SatisfyPreconditions(_worldState, leaf.Blackboard))
                     {
-                        var preconditons = action.GetUnsatisfiedPreconditions(leaf.Blackboard);
+                        var preconditons = action.GetUnsatisfiedPreconditions(_worldState, leaf.Blackboard);
 
                         foreach (var precondition in preconditons)
                         {
-                            if (!BuildPlanRec(leaf, leaves, precondition))
+                            if (!BuildPlanRec(leaf, leaves, precondition, nextActionId))
                             {
                                 actionSuccess = false;
                                 break;

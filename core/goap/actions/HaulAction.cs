@@ -1,8 +1,5 @@
-using Quasar.core.blackboard;
 using Quasar.core.goap.goals;
 using Quasar.core.naming;
-using Quasar.data.enums;
-using Quasar.scenes.cats;
 
 namespace Quasar.core.goap.actions
 {
@@ -25,14 +22,6 @@ namespace Quasar.core.goap.actions
             _preconditions.Add(haulWorkGoal);
             _preconditions.Add(adjToGoal);
             _preconditions.Add(hasItemGoal);
-        }
-
-        public override void Execute(Cat cat, Blackboard blackboard)
-        {
-            if (blackboard.TryGetWork(new(WorkType.HAULING.ToString()), out var work))
-            {
-                cat.SetWork([work]);
-            }
         }
     }
 }

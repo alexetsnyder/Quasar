@@ -6,23 +6,25 @@ namespace Quasar.core.goap.goals
 {
     public partial class HasProfGoal : GoalBase
     {
-        public HasProfGoal()
+        public HasProfGoal() 
         {
             _key = new("HasProf");
             _value = true;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
-            if (blackboard.TryGetInt(Constants.Names.CurrentWorkType, out var selectedWorkTypeInt))
-            {
-                var selectedWorkType = (WorkType)selectedWorkTypeInt;
+            var worldStateBlackboard = worldState.GetBlackboard();
 
-                if (blackboard.TryGetInt(Constants.Names.AgentWorkType, out var agentWorkTypeInt))
+            if (blackboard.TryGetInt(ActionId, out var currentWorkTypeInt))
+            {
+                var currentWorkType = (WorkType)currentWorkTypeInt;
+
+                if (worldStateBlackboard.TryGetInt(Constants.Names.AgentWorkType, out var agentWorkTypeInt))
                 {
                     var agentWorkType = (WorkType)agentWorkTypeInt;
 
-                    if (agentWorkType == selectedWorkType)
+                    if (agentWorkType == currentWorkType)
                     {
                         return true;
                     }

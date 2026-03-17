@@ -30,19 +30,13 @@ namespace Quasar.core.goap.actions
             _preconditions.Add(hasPathGoal);
         }
 
-        public override void Execute(Cat cat, Blackboard blackboard)
+        public override void Execute(Cat cat, Blackboard<int> blackboard)
         {
-            if (blackboard.TryGetInt(Constants.Names.CurrentWorkType, out var currentWorkTypeInt))
+            if (blackboard.TryGetPath(Id, out var path))
             {
-                FastName currentWorkTypeFastName = new(((WorkType)(currentWorkTypeInt)).ToString());
-
-                if (blackboard.TryGetPath(currentWorkTypeFastName, out var path))
-                {
-                    var command = new MoveToCommand(path);
-                    command.Execute(cat);
-                }
-            }
-                
+                var command = new MoveToCommand(path);
+                command.Execute(cat);
+            }   
         }
     }
 }

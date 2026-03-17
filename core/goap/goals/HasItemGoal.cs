@@ -5,15 +5,17 @@ namespace Quasar.core.goap.goals
 {
     public partial class HasItemGoal : GoalBase
     {
-        public HasItemGoal()
+        public HasItemGoal() 
         {
             _key = new("HasItem");
             _value = true;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
-            if (blackboard.TryGetItem(Constants.Names.Item, out var item))
+            var worldStateBlackboard = worldState.GetBlackboard();
+
+            if (worldStateBlackboard.TryGetItem(Constants.Names.Item, out var item))
             {
                 if (item != null)
                 {

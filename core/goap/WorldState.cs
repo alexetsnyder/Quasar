@@ -1,7 +1,9 @@
+using Godot;
 using Quasar.core.blackboard;
 using Quasar.core.common;
 using Quasar.core.goap.actions;
 using Quasar.core.goap.interfaces;
+using Quasar.core.naming;
 using Quasar.data.enums;
 using Quasar.scenes.common.interfaces;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace Quasar.core.goap
 {
     public partial class WorldState
     {
-        private readonly Blackboard _blackboard = new();
+        private readonly Blackboard<FastName> _blackboard = new();
 
         private readonly IAgent _agent;
 
@@ -27,7 +29,15 @@ namespace Quasar.core.goap
             WorkType.BUILDING,
         ];
 
-        public readonly List<IAction> AvailableActions = [];
+        public enum Actions
+        {
+            NONE,
+            MINE,
+            BUILD,
+            MOVE_TO,
+            HAUL,
+            GET_ITEM,
+        }
 
         public WorldState(IAgent agent, IWorkSystem workSystem, IPathingSystem pathingSystem, IItemSystem itemSystem) 
         { 
@@ -50,18 +60,29 @@ namespace Quasar.core.goap
                 var workList = _workSystem.CheckForWork(workType);
                 _blackboard.Set(new(workType.ToString()), workList);
             }
-
-            MoveToAction moveToAction = new(_pathingSystem);
-            AvailableActions.Add(moveToAction);
-
-            MineAction mineAction = new();
-            AvailableActions.Add(mineAction);
-
-            BuildAction buildAction = new();
-            AvailableActions.Add(buildAction);
         }
 
-        public Blackboard GetBlackboard()
+        public IAction BuildAction(Actions action)
+        {
+            switch (action)
+            {
+                case Actions.MINE:
+                    return new MineAction();
+                case Actions.BUILD: 
+                    return new BuildAction();
+                case Actions.MOVE_TO:
+                    return new MoveToAction(_pathingSystem);
+                case Actions.HAUL:
+                    return new HaulAction();
+                case Actions.GET_ITEM:
+                    return new GetItemAction();
+                default:
+                    GD.Print($"Action {action} not implimented in BuildAction method.");
+                    return null;
+            }
+        }
+
+        public Blackboard<FastName> GetBlackboard()
         {
             return _blackboard; 
         }

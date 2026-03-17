@@ -1,9 +1,5 @@
-using Quasar.core.blackboard;
-using Quasar.core.common;
 using Quasar.core.goap.goals;
 using Quasar.core.naming;
-using Quasar.data.enums;
-using Quasar.scenes.cats;
 
 namespace Quasar.core.goap.actions
 {
@@ -26,14 +22,6 @@ namespace Quasar.core.goap.actions
             _preconditions.Add(mineWorkGoal);
             _preconditions.Add(hasProfGoal);
             _preconditions.Add(adjToGoal);
-        }
-
-        public override void Execute(Cat cat, Blackboard blackboard)
-        {
-            if (blackboard.TryGetWork(new(WorkType.MINING.ToString()), out var work))
-            {
-                cat.SetWork([ work ]);
-            }
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace Quasar.core.goap
 {
-    public partial class Plan(Blackboard blackboard, Queue<IAction> actions)
+    public partial class Plan(Blackboard<int> blackboard, Queue<IAction> actions)
     {
-        public Blackboard Blackboard { get; set; } = blackboard;
+        public Blackboard<int> Blackboard { get; set; } = blackboard;
 
         public Queue<IAction> Actions { get; set; } = actions;
     }

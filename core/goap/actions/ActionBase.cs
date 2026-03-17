@@ -9,6 +9,8 @@ namespace Quasar.core.goap.actions
 {
     public abstract partial class ActionBase : IAction
     {
+        public int Id { get; private set; }
+
         public abstract FastName Name { get; }
 
         public abstract int Cost { get; }
@@ -17,9 +19,19 @@ namespace Quasar.core.goap.actions
 
         protected readonly List<IGoal> _effects = [];
 
-        public List<IGoal> GetUnsatisfiedPreconditions(Blackboard blackboard)
+        public void SetId(int id)
         {
-            return [.. _preconditions.Where(g => !g.Satisify(blackboard))];
+            Id = id;
+
+            foreach (var goal in _preconditions)
+            {
+                goal.SetActionId(id);
+            }
+        }
+
+        public List<IGoal> GetUnsatisfiedPreconditions(WorldState worldState, Blackboard<int> blackboard)
+        {
+            return [.. _preconditions.Where(g => !g.Satisify(worldState, blackboard))];
         }
 
         public bool SatisfyGoal(IGoal goal)
@@ -32,11 +44,11 @@ namespace Quasar.core.goap.actions
             return false;
         }
 
-        public bool SatisfyPreconditions(Blackboard blackboard)
+        public bool SatisfyPreconditions(WorldState worldState, Blackboard<int> blackboard)
         {
             foreach (var cond in _preconditions)
             {
-                if (!cond.Satisify(blackboard))
+                if (!cond.Satisify(worldState, blackboard))
                 {
                     return false;
                 }
@@ -45,6 +57,16 @@ namespace Quasar.core.goap.actions
             return true;
         }
 
-        public abstract void Execute(Cat cat, Blackboard blackboard);
+        public virtual void Execute(Cat cat, Blackboard<int> blackboard)
+        {
+            if (blackboard.TryGetWork(Id, out var work))
+            {
+                cat.SetWork(work);
+            }
+            else if (blackboard.TryGetWork(Id + 1, out work))
+            {
+                cat.SetWork(work);
+            }
+        }
     }
 }

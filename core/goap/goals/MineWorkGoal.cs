@@ -1,24 +1,25 @@
 using Quasar.core.blackboard;
-using Quasar.core.common;
 using Quasar.data.enums;
 
 namespace Quasar.core.goap.goals
 {
     public partial class MineWorkGoal : GoalBase
     {
-        public MineWorkGoal()
+        public MineWorkGoal() 
         {
             _key = new("MineWork");
             _value = true;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
-            if (blackboard.TryGetWorkList(new(WorkType.MINING.ToString()), out var workList))
+            var worldStateBlackboard = worldState.GetBlackboard();
+
+            if (worldStateBlackboard.TryGetWorkList(new(WorkType.MINING.ToString()), out var workList))
             {
                 if (workList.Count > 0)
                 {
-                    blackboard.Set(Constants.Names.CurrentWorkType, (int)WorkType.MINING);
+                    blackboard.Set(ActionId, (int)WorkType.MINING);
 
                     return true;
                 }

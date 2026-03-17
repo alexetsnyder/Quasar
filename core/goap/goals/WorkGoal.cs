@@ -4,13 +4,13 @@ namespace Quasar.core.goap.goals
 {
     public partial class WorkGoal : GoalBase
     {
-        public WorkGoal()
+        public WorkGoal() 
         {
             _key = new("HasWork");
             _value = true;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
             throw new System.NotImplementedException();
         }

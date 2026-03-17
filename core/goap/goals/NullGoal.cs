@@ -10,7 +10,7 @@ namespace Quasar.core.goap.goals
             _value = false;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
             return false;
         }

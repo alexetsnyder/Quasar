@@ -1,5 +1,4 @@
 using Godot;
-using Quasar.core.naming;
 using Quasar.scenes.systems.items;
 using Quasar.scenes.systems.pathing;
 using Quasar.scenes.systems.work;
@@ -7,27 +6,27 @@ using System.Collections.Generic;
 
 namespace Quasar.core.blackboard
 {
-    public partial class Blackboard
+    public partial class Blackboard<T>
     {
-        private readonly Dictionary<FastName, int> _intValues = [];
+        private readonly Dictionary<T, int> _intValues = [];
 
-        private readonly Dictionary<FastName, float> _floatValues = [];
+        private readonly Dictionary<T, float> _floatValues = [];
 
-        private readonly Dictionary<FastName, bool> _boolValues = [];
+        private readonly Dictionary<T, bool> _boolValues = [];
 
-        private readonly Dictionary<FastName, Vector2> _vector2Values = [];
+        private readonly Dictionary<T, Vector2> _vector2Values = [];
 
-        private readonly Dictionary<FastName, Work> _workValues = [];
+        private readonly Dictionary<T, Work> _workValues = [];
 
-        private readonly Dictionary<FastName, Path> _pathValues = [];
+        private readonly Dictionary<T, Path> _pathValues = [];
 
-        private readonly Dictionary<FastName, Item> _itemValues = [];
+        private readonly Dictionary<T, Item> _itemValues = [];
 
-        private readonly Dictionary<FastName, List<Work>> _workListValues = [];
+        private readonly Dictionary<T, List<Work>> _workListValues = [];
 
         public Blackboard() { }
         
-        public Blackboard(Blackboard blackboard)
+        public Blackboard(Blackboard<T> blackboard)
         {
             _intValues = new(blackboard._intValues);
             _floatValues = new(blackboard._floatValues);
@@ -38,87 +37,87 @@ namespace Quasar.core.blackboard
             _workListValues = new(blackboard._workListValues);
         }
 
-        public void Set(FastName key, int value)
+        public void Set(T key, int value)
         {
             _intValues[key] = value;
         }
 
-        public void Set(FastName key, float value)
+        public void Set(T key, float value)
         {
             _floatValues[key] = value;
         }
 
-        public void Set(FastName key, bool value)
+        public void Set(T key, bool value)
         {
             _boolValues[key] = value;
         }
 
-        public void Set(FastName key, Vector2 value)
+        public void Set(T key, Vector2 value)
         {
             _vector2Values[key] = value;
         }
 
-        public void Set(FastName key, Work value)
+        public void Set(T key, Work value)
         {
             _workValues[key] = value;
         }
 
-        public void Set(FastName key, Path value)
+        public void Set(T key, Path value)
         {
             _pathValues[key] = value;
         }
 
-        public void Set(FastName key, Item value)
+        public void Set(T key, Item value)
         {
             _itemValues[key] = value;
         }
 
-        public void Set(FastName key, List<Work> value)
+        public void Set(T key, List<Work> value)
         {
             _workListValues[key] = value;
         }
 
-        public bool TryGetInt(FastName key, out int value)
+        public bool TryGetInt(T key, out int value)
         {
             return TryGet(key, _intValues, out value);
         }
 
-        public bool TryGetFloat(FastName key, out float value)
+        public bool TryGetFloat(T key, out float value)
         {
             return TryGet(key, _floatValues, out value);
         }
 
-        public bool TryGetBool(FastName key, out bool value)
+        public bool TryGetBool(T key, out bool value)
         {
             return TryGet(key, _boolValues, out value);
         }
 
-        public bool TryGetVector2(FastName key, out Vector2 value)
+        public bool TryGetVector2(T key, out Vector2 value)
         {
             return TryGet(key, _vector2Values, out value);
         }
 
-        public bool TryGetWork(FastName key, out Work value)
+        public bool TryGetWork(T key, out Work value)
         {
             return TryGet(key, _workValues, out value);
         }
 
-        public bool TryGetPath(FastName key, out Path value)
+        public bool TryGetPath(T key, out Path value)
         {
             return TryGet(key, _pathValues,  out value);
         }
 
-        public bool TryGetItem(FastName key, out Item value)
+        public bool TryGetItem(T key, out Item value)
         {
             return TryGet(key, _itemValues, out value);
         }
 
-        public bool TryGetWorkList(FastName key, out List<Work> value)
+        public bool TryGetWorkList(T key, out List<Work> value)
         {
             return TryGet(key, _workListValues, out value);
         }
 
-        private bool TryGet<T>(FastName key, Dictionary<FastName, T> values, out T value)
+        private bool TryGet<U>(T key, Dictionary<T, U> values, out U value)
         {
             return values.TryGetValue(key, out value);
         }

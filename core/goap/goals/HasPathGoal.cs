@@ -19,37 +19,40 @@ namespace Quasar.core.goap.goals
             _pathingSystem = pathingSystem;
         }
 
-        public override bool Satisify(Blackboard blackboard)
+        public override bool Satisify(WorldState worldState, Blackboard<int> blackboard)
         {
-            if (blackboard.TryGetVector2(Constants.Names.Position, out var agentPos))
+            var worldStateBlackboard = worldState.GetBlackboard();
+
+            if (worldStateBlackboard.TryGetVector2(Constants.Names.Position, out var agentPos))
             {
-                if (blackboard.TryGetInt(Constants.Names.CurrentWorkType, out var currentWorkTypeInt))
+                if (blackboard.TryGetInt(ActionId - 1, out var currentWorkTypeInt))
                 {
                     var currentWorkTypeFastName = new FastName(((WorkType)currentWorkTypeInt).ToString());
 
-                    if (blackboard.TryGetPath(currentWorkTypeFastName, out var selectedPath))
+                    if (blackboard.TryGetPath(ActionId - 1, out var selectedPath))
                     {
                         return true;
                     }
-                    else if (blackboard.TryGetWork(currentWorkTypeFastName, out var currentWork))
+                    else if (blackboard.TryGetWork(ActionId - 1, out var currentWork))
                     {
                         foreach (var adjPos in currentWork.AdjPos)
                         {
                             if (adjPos.IsEqualApprox(agentPos))
                             {
-                                blackboard.Set(currentWorkTypeFastName, _pathingSystem.CreateEmptyPath());
+                                blackboard.Set(ActionId, _pathingSystem.CreateEmptyPath());
                                 return true;
                             }
 
                             var path = _pathingSystem.FindPath(agentPos, adjPos);
                             if (path != null)
                             {
-                                blackboard.Set(currentWorkTypeFastName, path);
+                                blackboard.Set(ActionId, path);
                                 return true;
                             }
                         }
                     }
-                    else if (blackboard.TryGetWorkList(currentWorkTypeFastName, out var workList))
+
+                    if (worldStateBlackboard.TryGetWorkList(currentWorkTypeFastName, out var workList))
                     {
                         if (workList.Count > 0)
                         {
@@ -59,16 +62,16 @@ namespace Quasar.core.goap.goals
                                 {
                                     if (agentPos.IsEqualApprox(adjPos))
                                     {
-                                        blackboard.Set(currentWorkTypeFastName, work.Key);
-                                        blackboard.Set(currentWorkTypeFastName, _pathingSystem.CreateEmptyPath());
+                                        blackboard.Set(ActionId, work.Key);
+                                        blackboard.Set(ActionId, _pathingSystem.CreateEmptyPath());
                                         return true;
                                     }
 
                                     var path = _pathingSystem.FindPath(agentPos, adjPos);
                                     if (path != null)
                                     {
-                                        blackboard.Set(currentWorkTypeFastName, work.Key);
-                                        blackboard.Set(currentWorkTypeFastName, path);
+                                        blackboard.Set(ActionId, work.Key);
+                                        blackboard.Set(ActionId, path);
                                         return true;
                                     }
                                 }
