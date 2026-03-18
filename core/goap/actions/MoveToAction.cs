@@ -13,6 +13,8 @@ namespace Quasar.core.goap.actions
 
         public override int Cost { get => 2; }
 
+        public override bool SkipAssign { get => true; }
+
         private readonly FastName _name = new("MoveToAction");
 
         private readonly IPathingSystem _pathingSystem;

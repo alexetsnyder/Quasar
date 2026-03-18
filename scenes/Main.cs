@@ -231,6 +231,8 @@ namespace Quasar.scenes
                     {
                         AddChild(cat);
 
+                        cat.Id = i;
+
                         var newPlanner = new Planner(_workSystem, _pathingSystem, _itemSystem);
                         cat.SetDeps(_world, _pathingSystem, newPlanner);
 

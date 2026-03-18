@@ -1,7 +1,5 @@
 using Quasar.core.blackboard;
 using Quasar.core.goap.interfaces;
-using Quasar.core.naming;
-using Quasar.data.enums;
 using Quasar.scenes.common.interfaces;
 using System;
 using System.Collections.Generic;
@@ -44,37 +42,33 @@ namespace Quasar.core.goap
                 IsSuccess = false,
             };
 
-            int index = 0;
-            FastName fastName = new(WorkType.HAULING.ToString());
-            if (_worldState.GetBlackboard().TryGetWorkList(fastName, out var workList))
-            {
-                if (workList.Count > 0)
-                {
-                    index++;
-                }   
-            }
-
             List<Leaf> leaves = [];
             Stack<IGoal> goals = [];
             goals.Push(goal);
 
             if (BuildPlanRec(root, leaves, goals, nextActionId: 0))
             {
-                Queue<IAction> minCostPlan = [];
                 int minCost = int.MaxValue;
-                Blackboard<int> blackboard = null;
+                Leaf minLeaf = null;
 
                 foreach (var leaf in leaves)
                 {
                     if (leaf.IsSuccess && leaf.CumulativeCost < minCost)
                     {
-                        AssemblePlan(leaf, minCostPlan);
                         minCost = leaf.CumulativeCost;
-                        blackboard = leaf.Blackboard;
+                        minLeaf = leaf;
                     }
                 }
 
-                return new(blackboard, minCostPlan);
+                if (minLeaf != null)
+                {
+                    Queue<IAction> minCostPlan = [];
+                    Blackboard<int> blackboard = minLeaf.Blackboard;
+                    if (AssemblePlan(minLeaf, minCostPlan, blackboard))
+                    {
+                        return new Plan(blackboard, minCostPlan);
+                    }
+                }
             }
 
             return null;
@@ -150,13 +144,20 @@ namespace Quasar.core.goap
             return success;
         }
 
-        private static void AssemblePlan(Leaf leaf, Queue<IAction> plan)
+        private bool AssemblePlan(Leaf leaf, Queue<IAction> plan, Blackboard<int> blackboard)
         {
             while (leaf.Parent != null)
             {
+                if (!leaf.Action.SkipAssign && !leaf.Action.Assign(_workSystem, blackboard))
+                {
+                    return false;
+                }
+
                 plan.Enqueue(leaf.Action);
                 leaf = leaf.Parent;
             }
+
+            return true;
         }
     }
 }

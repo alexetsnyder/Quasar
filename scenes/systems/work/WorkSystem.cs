@@ -31,10 +31,32 @@ namespace Quasar.scenes.systems.work
 
         private readonly Dictionary<WorkType, Dictionary<int, Work>> _allWork = [];
 
+        private static readonly object _lock = new();
+
         public override void _Ready()
         {
             GlobalSystem.Instance.LoadInterface<IPathingSystem>(PathingSystemNode, out  _pathingSystem);
             GlobalSystem.Instance.LoadInterface<IWorld>(WorldNode, out _world);
+        }
+
+        public bool AssignWork(Work work)
+        {
+            lock (_lock)
+            {
+                if (!work.IsAssigned)
+                {
+                    if (_allWork.TryGetValue(work.WorkType, out var workDict))
+                    {
+                        if (workDict.TryGetValue(work.WorkId, out _))
+                        {
+                            work.IsAssigned = true;
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            }
         }
 
         public Work GetWork(int workId)
@@ -147,7 +169,10 @@ namespace Quasar.scenes.systems.work
             {
                 foreach (var work in workDict.Values)
                 {
-                    workList.Add(work);
+                    if (!work.IsAssigned)
+                    {
+                        workList.Add(work);
+                    } 
                 }
             }
 

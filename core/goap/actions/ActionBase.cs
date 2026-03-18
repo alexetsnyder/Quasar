@@ -2,6 +2,8 @@ using Quasar.core.blackboard;
 using Quasar.core.goap.interfaces;
 using Quasar.core.naming;
 using Quasar.scenes.cats;
+using Quasar.scenes.common.interfaces;
+using Quasar.scenes.systems.work;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +16,8 @@ namespace Quasar.core.goap.actions
         public abstract FastName Name { get; }
 
         public abstract int Cost { get; }
+
+        public virtual bool SkipAssign { get => false; }
 
         protected readonly List<IGoal> _preconditions = [];
 
@@ -55,6 +59,19 @@ namespace Quasar.core.goap.actions
             }
 
             return true;
+        }
+
+        public bool Assign(IWorkSystem workSytem, Blackboard<int> blackboard)
+        {
+            Work work = null;
+
+            if (blackboard.TryGetWork(Id, out work) ||
+                blackboard.TryGetWork(Id + 1, out work))
+            {
+                return workSytem.AssignWork(work);
+            }
+
+            return false;
         }
 
         public virtual void Execute(Cat cat, Blackboard<int> blackboard)

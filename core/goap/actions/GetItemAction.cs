@@ -13,8 +13,8 @@ namespace Quasar.core.goap.actions
 
         public GetItemAction()
         {
-            HasItemGoal hasItemGoal = new();
-            _effects.Add(hasItemGoal);
+            WorkGoal workGoal = new();
+            _effects.Add(workGoal);
 
             GetItemGoal getItemGoal = new();
             AdjToGoal adjToGoal = new();
