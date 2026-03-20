@@ -1,4 +1,5 @@
 using Godot;
+using Quasar.core.goap;
 using Quasar.data;
 using Quasar.data.enums;
 using Quasar.scenes.camera;
@@ -63,7 +64,7 @@ namespace Quasar.scenes
             new("Pepper", "Longhair Cat", "Wary", 100, WorkType.FARMING),
             new("New Year", "Russian Blue Cat", "Curious", 100, WorkType.FISHING),
             new("Maslow", "Orange", "Timid", 100, WorkType.HAULING),
-            new("Millo", "Orange", "Adventurous", 100, WorkType.CUTTING),
+            new("Millo", "Orange", "Adventurous", 100, WorkType.WOOD_CUTTING),
             new("Inky", "Black", "Affectionate", 100, WorkType.GATHERING),
         ];
 
@@ -111,8 +112,6 @@ namespace Quasar.scenes
         {
             SetTyleTypeLabel();
             SetTyleColorLabel();
-
-            CheckForWork();
         }
 
         public override void _Input(InputEvent @event)
@@ -232,8 +231,10 @@ namespace Quasar.scenes
                     {
                         AddChild(cat);
 
-                        cat.World = _world;
-                        cat.PathingSystem = _pathingSystem;
+                        cat.Id = i;
+
+                        var newPlanner = new Planner(_workSystem, _pathingSystem, _itemSystem);
+                        cat.SetDeps(_world, _pathingSystem, newPlanner);
 
                         var catPos = spawnPoints[i];
                         cat.Position = catPos;
@@ -263,27 +264,6 @@ namespace Quasar.scenes
             _world.PlaceItem(newPos, lastPos);
         }
 
-        private void CheckForWork()
-        {
-            foreach (var cat in _cats)
-            {
-                if (cat.CanWork() && !cat.IsMoving())
-                {
-                    var workTuple = _workSystem.CheckForWork(cat);
-                    if (workTuple != null)
-                    {
-                        StartWork(cat, workTuple.Item1, workTuple.Item2);
-                    }
-                }
-            }
-        }
-
-        private void StartWork(Cat cat, List<Work> workList, Path path)
-        {
-            _pathingSystem.ShowPath(path.Id);
-            cat.SetWork(workList, path);
-        }
-
         private void RemoveWork(List<Vector2> worldPosList)
         {
             _workSystem.RemoveWork(worldPosList);
@@ -304,7 +284,7 @@ namespace Quasar.scenes
         private void OnToolBarCutPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.CUTTING;
+            _selectionSystem.WorkType = WorkType.WOOD_CUTTING;
         }
 
         private void OnToolBarHaulPressed()
@@ -352,7 +332,7 @@ namespace Quasar.scenes
                     CreateHaulingWork(selection);
                     break;
                 case WorkType.MINING:
-                case WorkType.CUTTING:       
+                case WorkType.WOOD_CUTTING:       
                 case WorkType.BUILDING:
                 case WorkType.FARMING:
                 case WorkType.GATHERING:
@@ -381,9 +361,8 @@ namespace Quasar.scenes
                         var closestStoragePos = _pathingSystem.ShortestPointWithAdjacent(point, allStorage);
                         if (closestStoragePos != null)
                         {
-                            int workId1 = _workSystem.CreateWork(WorkType.HAULING, point);
-                            int workId2 = _workSystem.CreateWork(WorkType.HAULING, closestStoragePos.Value);
-                            _workSystem.LinkWork(workId1, workId2);
+                            _workSystem.CreateWork(WorkType.HAULING, closestStoragePos.Value);
+                            _workSystem.CreateWork(WorkType.GET_ITEM, point);
                         }
                         else
                         {
@@ -396,6 +375,8 @@ namespace Quasar.scenes
             {
                 _selectionSystem.Deselect(selection);
             }
+
+            //PlanWork();
         }
 
         private void CreateWork(Selection selection)
@@ -403,6 +384,19 @@ namespace Quasar.scenes
             foreach (var point in selection.Points)
             {
                 _workSystem.CreateWork(selection.WorkType, point);
+            }
+
+            //PlanWork();
+        }
+
+        private void PlanWork()
+        {
+            foreach (var cat in _cats)
+            {
+                if (cat.CanWork() && !cat.IsMoving())
+                {
+                    cat.Plan();
+                }
             }
         }
 
@@ -465,6 +459,8 @@ namespace Quasar.scenes
                 work.Command.Execute(cat);
 
                 _workSystem.RemoveWork(work);
+
+                _workSystem.UpdateWork();
             }
         }
     }

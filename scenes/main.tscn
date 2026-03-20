@@ -54,7 +54,6 @@ ItemSystemNode = NodePath("../ItemSystem")
 [node name="ItemSystem" parent="." unique_id=722635205 instance=ExtResource("5_eb6dy")]
 
 [node name="SelectionSystem" parent="." unique_id=1554002201 node_paths=PackedStringArray("WorldNode") instance=ExtResource("2_tipki")]
-SelectionState = 1
 WorldNode = NodePath("../World")
 
 [node name="PathingSystem" parent="." unique_id=66750832 node_paths=PackedStringArray("WorldNode") instance=ExtResource("6_85g3d")]

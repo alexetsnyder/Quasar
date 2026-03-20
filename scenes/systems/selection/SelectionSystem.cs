@@ -136,7 +136,7 @@ namespace Quasar.scenes.systems.selection
                 case WorkType.BUILDING:
                 case WorkType.FARMING:
                 case WorkType.FISHING:
-                case WorkType.CUTTING:
+                case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
                     return GetAtlasCoordForSelection(i, j, selection);
@@ -205,7 +205,7 @@ namespace Quasar.scenes.systems.selection
                 case WorkType.BUILDING:
                 case WorkType.FARMING:
                 case WorkType.FISHING:
-                case WorkType.CUTTING:
+                case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
                     return SelectionColor;
@@ -226,7 +226,7 @@ namespace Quasar.scenes.systems.selection
                 case WorkType.MINING:
                     filter = (c) => _world.IsMineable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.CUTTING:
+                case WorkType.WOOD_CUTTING:
                     filter = (c) => _world.IsTree(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
                 case WorkType.HAULING:
@@ -309,7 +309,7 @@ namespace Quasar.scenes.systems.selection
             {
                 case WorkType.MINING:
                     return AtlasConstants.GetAtlasCoords(TileType.MINE);
-                case WorkType.CUTTING:
+                case WorkType.WOOD_CUTTING:
                     return AtlasConstants.GetAtlasCoords(TileType.CUT);
                 case WorkType.HAULING:
                     return AtlasConstants.GetAtlasCoords(TileType.HAUL);
@@ -336,7 +336,7 @@ namespace Quasar.scenes.systems.selection
             {
                 case WorkType.MINING:
                     return AtlasConstants.GetColor(TileType.MINE);
-                case WorkType.CUTTING:
+                case WorkType.WOOD_CUTTING:
                     return AtlasConstants.GetColor(TileType.CUT);
                 case WorkType.HAULING:
                     return AtlasConstants.GetColor(TileType.HAUL);

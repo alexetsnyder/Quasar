@@ -1,36 +1,40 @@
 Actions:
 
+CheckForWork:
+Pre: None
+Effect: workExists
+
+CheckForPath:
+Pre: WorkExists
+Effect: hasPath
+
 Mining: 
-Pre: workExists, Tile Solid, hasProfession, IsAdj
-Effect: Tile Dirt, Tile Not Solid, Drop Stone
+Pre: hasProfession, hasPath
+Effect: Tile Dirt, Tile Not Solid, Drop Stone, hasMined
 
 Cutting: 
-Pre: workExists, Tile Tree, hasProfession, IsAdj
-Effect: Tile Dirt, Tile Not Solid, Drop Wood
+Pre: workExists, hasProfession, hasPath
+Effect: Tile Dirt, Tile Not Solid, Drop Wood, hasCut
 
 Farming:
-Pre: workExists, Tile Not Impassable, hasProfession, IsAdj
-Effect: Tile Tilled
+Pre: workExists, hasProfession, hasPath
+Effect: Tile Tilled, hasTilled
 
 Fishing:
 Pre: workExists, Tile Water, hasProfession, IsAdj
-Effect: None
+Effect: hasFished
 
 Gathering:
 Pre: workExists, Tile Grass, IsAdj
-Effect: None 
+Effect: hasGathered
 
 Hauling:
-Pre: workExists, tileHasItem, IsAdj
-Effect: RemoveItem
+Pre: workExists, hasPath
+Effect: hasItem
 
 Storing:
-Pre: hasItem, IsAdj 
+Pre: hasItem, hasPath
 Effect: StoreItem
-
-Moving:
-Pre: hasPath
-Effect: isAdj
 
 Goals:
 

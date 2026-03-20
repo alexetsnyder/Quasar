@@ -324,6 +324,11 @@ namespace Quasar.scenes.world
             return (worldCell.TileType == TileType.WATER);
         }
 
+        public bool IsImpassable(Vector2 localPos)
+        {
+            return IsImpassable(_worldTileMapLayer.LocalToMap(localPos));
+        }
+
         public bool IsImpassable(Vector2I coords)
         {
             var worldCell = GetWorldCell(coords);

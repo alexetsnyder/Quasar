@@ -12,7 +12,7 @@ using System.Linq;
 namespace Quasar.scenes.systems.work
 {
     [GlobalClass]
-    public partial class WorkSystem : Node
+    public partial class WorkSystem : Node, IWorkSystem
     {
         [Export]
         public Node PathingSystemNode { get; set; }
@@ -31,10 +31,32 @@ namespace Quasar.scenes.systems.work
 
         private readonly Dictionary<WorkType, Dictionary<int, Work>> _allWork = [];
 
+        private static readonly object _lock = new();
+
         public override void _Ready()
         {
             GlobalSystem.Instance.LoadInterface<IPathingSystem>(PathingSystemNode, out  _pathingSystem);
             GlobalSystem.Instance.LoadInterface<IWorld>(WorldNode, out _world);
+        }
+
+        public bool AssignWork(Work work)
+        {
+            lock (_lock)
+            {
+                if (!work.IsAssigned)
+                {
+                    if (_allWork.TryGetValue(work.WorkType, out var workDict))
+                    {
+                        if (workDict.TryGetValue(work.WorkId, out _))
+                        {
+                            work.IsAssigned = true;
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            }
         }
 
         public Work GetWork(int workId)
@@ -59,7 +81,9 @@ namespace Quasar.scenes.systems.work
             var command = CommandFactory.BuildCommand(workType, localPos);
             if (command != null)
             {
-                work = new(_nextId, workType, localPos, command);
+                var adjPosList = _world.GetAdjacentTiles(localPos).Where(a => !_world.IsImpassable(a));
+
+                work = new(_nextId, workType, localPos, command, adjPosList.Any() ? [.. adjPosList] : null);
             }
 
             if (work != null)
@@ -71,19 +95,31 @@ namespace Quasar.scenes.systems.work
             return -1;
         }
 
-        public void LinkWork(int workId1, int workId2)
+        public void UpdateWork()
         {
-            var work1 = GetWork(workId1);
-            var work2 = GetWork(workId2);
-
-            if (work1 != null && work2 != null)
+            foreach (var workDict in _allWork.Values)
             {
-                work1.LinkedWorkId = workId2;
-                work2.LinkedWorkId = workId1;
-
-                work2.IsDependent = true;
+                foreach (var work in workDict.Values)
+                {
+                    var adjPosList = _world.GetAdjacentTiles(work.LocalPos).Where(a => !_world.IsImpassable(a));
+                    work.AdjPos = adjPosList.Any() ? [.. adjPosList] : null;
+                }
             }
         }
+
+        //public void LinkWork(int workId1, int workId2)
+        //{
+        //    var work1 = GetWork(workId1);
+        //    var work2 = GetWork(workId2);
+
+        //    if (work1 != null && work2 != null)
+        //    {
+        //        work1.LinkedWorkId = workId2;
+        //        work2.LinkedWorkId = workId1;
+
+        //        work2.IsDependent = true;
+        //    }
+        //}
 
         public void RemoveWork(Work work)
         {
@@ -125,7 +161,25 @@ namespace Quasar.scenes.systems.work
             return null;
         }
 
-        public Tuple<List<Work>, Path> CheckForWork(Cat cat)
+        public List<Work> CheckForWork(WorkType workType)
+        {
+            List<Work> workList = [];
+
+            if (_allWork.TryGetValue(workType, out var workDict))
+            {
+                foreach (var work in workDict.Values)
+                {
+                    if (!work.IsAssigned)
+                    {
+                        workList.Add(work);
+                    } 
+                }
+            }
+
+            return workList;
+        }
+
+        public Tuple<List<Work>, Path> CheckForWork(Cat cat, bool assign = true)
         {
             var workType = cat.CatData.WorkType;
 
@@ -133,22 +187,22 @@ namespace Quasar.scenes.systems.work
             {
                 if (workDict.Count > 0)
                 {
-                    var shortestPath = ShortestPath([.. workDict.Values.Where(w => !w.IsAssigned && !w.IsDependent)], cat, out Work work);
+                    var shortestPath = ShortestPath([.. workDict.Values.Where(w => !w.IsAssigned)], cat, out Work work);
 
                     if (work != null)
                     {
-                        work.IsAssigned = true;
+                        work.IsAssigned = assign;
                         List<Work> workList = [work];
 
-                        if (work.LinkedWorkId != -1)
-                        {
-                            var linkedWork = GetWork(work.LinkedWorkId);
-                            if (linkedWork != null)
-                            {
-                                linkedWork.IsAssigned = true;
-                                workList.Add(linkedWork);
-                            }
-                        }
+                        //if (work.LinkedWorkId != -1)
+                        //{
+                        //    var linkedWork = GetWork(work.LinkedWorkId);
+                        //    if (linkedWork != null)
+                        //    {
+                        //        linkedWork.IsAssigned = assign;
+                        //        workList.Add(linkedWork);
+                        //    }
+                        //}
 
                         return new(workList, shortestPath);
                     }
@@ -156,6 +210,12 @@ namespace Quasar.scenes.systems.work
             }
 
             return null;
+        }
+
+        public List<Work> GetWork(WorkType workType)
+        {
+            _allWork.TryGetValue(workType, out Dictionary<int, Work> workDict);
+            return [.. workDict.Select(kv => kv.Value)];
         }
 
         private Path ShortestPath(List<Work> workList, Cat cat, out Work work)

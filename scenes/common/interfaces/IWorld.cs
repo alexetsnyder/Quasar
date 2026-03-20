@@ -21,6 +21,8 @@ namespace Quasar.scenes.common.interfaces
 
         public bool IsSolid(Vector2I coords);
 
+        public bool IsImpassable(Vector2 localPos);
+
         public bool IsImpassable(Vector2I coords);
 
         public bool IsWater(Vector2I coords);

@@ -8,5 +8,10 @@ namespace Quasar.scenes.systems.pathing
         public int Id { get; set; } = id;
 
         public Queue<Vector2> Points { get; set; } = points;
+
+        public bool IsEmpty()
+        {
+            return Points.Count == 0; 
+        }
     }
 }
