@@ -9,11 +9,9 @@ namespace Quasar.scenes.gui.items
     {
         private GridContainer _grid;
 
-        private List<InventorySlot> _inventorySlots = [];
-
         public override void _Ready()
         {
-            _grid = GetNode<GridContainer>("PanelContainer/MarginContainer/GridContainer");
+            _grid = GetNode<GridContainer>("%InventoryGridContainer");
         }
 
         public void Add(Item item)
