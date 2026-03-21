@@ -95,12 +95,12 @@ namespace Quasar.core.goap.actions
             return true;
         }
 
-        public bool Assign(IWorkSystem workSytem)
+        public bool Assign(IWorkSystem workSytem, bool assign = true)
         {
             if (_blackboard.TryGetWork(Constants.Names.Work, out var work) || 
                 _child.GetBlackboard().TryGetWork(Constants.Names.Work, out work))
             {
-                return workSytem.AssignWork(work);
+                return workSytem.AssignWork(work, assign);
             }
 
             return false;

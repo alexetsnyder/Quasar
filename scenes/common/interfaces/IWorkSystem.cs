@@ -9,7 +9,7 @@ namespace Quasar.scenes.common.interfaces
 {
     public interface IWorkSystem
     {
-        public bool AssignWork(Work work);
+        public bool AssignWork(Work work, bool assign = true);
 
         public List<Work> GetWork(WorkType workType);
 

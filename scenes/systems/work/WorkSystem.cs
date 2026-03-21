@@ -39,7 +39,7 @@ namespace Quasar.scenes.systems.work
             GlobalSystem.Instance.LoadInterface<IWorld>(WorldNode, out _world);
         }
 
-        public bool AssignWork(Work work)
+        public bool AssignWork(Work work, bool assign = true)
         {
             lock (_lock)
             {
@@ -49,7 +49,7 @@ namespace Quasar.scenes.systems.work
                     {
                         if (workDict.TryGetValue(work.WorkId, out _))
                         {
-                            work.IsAssigned = true;
+                            work.IsAssigned = assign;
                             return true;
                         }
                     }

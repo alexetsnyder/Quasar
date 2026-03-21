@@ -4,10 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://b75ptiqh6m04c" path="res://assets/textures/Inventory.png" id="2_5iwy6"]
 
 [node name="InventoryControl" type="Control" unique_id=1183350327]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -600.0
+offset_bottom = -320.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_7hg4f")
@@ -27,13 +30,14 @@ patch_margin_bottom = 6
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1735327111]
 layout_mode = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 2
-theme_override_constants/margin_bottom = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 13
+theme_override_constants/margin_bottom = 13
 
 [node name="GridContainer" type="GridContainer" parent="PanelContainer/MarginContainer" unique_id=1164207149]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
-theme_override_constants/h_separation = 0
-theme_override_constants/v_separation = 0
+theme_override_constants/h_separation = 11
+theme_override_constants/v_separation = 11
 columns = 4

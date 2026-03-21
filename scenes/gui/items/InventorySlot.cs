@@ -13,8 +13,8 @@ public partial class InventorySlot : Control
 
     public override void _Ready()
     {
-		_inventoryIcon = GetNode<TextureRect>("HBoxContainer/InventoryIcon");
-		_inventoryLabel = GetNode<Label>("HBoxContainer/InventoryLabel");
+		_inventoryIcon = GetNode<TextureRect>("%InventoryIcon");
+		_inventoryLabel = GetNode<Label>("%InventoryLabel");
     }
 
 	public void Add(Item item)

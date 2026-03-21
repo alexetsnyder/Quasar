@@ -34,7 +34,7 @@ namespace Quasar.core.goap.interfaces
 
         public bool SatisfyPreconditions(WorldState worldState);
 
-        public bool Assign(IWorkSystem workSystem);
+        public bool Assign(IWorkSystem workSystem, bool assign = true);
 
         public void Execute(Cat cat);
     }

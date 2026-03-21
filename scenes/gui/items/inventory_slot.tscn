@@ -2,34 +2,54 @@
 
 [ext_resource type="Script" uid="uid://dfcrpi5nti7yh" path="res://scenes/gui/items/InventorySlot.cs" id="1_gd5vq"]
 [ext_resource type="Texture2D" uid="uid://da81fqa30562p" path="res://assets/textures/Haowan_Curses_1440x450.png" id="1_gmkxt"]
+[ext_resource type="Texture2D" uid="uid://up7kshinrmnw" path="res://assets/textures/InventorySlotIcon.png" id="3_14dcl"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gd5vq"]
+atlas = ExtResource("1_gmkxt")
+region = Rect2(234, 54, 18, 18)
 
 [node name="InventorySlot" type="Control" unique_id=1337731410]
-custom_minimum_size = Vector2(38, 16)
+custom_minimum_size = Vector2(18, 16)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -602.0
-offset_bottom = -344.0
+offset_right = -613.0
+offset_bottom = -335.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gd5vq")
 TextureAtlas = ExtResource("1_gmkxt")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=949396426]
-layout_mode = 1
-offset_right = 36.0
-offset_bottom = 18.0
+[node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=1750271155]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 0
+offset_right = 27.0
+offset_bottom = 25.0
+texture = ExtResource("3_14dcl")
+patch_margin_left = 6
+patch_margin_top = 6
+patch_margin_right = 6
+patch_margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=49931138]
+layout_mode = 0
+offset_right = 27.0
+offset_bottom = 27.0
 theme_override_constants/separation = -2
 
-[node name="InventoryIcon" type="TextureRect" parent="HBoxContainer" unique_id=909118685]
+[node name="InventoryIcon" type="TextureRect" parent="VBoxContainer" unique_id=909118685]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+texture = SubResource("AtlasTexture_gd5vq")
 stretch_mode = 5
 
-[node name="InventoryLabel" type="Label" parent="HBoxContainer" unique_id=735696252]
+[node name="InventoryLabel" type="Label" parent="VBoxContainer" unique_id=735696252]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 6
 text = "Stone"
+horizontal_alignment = 1

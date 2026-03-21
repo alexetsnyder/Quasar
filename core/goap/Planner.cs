@@ -1,4 +1,3 @@
-using Quasar.core.blackboard;
 using Quasar.core.goap.interfaces;
 using Quasar.scenes.common.interfaces;
 using System;
@@ -73,67 +72,58 @@ namespace Quasar.core.goap
         private bool BuildPlanRec(Leaf current, List<Leaf> leaves, Stack<IGoal> goals, int nextActionId)
         {
             bool success = false;
+            var goal = goals.Pop();
 
-            while (goals.Count > 0)
+            foreach (WorldState.Actions actionType in Enum.GetValues(typeof(WorldState.Actions)))
             {
-                var goal = goals.Pop();
-                foreach (WorldState.Actions actionType in Enum.GetValues(typeof(WorldState.Actions)))
+                if (actionType == WorldState.Actions.NONE)
                 {
-                    if (actionType == WorldState.Actions.NONE)
-                    {
-                        continue;
-                    }
-
-                    var action = _worldState.BuildAction(actionType);
-
-                    if (action.SatisfyGoal(goal))
-                    {
-                        action.SetId(nextActionId++);
-                        action.LinkParent(current.Action);
-
-                        Leaf leaf = new()
-                        {
-                            Parent = current,
-                            CumulativeCost = current.CumulativeCost + action.Cost,
-                            Action = action,
-                            IsSuccess = false,
-                        };
-
-                        leaves.Add(leaf);
-
-
-                        Stack<IGoal> newGoals = new(goals);                        
-
-                        if (action.SatisfyPreconditions(_worldState))
-                        {
-                            if (goals.Count == 0)
-                            {
-                                leaf.IsSuccess = true;
-                                success = true;
-                            }
-                        }
-                        else
-                        {
-                            var preconditions = action.GetUnsatisfiedPreconditions(_worldState);
-
-                            preconditions.Reverse();
-
-                            foreach (var precondition in preconditions)
-                            {
-                                newGoals.Push(precondition);
-                            }
-                        }
-
-                        if (!success && newGoals.Count > 0)
-                        {
-                            success = BuildPlanRec(leaf, leaves, newGoals, nextActionId);
-                        }
-                    }
+                    continue;
                 }
 
-                if (!success)
+                var action = _worldState.BuildAction(actionType);
+
+                if (action.SatisfyGoal(goal))
                 {
-                    return false;
+                    action.SetId(nextActionId++);
+                    action.LinkParent(current.Action);
+
+                    Leaf leaf = new()
+                    {
+                        Parent = current,
+                        CumulativeCost = current.CumulativeCost + action.Cost,
+                        Action = action,
+                        IsSuccess = false,
+                    };
+
+                    leaves.Add(leaf);
+
+                    Stack<IGoal> newGoals = new(goals);
+
+                    if (action.SatisfyPreconditions(_worldState))
+                    {
+                        if (goals.Count == 0)
+                        {
+                            leaf.IsSuccess = true;
+                            success = true;
+                        }
+                    }
+                    else
+                    {
+                        var preconditions = action.GetUnsatisfiedPreconditions(_worldState);
+
+                        preconditions.Reverse();
+
+                        foreach (var precondition in preconditions)
+                        {
+                            newGoals.Push(precondition);
+                        }
+                    }
+
+                    if (newGoals.Count > 0)
+                    {
+                        success = success || BuildPlanRec(leaf, leaves, newGoals, nextActionId);
+                    }
                 }
             }
 
@@ -146,6 +136,7 @@ namespace Quasar.core.goap
             {
                 if (!leaf.Action.SkipAssign && !leaf.Action.Assign(_workSystem))
                 {
+                    UnAssignOnFailure(plan);
                     return false;
                 }
 
@@ -154,6 +145,15 @@ namespace Quasar.core.goap
             }
 
             return true;
+        }
+
+        private void UnAssignOnFailure(Queue<IAction> plan)
+        {
+            while (plan.Count > 0)
+            {
+                var action = plan.Dequeue();
+                action.Assign(_workSystem, false);  
+            }
         }
     }
 }
