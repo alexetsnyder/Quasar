@@ -30,7 +30,7 @@ namespace Quasar.scenes.gui.items
             ClearItems();
         }
 
-        private void ClearItems()
+        public void ClearItems()
         {
             foreach (var child in _grid.GetChildren())
             {

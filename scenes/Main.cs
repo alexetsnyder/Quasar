@@ -410,12 +410,18 @@ namespace Quasar.scenes
                 
                 if (items.Count > 0)
                 {
+                    _inventoryControl.ClearItems();
+
                     foreach (var item in items)
                     {
                         _inventoryControl.Add(item);
                     }
 
-                    _inventoryControl.Position = new(100.0f, 100.0f);
+                    var cameraViewportRect = _camera.GetViewportRect();
+                    var cameraCenter = _camera.GetScreenCenterPosition();
+                    var cameraLeftTop = cameraCenter - new Vector2(cameraViewportRect.Size.X / 2.0f, cameraViewportRect.Size.Y / 2.0f);
+
+                    _inventoryControl.Position = localPos - cameraLeftTop;
                     _inventoryControl.Visible = true;
                 }
             }
