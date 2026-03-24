@@ -320,6 +320,12 @@ namespace Catcophony.scenes
             _selectionSystem.WorkType = WorkType.FISHING;
         }
 
+        private void OnToolBarAreaSelectPressed()
+        {
+            _buildingSystem.Clear();
+            _selectionSystem.WorkType = WorkType.AREA_SELECT;
+        }
+
         private void OnToolBarCancelPressed()
         {
             _buildingSystem.Clear();

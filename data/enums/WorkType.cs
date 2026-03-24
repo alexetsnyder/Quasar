@@ -11,6 +11,7 @@ namespace Catcophony.data.enums
         FARMING,
         GATHERING,
         FISHING,
+        AREA_SELECT,
         CANCEL,
     }
 }

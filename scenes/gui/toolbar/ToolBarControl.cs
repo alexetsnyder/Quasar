@@ -30,6 +30,9 @@ namespace Catcophony.scenes.gui.toolbar
         public delegate void FishPressedEventHandler();
 
         [Signal]
+        public delegate void AreaSelectPressedEventHandler();
+
+        [Signal]
         public delegate void CancelPressedEventHandler();
 
         private ItemList _buildMenu;
@@ -105,6 +108,12 @@ namespace Catcophony.scenes.gui.toolbar
         {
             _buildMenu.Visible = false;
             EmitSignal(SignalName.GatherPressed);
+        }
+
+        private void OnAreaSelectButtonPressed()
+        {
+            _buildMenu.Visible = false;
+            EmitSignal(SignalName.AreaSelectPressed);
         }
 
         private void OnFishButtonPressed()

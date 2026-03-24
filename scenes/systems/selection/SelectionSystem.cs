@@ -139,6 +139,7 @@ namespace Catcophony.scenes.systems.selection
                 case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
+                case WorkType.AREA_SELECT:
                     return GetAtlasCoordForSelection(i, j, selection);
                 default:
                     GD.Print("Incorrect SelectionState in GetAtlasCoordsForSelecting.");
@@ -208,6 +209,7 @@ namespace Catcophony.scenes.systems.selection
                 case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
+                case WorkType.AREA_SELECT:
                     return SelectionColor;
                 default:
                     GD.Print("Incorrect SelectionState in GetColorForSelecting.");
