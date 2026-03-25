@@ -154,11 +154,8 @@ namespace Catcophony.scenes.cats
 
             EmitSignal(SignalName.CatWork, this, _currentWork);
 
-            if (_currentPlan == null || _currentPlan.Actions.Count == 0)
-            {
-                IsWorking = false;
-                CatData.WorkPos = null;
-            }     
+            IsWorking = false;
+            CatData.WorkPos = null;  
         }
 
         public void SetPath(Path path)
