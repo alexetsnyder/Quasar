@@ -30,7 +30,7 @@ namespace Catcophony.scenes.gui.toolbar
         public delegate void FishPressedEventHandler();
 
         [Signal]
-        public delegate void AreaSelectPressedEventHandler();
+        public delegate void CreateAreaSelectedEventHandler(int areaType);
 
         [Signal]
         public delegate void CancelPressedEventHandler();
@@ -41,8 +41,8 @@ namespace Catcophony.scenes.gui.toolbar
 
         public override void _Ready()
         {
-            _buildMenu = GetNode<ItemList>("BuildMenu");
-            _areaSelectMenu = GetNode<Control>("%AreaSelectMenu");
+            _buildMenu = GetNode<ItemList>("%ToolBarBuildMenu");
+            _areaSelectMenu = GetNode<Control>("%ToolBarCreateAreaMenu");
         }
 
         private static TileType GetTileType(int index)
@@ -60,7 +60,7 @@ namespace Catcophony.scenes.gui.toolbar
                 case 4:
                     return TileType.STORAGE;
                 default:
-                    GD.Print($"");
+                    GD.Print($"Incorrect index {index} in ToolBarControl::GetTileType.");
                     return TileType.NONE;
             }
         }
@@ -130,11 +130,25 @@ namespace Catcophony.scenes.gui.toolbar
             EmitSignal(SignalName.GatherPressed);
         }
 
-        private void OnAreaSelectButtonPressed()
+        private void OnCreateAreaButtonPressed()
         {
             HideSubMenus();
             ShowAreaSelectMenu();
-            EmitSignal(SignalName.AreaSelectPressed);
+        }
+
+        private void OnHousingAreaSelected()
+        {
+            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.HOUSING);
+        }
+
+        private void OnPublicForumAreaSelected()
+        {
+            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.PUBLIC_FORUM);
+        }
+
+        private void OnStorageAreaSelected()
+        {
+            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.STORAGE);
         }
 
         private void OnFishButtonPressed()

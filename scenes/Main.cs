@@ -320,10 +320,11 @@ namespace Catcophony.scenes
             _selectionSystem.WorkType = WorkType.FISHING;
         }
 
-        private void OnToolBarAreaSelectPressed()
+        private void OnToolBarCreateAreaSelected(int areaType)
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.AREA_SELECT;
+            _selectionSystem.WorkType = WorkType.CREATE_AREA;
+            GD.Print($"AreaType: {(AreaType)areaType}");
         }
 
         private void OnToolBarCancelPressed()
