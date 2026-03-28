@@ -324,11 +324,11 @@ namespace Catcophony.scenes
             _selectionSystem.WorkType = WorkType.FISHING;
         }
 
-        private void OnToolBarCreateAreaSelected(int areaType)
+        private void OnToolBarCreateRegionSelected(int regionType)
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.CREATE_AREA;
-            _regionSystem.CurrentAreaType = (AreaType)(areaType);
+            _selectionSystem.WorkType = WorkType.CREATE_REGION;
+            _regionSystem.CurrentRegionType = (RegionType)(regionType);
         }
 
         private void OnToolBarCancelPressed()
@@ -352,8 +352,8 @@ namespace Catcophony.scenes
                 case WorkType.HAULING:
                     CreateHaulingWork(selection);
                     break;
-                case WorkType.CREATE_AREA:
-                    CreateArea(selection);
+                case WorkType.CREATE_REGION:
+                    CreateRegion(selection);
                     break;
                 case WorkType.CANCEL:
                     RemoveWork(selection.Points);
@@ -364,7 +364,7 @@ namespace Catcophony.scenes
             }
         }
 
-        private void CreateArea(Selection selection)
+        private void CreateRegion(Selection selection)
         {
             _regionSystem.CreateRegion(selection);
         }

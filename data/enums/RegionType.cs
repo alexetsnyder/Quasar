@@ -1,6 +1,6 @@
 namespace Catcophony.data.enums
 {
-    public enum AreaType
+    public enum RegionType
     {
         NONE,
         STORAGE,

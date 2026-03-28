@@ -8,7 +8,7 @@ namespace Catcophony.scenes.systems.regions
 {
     public partial class RegionSystem : Node2D
     {
-        public AreaType CurrentAreaType { get; set; }
+        public RegionType CurrentRegionType { get; set; }
 
         private IMultiColorTileMapLayer _regionTileMapLayer;
 
@@ -52,35 +52,35 @@ namespace Catcophony.scenes.systems.regions
             
             if (i == startingRow && j == startingCol)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.LEFT_TOP);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.LEFT_TOP);
             }
             else if (i == startingRow && j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.RIGHT_TOP);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.RIGHT_TOP);
             }
             else if (i == endingRow - 1 && j == startingCol)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.LEFT_BOTTOM);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.LEFT_BOTTOM);
             }
             else if (i == endingRow - 1 && j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.RIGHT_BOTTOM);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.RIGHT_BOTTOM);
             }
             else if (i == startingRow)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.TOP);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.TOP);
             }
             else if (i == endingRow - 1)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.BOTTOM);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.BOTTOM);
             }
             else if (j == startingCol)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.LEFT);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.LEFT);
             }
             else if (j == endingCol - 1)
             {
-                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.AREA, (int)AreaIndex.RIGHT);
+                atlasCoord = AtlasConstants.GetAtlasCoords(TileType.REGION, (int)RegionIndex.RIGHT);
             }
 
             return atlasCoord;
@@ -88,14 +88,14 @@ namespace Catcophony.scenes.systems.regions
 
         private Color GetColor()
         {
-            switch (CurrentAreaType)
+            switch (CurrentRegionType)
             {
-                case AreaType.PUBLIC_FORUM:
-                case AreaType.HOUSING:
-                case AreaType.STORAGE:
-                    return AtlasConstants.GetColor(TileType.AREA);
+                case RegionType.PUBLIC_FORUM:
+                case RegionType.HOUSING:
+                case RegionType.STORAGE:
+                    return AtlasConstants.GetColor(TileType.REGION);
                 default:
-                    GD.Print($"Incorrect AreaType {CurrentAreaType} in RegionSystem::GetColor.");
+                    GD.Print($"Incorrect RegionType {CurrentRegionType} in RegionSystem::GetColor.");
                     return ColorConstants.WARNING_RED;
             }
         }

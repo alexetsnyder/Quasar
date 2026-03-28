@@ -43,7 +43,7 @@ namespace Catcophony.data
                                     new(0, 2), new(1, 2), new(0, 3),
                                     new(1, 3), new(0, 4), new(1, 4) ] },
 
-            { TileType.AREA, [ new(0, 0), new(1, 0), new(0, 1), new(1, 1),
+            { TileType.REGION, [ new(0, 0), new(1, 0), new(0, 1), new(1, 1),
                                new(0, 2), new(1, 2), new(0, 3), new(1, 3) ] },
         };
 
@@ -85,7 +85,7 @@ namespace Catcophony.data
             { TileType.CANCEL, [ ColorConstants.WARNING_RED ] },
             { TileType.SELECTION, [] },
 
-            { TileType.AREA, [ ColorConstants.GREEN ]  },
+            { TileType.REGION, [ ColorConstants.GREEN ]  },
         };
 
         public static Vector2I GetAtlasCoords(TileType tileType, int index = 0)

@@ -30,19 +30,19 @@ namespace Catcophony.scenes.gui.toolbar
         public delegate void FishPressedEventHandler();
 
         [Signal]
-        public delegate void CreateAreaSelectedEventHandler(int areaType);
+        public delegate void CreateRegionSelectedEventHandler(int regionType);
 
         [Signal]
         public delegate void CancelPressedEventHandler();
 
         private ItemList _buildMenu;
 
-        private Control _areaSelectMenu;
+        private Control _regionSelectMenu;
 
         public override void _Ready()
         {
             _buildMenu = GetNode<ItemList>("%ToolBarBuildMenu");
-            _areaSelectMenu = GetNode<Control>("%ToolBarCreateAreaMenu");
+            _regionSelectMenu = GetNode<Control>("%ToolBarCreateRegionMenu");
         }
 
         private static TileType GetTileType(int index)
@@ -70,15 +70,15 @@ namespace Catcophony.scenes.gui.toolbar
             _buildMenu.Visible = true;
         }
 
-        private void ShowAreaSelectMenu()
+        private void ShowRegionSelectMenu()
         {
-            _areaSelectMenu.Visible = true;
+            _regionSelectMenu.Visible = true;
         }
 
         private void HideSubMenus()
         {
             _buildMenu.Visible = false;
-            _areaSelectMenu.Visible = false;
+            _regionSelectMenu.Visible = false;
         }
 
         private void OnSelectButtonPressed()
@@ -130,25 +130,25 @@ namespace Catcophony.scenes.gui.toolbar
             EmitSignal(SignalName.GatherPressed);
         }
 
-        private void OnCreateAreaButtonPressed()
+        private void OnCreateRegionButtonPressed()
         {
             HideSubMenus();
-            ShowAreaSelectMenu();
+            ShowRegionSelectMenu();
         }
 
-        private void OnHousingAreaSelected()
+        private void OnHousingRegionSelected()
         {
-            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.HOUSING);
+            EmitSignal(SignalName.CreateRegionSelected, (int)RegionType.HOUSING);
         }
 
-        private void OnPublicForumAreaSelected()
+        private void OnPublicForumRegionSelected()
         {
-            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.PUBLIC_FORUM);
+            EmitSignal(SignalName.CreateRegionSelected, (int)RegionType.PUBLIC_FORUM);
         }
 
-        private void OnStorageAreaSelected()
+        private void OnStorageRegionSelected()
         {
-            EmitSignal(SignalName.CreateAreaSelected, (int)AreaType.STORAGE);
+            EmitSignal(SignalName.CreateRegionSelected, (int)RegionType.STORAGE);
         }
 
         private void OnFishButtonPressed()

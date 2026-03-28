@@ -36,6 +36,6 @@ namespace Catcophony.data.enums
         CANCEL,
         SELECTION,
 
-        AREA,
+        REGION,
     }
 }

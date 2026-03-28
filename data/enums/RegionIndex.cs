@@ -1,6 +1,6 @@
 namespace Catcophony.data.enums
 {
-    public enum AreaIndex
+    public enum RegionIndex
     {
         LEFT_TOP,
         RIGHT_TOP,

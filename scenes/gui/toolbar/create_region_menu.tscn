@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://quf1xj8sva7m"]
 
 [ext_resource type="PackedScene" uid="uid://cj1xmxbdj2s1u" path="res://scenes/gui/toolbar/tool_bar_button.tscn" id="1_iagbv"]
-[ext_resource type="Script" uid="uid://bddjhotd17mqd" path="res://scenes/gui/toolbar/CreateAreaMenu.cs" id="1_qnyje"]
+[ext_resource type="Script" uid="uid://bddjhotd17mqd" path="res://scenes/gui/toolbar/CreateRegionMenu.cs" id="1_qnyje"]
 [ext_resource type="Texture2D" uid="uid://dwuk35dphnnly" path="res://assets/textures/GatheringAreaIcon.png" id="2_qnyje"]
 [ext_resource type="Texture2D" uid="uid://c45nr14sipxsd" path="res://assets/textures/HouseAreaIcon.png" id="3_fxknt"]
 [ext_resource type="ButtonGroup" uid="uid://dgkyceamstg0r" path="res://data/resources/create_area_menu_button_group.tres" id="3_gf4xj"]
 
-[node name="CreateAreaMenu" type="Control" unique_id=1173619177]
+[node name="CreateRegionMenu" type="Control" unique_id=1173619177]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,20 +28,20 @@ grow_horizontal = 0
 grow_vertical = 0
 theme_override_constants/separation = 2
 
-[node name="PublicForumAreaButton" parent="VBoxContainer" unique_id=1250775291 instance=ExtResource("1_iagbv")]
+[node name="PublicForumRegionButton" parent="VBoxContainer" unique_id=1250775291 instance=ExtResource("1_iagbv")]
 layout_mode = 2
 button_group = ExtResource("3_gf4xj")
 icon = ExtResource("2_qnyje")
 
-[node name="HousingAreaButton" parent="VBoxContainer" unique_id=1233270398 instance=ExtResource("1_iagbv")]
+[node name="HousingRegionButton" parent="VBoxContainer" unique_id=1233270398 instance=ExtResource("1_iagbv")]
 layout_mode = 2
 button_group = ExtResource("3_gf4xj")
 icon = ExtResource("3_fxknt")
 
-[node name="StorageAreaButton" parent="VBoxContainer" unique_id=1420369307 instance=ExtResource("1_iagbv")]
+[node name="StorageRegionButton" parent="VBoxContainer" unique_id=1420369307 instance=ExtResource("1_iagbv")]
 layout_mode = 2
 button_group = ExtResource("3_gf4xj")
 
-[connection signal="pressed" from="VBoxContainer/PublicForumAreaButton" to="." method="OnPublicForumAreaButtonPressed"]
-[connection signal="pressed" from="VBoxContainer/HousingAreaButton" to="." method="OnHousingAreaButtonPressed"]
-[connection signal="pressed" from="VBoxContainer/StorageAreaButton" to="." method="OnStorageAreaButtonPressed"]
+[connection signal="pressed" from="VBoxContainer/PublicForumRegionButton" to="." method="OnPublicForumRegionButtonPressed"]
+[connection signal="pressed" from="VBoxContainer/HousingRegionButton" to="." method="OnHousingRegionButtonPressed"]
+[connection signal="pressed" from="VBoxContainer/StorageRegionButton" to="." method="OnStorageRegionButtonPressed"]

@@ -139,7 +139,7 @@ namespace Catcophony.scenes.systems.selection
                 case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
-                case WorkType.CREATE_AREA:
+                case WorkType.CREATE_REGION:
                     return GetAtlasCoordForSelection(i, j, selection);
                 default:
                     GD.Print("Incorrect SelectionState in GetAtlasCoordsForSelecting.");
@@ -209,7 +209,7 @@ namespace Catcophony.scenes.systems.selection
                 case WorkType.WOOD_CUTTING:
                 case WorkType.HAULING:
                 case WorkType.GATHERING:
-                case WorkType.CREATE_AREA:
+                case WorkType.CREATE_REGION:
                     return SelectionColor;
                 default:
                     GD.Print("Incorrect SelectionState in GetColorForSelecting.");
@@ -236,7 +236,7 @@ namespace Catcophony.scenes.systems.selection
                     break;
                 case WorkType.BUILDING:
                 case WorkType.FARMING:
-                case WorkType.CREATE_AREA:
+                case WorkType.CREATE_REGION:
                     filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
                 case WorkType.GATHERING:
@@ -255,7 +255,7 @@ namespace Catcophony.scenes.systems.selection
             }
 
             EmitSignal(SignalName.SelectionCreated, 
-                       GetSelection(filter, WorkType != WorkType.CREATE_AREA));
+                       GetSelection(filter, WorkType != WorkType.CREATE_REGION));
         }
 
         private Selection GetSelection(System.Func<Vector2I, bool> filter, bool showSelection = true)

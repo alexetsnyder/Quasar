@@ -107,7 +107,7 @@ offset_right = 104.0
 [connection signal="TileSelected" from="SelectionSystem" to="." method="OnTileSelected"]
 [connection signal="BuildPressed" from="GUI/ToolBar" to="." method="OnToolBarBuildPressed"]
 [connection signal="CancelPressed" from="GUI/ToolBar" to="." method="OnToolBarCancelPressed"]
-[connection signal="CreateAreaSelected" from="GUI/ToolBar" to="." method="OnToolBarCreateAreaSelected"]
+[connection signal="CreateRegionSelected" from="GUI/ToolBar" to="." method="OnToolBarCreateRegionSelected"]
 [connection signal="CutPressed" from="GUI/ToolBar" to="." method="OnToolBarCutPressed"]
 [connection signal="FarmPressed" from="GUI/ToolBar" to="." method="OnToolBarFarmPressed"]
 [connection signal="FishPressed" from="GUI/ToolBar" to="." method="OnToolBarFishPressed"]

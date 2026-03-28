@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://dy6tbibbacfgx" path="res://assets/textures/GatherIcon.png" id="12_ojp43"]
 [ext_resource type="Texture2D" uid="uid://cp34k6apohgmj" path="res://assets/textures/HaulIcon.png" id="13_nlyd8"]
 [ext_resource type="Texture2D" uid="uid://dd0s3ijgq4533" path="res://assets/textures/AreaIcon.png" id="13_oiko1"]
-[ext_resource type="PackedScene" uid="uid://quf1xj8sva7m" path="res://scenes/gui/toolbar/create_area_menu.tscn" id="14_vkbo6"]
+[ext_resource type="PackedScene" uid="uid://quf1xj8sva7m" path="res://scenes/gui/toolbar/create_region_menu.tscn" id="14_vkbo6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_utjv6"]
 atlas = ExtResource("11_utjv6")
@@ -178,14 +178,14 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_constants/separation = 2
 
-[node name="ToolBarCreateAreaMenu" parent="ToolBarMargin/ToolBarContainer/VBoxContainer" unique_id=1173619177 instance=ExtResource("14_vkbo6")]
+[node name="ToolBarCreateRegionMenu" parent="ToolBarMargin/ToolBarContainer/VBoxContainer" unique_id=1173619177 instance=ExtResource("14_vkbo6")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 
-[node name="CreateAreaButton" type="Button" parent="ToolBarMargin/ToolBarContainer/VBoxContainer" unique_id=12418191]
+[node name="CreateRegionButton" type="Button" parent="ToolBarMargin/ToolBarContainer/VBoxContainer" unique_id=12418191]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -243,9 +243,9 @@ item_4/icon = SubResource("AtlasTexture_ojp43")
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FarmButton" to="." method="OnFarmButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/GatherButton" to="." method="OnGatherButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/FishButton" to="." method="OnFishButtonPressed"]
-[connection signal="HousingAreaSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateAreaMenu" to="." method="OnHousingAreaSelected"]
-[connection signal="PublicForumAreaSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateAreaMenu" to="." method="OnPublicForumAreaSelected"]
-[connection signal="StorageAreaSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateAreaMenu" to="." method="OnStorageAreaSelected"]
-[connection signal="pressed" from="ToolBarMargin/ToolBarContainer/VBoxContainer/CreateAreaButton" to="." method="OnCreateAreaButtonPressed"]
+[connection signal="HousingRegionSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateRegionMenu" to="." method="OnHousingRegionSelected"]
+[connection signal="PublicForumRegionSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateRegionMenu" to="." method="OnPublicForumRegionSelected"]
+[connection signal="StorageRegionSelected" from="ToolBarMargin/ToolBarContainer/VBoxContainer/ToolBarCreateRegionMenu" to="." method="OnStorageRegionSelected"]
+[connection signal="pressed" from="ToolBarMargin/ToolBarContainer/VBoxContainer/CreateRegionButton" to="." method="OnCreateRegionButtonPressed"]
 [connection signal="pressed" from="ToolBarMargin/ToolBarContainer/CancelButton" to="." method="OnCancelButtonPressed"]
 [connection signal="item_selected" from="ToolBarBuildMenu" to="." method="OnBuildMenuItemSelected"]
