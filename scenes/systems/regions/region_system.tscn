@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cvrl4l4jy86w1"]
+
+[ext_resource type="Script" uid="uid://dymom461qq6v7" path="res://scenes/systems/regions/RegionSystem.cs" id="1_0wcv8"]
+[ext_resource type="Script" uid="uid://di86uya3cyg7d" path="res://scenes/common/custom/MultiColorTileMapLayer.cs" id="1_sulvn"]
+
+[node name="RegionSystem" type="Node2D" unique_id=147166882]
+script = ExtResource("1_0wcv8")
+
+[node name="RegionTileMapLayer" type="TileMapLayer" parent="." unique_id=1270449220]
+unique_name_in_owner = true
+script = ExtResource("1_sulvn")
+TexturePath = "res://assets/textures/AreaBorderTileSet.png"
+TileSize = Vector2i(18, 18)
+metadata/_custom_type_script = "uid://di86uya3cyg7d"

@@ -17,6 +17,7 @@ using Catcophony.scenes.systems.work;
 using Catcophony.scenes.world;
 using Catcophony.system;
 using System.Collections.Generic;
+using Catcophony.scenes.systems.regions;
 
 namespace Catcophony.scenes
 {
@@ -37,6 +38,8 @@ namespace Catcophony.scenes
         private WorkSystem _workSystem;
 
         private ItemSystem _itemSystem;
+
+        private RegionSystem _regionSystem;
 
         private CanvasLayer _debugGUI;
 
@@ -81,6 +84,7 @@ namespace Catcophony.scenes
             _buildingSystem = GetNode<BuildingSystem>("BuildingSystem");
             _workSystem = GetNode<WorkSystem>("WorkSystem");
             _itemSystem = GetNode<ItemSystem>("ItemSystem");
+            _regionSystem = GetNode<RegionSystem>("RegionSystem");
             _camera = GetNode<MapCamera2d>("MapCamera2D");
             _tileTypeDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileTypeDisplay");
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
@@ -324,7 +328,7 @@ namespace Catcophony.scenes
         {
             _buildingSystem.Clear();
             _selectionSystem.WorkType = WorkType.CREATE_AREA;
-            GD.Print($"AreaType: {(AreaType)areaType}");
+            _regionSystem.CurrentAreaType = (AreaType)(areaType);
         }
 
         private void OnToolBarCancelPressed()
@@ -337,9 +341,6 @@ namespace Catcophony.scenes
         {
             switch (selection.WorkType)
             {
-                case WorkType.HAULING:
-                    CreateHaulingWork(selection);
-                    break;
                 case WorkType.MINING:
                 case WorkType.WOOD_CUTTING:       
                 case WorkType.BUILDING:
@@ -348,6 +349,12 @@ namespace Catcophony.scenes
                 case WorkType.FISHING:
                     CreateWork(selection);
                     break;
+                case WorkType.HAULING:
+                    CreateHaulingWork(selection);
+                    break;
+                case WorkType.CREATE_AREA:
+                    CreateArea(selection);
+                    break;
                 case WorkType.CANCEL:
                     RemoveWork(selection.Points);
                     break;
@@ -355,6 +362,11 @@ namespace Catcophony.scenes
                     GD.Print("Incorrect SelectionState in OnSelectionCreated");
                     break;
             }
+        }
+
+        private void CreateArea(Selection selection)
+        {
+            _regionSystem.CreateRegion(selection);
         }
 
         private void CreateHaulingWork(Selection selection)

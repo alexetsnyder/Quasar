@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://crkmkjor1kvsn" path="res://scenes/systems/items/item_system.tscn" id="5_eb6dy"]
 [ext_resource type="PackedScene" uid="uid://dpl7bqssfeyxe" path="res://scenes/systems/pathing/pathing_system.tscn" id="6_85g3d"]
+[ext_resource type="PackedScene" uid="uid://cvrl4l4jy86w1" path="res://scenes/systems/regions/region_system.tscn" id="6_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://cbcxdna41nw87" path="res://scenes/gui/debug/time_display_control.tscn" id="7_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/debug/basic_label_display.tscn" id="8_tipki"]
 [ext_resource type="PackedScene" uid="uid://bty07ys7ewke" path="res://scenes/systems/building/building_system.tscn" id="8_ya4ey"]
@@ -50,6 +51,8 @@ Cols = 192
 Rows = 192
 Cols = 192
 ItemSystemNode = NodePath("../ItemSystem")
+
+[node name="RegionSystem" parent="." unique_id=147166882 instance=ExtResource("6_a8y0u")]
 
 [node name="ItemSystem" parent="." unique_id=722635205 instance=ExtResource("5_eb6dy")]
 

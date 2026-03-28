@@ -236,6 +236,7 @@ namespace Catcophony.scenes.systems.selection
                     break;
                 case WorkType.BUILDING:
                 case WorkType.FARMING:
+                case WorkType.CREATE_AREA:
                     filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
                 case WorkType.GATHERING:
@@ -253,17 +254,18 @@ namespace Catcophony.scenes.systems.selection
                     break;
             }
 
-            EmitSignal(SignalName.SelectionCreated, GetSelection(filter));
+            EmitSignal(SignalName.SelectionCreated, 
+                       GetSelection(filter, WorkType != WorkType.CREATE_AREA));
         }
 
-        private Selection GetSelection(System.Func<Vector2I, bool> filter)
+        private Selection GetSelection(System.Func<Vector2I, bool> filter, bool showSelection = true)
         {
             var mapSelection = GetMapSelection(_selectingTileMapLayer);
 
-            var atlasCoords = GetAtlasCoordsForSelected(WorkType);
-            var color = GetCellColorForSelected(WorkType);
+            var atlasCoords = (showSelection) ? GetAtlasCoordsForSelected(WorkType) : null;
+            var color = (showSelection) ? GetCellColorForSelected(WorkType) : null;
 
-            Selection selection = new(WorkType, []);
+            Selection selection = new(WorkType, [], mapSelection);
 
             for (int i = mapSelection.Position.X; i < mapSelection.End.X; i++)
             {
@@ -272,7 +274,10 @@ namespace Catcophony.scenes.systems.selection
                     var coords = new Vector2I(j, i);
                     if (filter(coords))
                     {
-                        SelectCell(_selectedTileMapLayer, coords, atlasCoords, color);
+                        if (showSelection)
+                        {
+                            SelectCell(_selectedTileMapLayer, coords, atlasCoords, color);
+                        }
                         selection.Points.Add(_selectedTileMapLayer.MapToLocal(coords));
                     }
                 }
@@ -302,7 +307,7 @@ namespace Catcophony.scenes.systems.selection
             if (_world.IsInBounds(coords))
             {
                 tileMapLayer.SetCell(coords, atlasCoords, color);
-            } 
+            }
         }
 
         private static Vector2I? GetAtlasCoordsForSelected(WorkType workType)

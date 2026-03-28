@@ -37,10 +37,14 @@ namespace Catcophony.data
             { TileType.CUT, [ new(2, 4) ] },
             { TileType.HAUL, [ new(3, 1) ] },
             { TileType.GATHER, [ new(3, 0) ] },
+
             { TileType.CANCEL, [ new(2, 0) ] },
             { TileType.SELECTION, [ new(1, 0), new(0, 1), new(1, 1),
                                     new(0, 2), new(1, 2), new(0, 3),
                                     new(1, 3), new(0, 4), new(1, 4) ] },
+
+            { TileType.AREA, [ new(0, 0), new(1, 0), new(0, 1), new(1, 1),
+                               new(0, 2), new(1, 2), new(0, 3), new(1, 3) ] },
         };
 
         public static Dictionary<TileType, List<Color>> Colors { get; set; } = new Dictionary<TileType, List<Color>>
@@ -77,8 +81,11 @@ namespace Catcophony.data
             { TileType.CUT, [ ColorConstants.GREY ] },
             { TileType.HAUL, [ ColorConstants.GREY ] },
             { TileType.GATHER, [ ColorConstants.GREY ] },
+
             { TileType.CANCEL, [ ColorConstants.WARNING_RED ] },
             { TileType.SELECTION, [] },
+
+            { TileType.AREA, [ ColorConstants.GREEN ]  },
         };
 
         public static Vector2I GetAtlasCoords(TileType tileType, int index = 0)

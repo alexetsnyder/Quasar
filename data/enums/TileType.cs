@@ -31,8 +31,11 @@ namespace Catcophony.data.enums
         FISH,
         CUT,
         HAUL,
-        GATHER,
+        GATHER, 
+
         CANCEL,
         SELECTION,
+
+        AREA,
     }
 }
