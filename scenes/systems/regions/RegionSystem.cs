@@ -1,8 +1,10 @@
+using Catcophony.core.components;
 using Catcophony.data;
 using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
 using Catcophony.scenes.systems.selection;
 using Godot;
+using System.Collections.Generic;
 
 namespace Catcophony.scenes.systems.regions
 {
@@ -12,8 +14,14 @@ namespace Catcophony.scenes.systems.regions
 
         private IMultiColorTileMapLayer _regionTileMapLayer;
 
+        private UniqueIdComponent _uniqeId;
+
+        private Dictionary<int, Region> _regions = [];
+
         public override void _Ready()
         {
+            _uniqeId = new UniqueIdComponent();
+
             _regionTileMapLayer = GetNode<IMultiColorTileMapLayer>("%RegionTileMapLayer");
         }
 
@@ -25,6 +33,8 @@ namespace Catcophony.scenes.systems.regions
                 return;
             }
 
+            List<Vector2I> coordsList = [];
+
             for (int i = selection.SelectionRect.Position.X; i < selection.SelectionRect.End.X; i++)
             {
                 for (int j = selection.SelectionRect.Position.Y; j < selection.SelectionRect.End.Y; j++)
@@ -33,12 +43,18 @@ namespace Catcophony.scenes.systems.regions
                     var atlasCoords = GetAtlasCoords(i, j, selection.SelectionRect);
                     var color = GetColor();
 
+                    coordsList.Add(coords);
+
                     if (atlasCoords != null)
                     {
                         SetCell(coords, atlasCoords, color);
                     }
                 }
             }
+
+            var regionId = _uniqeId.NextId;
+            _regions.Add(regionId, 
+                         new Region(regionId, CurrentRegionType, coordsList, selection.SelectionRect));
         }
 
         private static Vector2I? GetAtlasCoords(int i, int j, Rect2I selection)

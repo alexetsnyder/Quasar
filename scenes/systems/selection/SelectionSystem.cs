@@ -254,11 +254,15 @@ namespace Catcophony.scenes.systems.selection
                     break;
             }
 
-            EmitSignal(SignalName.SelectionCreated, 
-                       GetSelection(filter, WorkType != WorkType.CREATE_REGION));
+            var selection = GetSelection(filter, WorkType != WorkType.CREATE_REGION, WorkType == WorkType.CREATE_REGION);
+
+            if (selection != null)
+            {
+                EmitSignal(SignalName.SelectionCreated, selection);
+            }  
         }
 
-        private Selection GetSelection(System.Func<Vector2I, bool> filter, bool showSelection = true)
+        private Selection GetSelection(System.Func<Vector2I, bool> filter, bool showSelection = true, bool allOrNone = false)
         {
             var mapSelection = GetMapSelection(_selectingTileMapLayer);
 
@@ -279,6 +283,13 @@ namespace Catcophony.scenes.systems.selection
                             SelectCell(_selectedTileMapLayer, coords, atlasCoords, color);
                         }
                         selection.Points.Add(_selectedTileMapLayer.MapToLocal(coords));
+                    }
+                    else
+                    {
+                        if (allOrNone)
+                        {
+                            return null;
+                        }
                     }
                 }
             }
