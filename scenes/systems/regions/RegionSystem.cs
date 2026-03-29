@@ -16,13 +16,26 @@ namespace Catcophony.scenes.systems.regions
 
         private UniqueIdComponent _uniqeId;
 
-        private Dictionary<int, Region> _regions = [];
+        private readonly Dictionary<int, Region> _regions = [];
 
         public override void _Ready()
         {
             _uniqeId = new UniqueIdComponent();
 
             _regionTileMapLayer = GetNode<IMultiColorTileMapLayer>("%RegionTileMapLayer");
+        }
+
+        public RegionType GetRegionType(Vector2 localPos)
+        {
+            foreach (var region in _regions.Values)
+            {
+                if (region.LocalPos.Contains(localPos))
+                {
+                    return region.RegionType;
+                }
+            }
+
+            return RegionType.NONE;
         }
 
         public void CreateRegion(Selection selection)
@@ -33,7 +46,7 @@ namespace Catcophony.scenes.systems.regions
                 return;
             }
 
-            List<Vector2I> coordsList = [];
+            List<Vector2> localPosList = [];
 
             for (int i = selection.SelectionRect.Position.X; i < selection.SelectionRect.End.X; i++)
             {
@@ -43,7 +56,7 @@ namespace Catcophony.scenes.systems.regions
                     var atlasCoords = GetAtlasCoords(i, j, selection.SelectionRect);
                     var color = GetColor();
 
-                    coordsList.Add(coords);
+                    localPosList.Add(_regionTileMapLayer.MapToLocal(coords));
 
                     if (atlasCoords != null)
                     {
@@ -54,7 +67,7 @@ namespace Catcophony.scenes.systems.regions
 
             var regionId = _uniqeId.NextId;
             _regions.Add(regionId, 
-                         new Region(regionId, CurrentRegionType, coordsList, selection.SelectionRect));
+                         new Region(regionId, CurrentRegionType, localPosList, selection.SelectionRect));
         }
 
         private static Vector2I? GetAtlasCoords(int i, int j, Rect2I selection)

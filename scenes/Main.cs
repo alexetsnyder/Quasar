@@ -18,6 +18,7 @@ using Catcophony.scenes.world;
 using Catcophony.system;
 using System.Collections.Generic;
 using Catcophony.scenes.systems.regions;
+using Catcophony.scenes.gui.world;
 
 namespace Catcophony.scenes
 {
@@ -54,6 +55,8 @@ namespace Catcophony.scenes
         private CharacterDisplay _characterDisplay;
 
         private InventoryControl _inventoryControl;
+
+        private WorldInfo _worldInfoDisplay;
 
         private Vector2 _prevCameraZoom;
 
@@ -105,6 +108,13 @@ namespace Catcophony.scenes
             }
 
             CreateCats();
+
+            _worldInfoDisplay = GlobalSystem.Instance.InstantiateScene<WorldInfo>("res://scenes/gui/world/world_info.tscn");
+            if (_worldInfoDisplay != null)
+            {
+                _gui.AddChild(_worldInfoDisplay);
+                _worldInfoDisplay.Visible = false;
+            }
 
             _map.SetProcessUnhandledInput(false);
 
@@ -439,23 +449,22 @@ namespace Catcophony.scenes
                     _inventoryControl.GlobalPosition = _camera.GetCanvasTransform() * localPos;
                     _inventoryControl.Visible = true;
                 }
-            }
-            else if (_selectedCat != null &&
-                _selectedCat.CanWork() &&
-                !_world.TileOccupied(localPos))
-            {
-                if (_selectedCat.IsMoving())
-                {
-                    _pathingSystem.RemovePath(_selectedCat.GetCurrentPath().Id);
-                }
-
-                var path = _pathingSystem.FindPath(_selectedCat.Position, localPos);
-
-                if (path != null)
-                {
-                    _selectedCat.SetPath(path);
-                }  
             } 
+            else
+            {
+                var worldInfoData = new WorldInfoData()
+                {
+                    Coords = _world.GetCoords(localPos),
+                    LocalPos = localPos,
+                    WorkType = _workSystem.GetWorkType(localPos),
+                    TileType = _world.GetTileType(localPos),
+                    RegionType = _regionSystem.GetRegionType(localPos),
+                    Items = _itemSystem.GetItems(localPos),
+                };
+                
+                _worldInfoDisplay.SetInfo(worldInfoData);
+                _worldInfoDisplay.Visible = true;
+            }
         }
 
         private void OnCatClickedOn(Cat cat)

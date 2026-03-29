@@ -127,6 +127,11 @@ namespace Catcophony.scenes.world
             return worldCell.Material.Color;
         }
 
+        public Vector2I GetCoords(Vector2 localPos)
+        {
+            return _worldTileMapLayer.LocalToMap(localPos);
+        }
+
         /// <summary>
         /// Get spawn points in the largest connected area and closest to point.
         /// </summary>

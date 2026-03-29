@@ -66,7 +66,11 @@ namespace Catcophony.scenes.systems.selection
                     {
                         if (WorkType == WorkType.NONE)
                         {
-                            EmitSignal(SignalName.TileSelected, GetGlobalMousePosition());
+                            var mousePos = GetGlobalMousePosition();
+                            var mouseCoords = _selectedTileMapLayer.LocalToMap(mousePos);
+                            var mouseCellPos = _selectedTileMapLayer.MapToLocal(mouseCoords);
+
+                            EmitSignal(SignalName.TileSelected, mouseCellPos);
                         }
                         else if (WorkType != WorkType.NONE)
                         {

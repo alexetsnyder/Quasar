@@ -72,6 +72,22 @@ namespace Catcophony.scenes.systems.work
             return null;
         }
         
+        public WorkType GetWorkType(Vector2 localPos)
+        {
+            foreach (var workDict in _allWork.Values)
+            {
+                foreach (var work in workDict.Values)
+                {
+                    if (work.LocalPos == localPos)
+                    {
+                        return work.WorkType;
+                    }
+                }
+            }
+
+            return WorkType.NONE;
+        }
+
         public int CreateWork(WorkType workType, Vector2 localPos)
         {
             _allWork.TryAdd(workType, []);

@@ -9,7 +9,7 @@ atlas = ExtResource("1_gmkxt")
 region = Rect2(234, 54, 18, 18)
 
 [node name="InventorySlot" type="Control" unique_id=1337731410]
-custom_minimum_size = Vector2(18, 16)
+custom_minimum_size = Vector2(27, 25)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
