@@ -1,3 +1,4 @@
+using Catcophony.core.enums;
 using Catcophony.core.goap.goals;
 using Catcophony.core.naming;
 using Catcophony.scenes.common.interfaces;
@@ -10,12 +11,14 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => 1; }
 
-        public override bool SkipAssign { get => true; }
+        public override int Ticks { get => 5; }
 
         private readonly FastName _name = new("DrinkAction");
 
         public DrinkAction(IWorld world)
         {
+            SetActionType(ActionType.DRINKING);
+
             var waterGoal = new WaterGoal();
             _effects.Add(waterGoal);
 

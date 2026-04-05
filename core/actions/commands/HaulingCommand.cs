@@ -1,8 +1,8 @@
-using Godot;
-using Catcophony.scenes.cats;
+using Catcophony.core.actions.interfaces;
 using Catcophony.scenes.common.interfaces;
+using Godot;
 
-namespace Catcophony.scenes.systems.work.commands
+namespace Catcophony.core.actions.commands
 {
     public partial class HaulingCommand(IWorld world, IItemSystem itemSystem, ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
     {
@@ -14,20 +14,20 @@ namespace Catcophony.scenes.systems.work.commands
 
         private readonly Vector2 _localPos = localPos;
 
-        public void Execute(Cat cat = null)
+        public void Execute(IActor actor = null)
         {
-            if (cat == null)
+            if (actor == null)
             {
                 return;
             }
 
-            if (cat.Item == null)
+            if (actor.Item == null)
             {
                 var items = _itemSystem.GetItems(_localPos);
                 if (items.Count > 0)
                 {
-                    cat.Item = items[0];
-                    _itemSystem.PickUpItem(cat.Id, cat.Item);
+                    actor.Item = items[0];
+                    _itemSystem.PickUpItem(actor.Id, actor.Item);
 
                     if (items.Count <= 0)
                     {
@@ -40,14 +40,14 @@ namespace Catcophony.scenes.systems.work.commands
                 var storageId = _world.GetWorldCellId(_localPos);
                 if (storageId == -1)
                 {
-                    _itemSystem.PlaceItem(cat.Id, cat.Item, _localPos);
+                    _itemSystem.PlaceItem(actor.Id, actor.Item, _localPos);
                 }
                 else
                 {
-                    _itemSystem.StoreItem(cat.Id, storageId, cat.Item, _localPos);
+                    _itemSystem.StoreItem(actor.Id, storageId, actor.Item, _localPos);
                 }
                 
-                cat.Item = null;
+                actor.Item = null;
             } 
         }
     }

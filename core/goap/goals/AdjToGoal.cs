@@ -1,19 +1,22 @@
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
-using System.Linq;
+using Catcophony.scenes.common.interfaces;
 
 namespace Catcophony.core.goap.goals
 {
     public partial class AdjToGoal : GoalBase
     {
-        public AdjToGoal(IAction parent)
+        private readonly IWorld _world;
+
+        public AdjToGoal(IAction parent, IWorld world)
         {
             _key = new("AdjTo");
             _value = true;
 
             _parentAction = parent;
+            _world = world;
         }
 
         public override bool Satisify(WorldState worldState, Blackboard<FastName> blackboard)
@@ -22,13 +25,13 @@ namespace Catcophony.core.goap.goals
 
             if (worldStateBlackboard.TryGetVector2(Constants.Names.AgentPos, out var agentPos))
             {
-                if (blackboard.TryGetInt(Constants.Names.WorkType, out var workTypeInt))
+                if (blackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt))
                 {
-                    var workType = (WorkType)workTypeInt;
+                    var actionType = (ActionType)actionTypeInt;
 
-                    if (blackboard.TryGetWork(Constants.Names.Work, out var work))
+                    if (blackboard.TryGetAction(Constants.Names.Action, out var action))
                     {
-                        foreach (var adjPos in work.AdjPos)
+                        foreach (var adjPos in _world.GetAdjacentTiles(action.LocalPos))
                         {
                             if (adjPos.IsEqualApprox(agentPos))
                             {
@@ -37,21 +40,20 @@ namespace Catcophony.core.goap.goals
                         }
                     }
 
-                    if (worldStateBlackboard.TryGetWorkList(new(workType.ToString()), out var workList))
+                    if (worldStateBlackboard.TryGetActionList(new(actionType.ToString()), out var actionList))
                     {
-                        if (workList.Count > 0)
+                        if (actionList.Count > 0)
                         {
-                            foreach (var workKVP in workList.ToDictionary(w => w, w => w.AdjPos ?? []))
+                            foreach (var nextAction in actionList)
                             {
-                                foreach (var adjPos in workKVP.Value)
+                                foreach (var adjPos in _world.GetAdjacentTiles(nextAction.LocalPos))
                                 {
                                     if (adjPos.IsEqualApprox(agentPos))
                                     {
-                                        blackboard.Set(Constants.Names.Work, workKVP.Key);
+                                        blackboard.Set(Constants.Names.Action, nextAction);
                                         return true;
                                     }
                                 }
-
                             }
                         }
                     }

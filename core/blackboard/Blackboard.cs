@@ -1,7 +1,6 @@
-using Godot;
+using Catcophony.core.actions;
 using Catcophony.scenes.systems.items;
-using Catcophony.scenes.systems.pathing;
-using Catcophony.scenes.systems.work;
+using Godot;
 using System.Collections.Generic;
 
 namespace Catcophony.core.blackboard
@@ -16,13 +15,17 @@ namespace Catcophony.core.blackboard
 
         private readonly Dictionary<T, Vector2> _vector2Values = [];
 
-        private readonly Dictionary<T, Work> _workValues = [];
+        //private readonly Dictionary<T, Work> _workValues = [];
 
-        private readonly Dictionary<T, Path> _pathValues = [];
+        //private readonly Dictionary<T, Path> _pathValues = [];
 
         private readonly Dictionary<T, Item> _itemValues = [];
 
-        private readonly Dictionary<T, List<Work>> _workListValues = [];
+        //private readonly Dictionary<T, List<Work>> _workListValues = [];
+
+        private readonly Dictionary<T, Action> _actionValues = [];
+
+        private readonly Dictionary<T, List<Action>> _actionListValues = [];
 
         public Blackboard() { }
         
@@ -32,9 +35,11 @@ namespace Catcophony.core.blackboard
             _floatValues = new(blackboard._floatValues);
             _boolValues = new(blackboard._boolValues);
             _vector2Values = new(blackboard._vector2Values);
-            _pathValues = new(blackboard._pathValues);
+            //_pathValues = new(blackboard._pathValues);
             _itemValues = new(blackboard._itemValues);
-            _workListValues = new(blackboard._workListValues);
+            //_workListValues = new(blackboard._workListValues);
+            _actionValues = new(blackboard._actionValues);
+            _actionListValues = new(blackboard._actionListValues);
         }
 
         public void Set(T key, int value)
@@ -57,25 +62,35 @@ namespace Catcophony.core.blackboard
             _vector2Values[key] = value;
         }
 
-        public void Set(T key, Work value)
+        public void Set(T key, Action value)
         {
-            _workValues[key] = value;
+            _actionValues[key] = value;
         }
 
-        public void Set(T key, Path value)
-        {
-            _pathValues[key] = value;
-        }
+        //public void Set(T key, Work value)
+        //{
+        //    _workValues[key] = value;
+        //}
+
+        //public void Set(T key, Path value)
+        //{
+        //    _pathValues[key] = value;
+        //}
 
         public void Set(T key, Item value)
         {
             _itemValues[key] = value;
         }
 
-        public void Set(T key, List<Work> value)
+        public void Set(T key, List<Action> value)
         {
-            _workListValues[key] = value;
+            _actionListValues[key] = value;
         }
+
+        //public void Set(T key, List<Work> value)
+        //{
+        //    _workListValues[key] = value;
+        //}
 
         public bool TryGetInt(T key, out int value)
         {
@@ -97,27 +112,37 @@ namespace Catcophony.core.blackboard
             return TryGet(key, _vector2Values, out value);
         }
 
-        public bool TryGetWork(T key, out Work value)
+        public bool TryGetAction(T key, out Action value)
         {
-            return TryGet(key, _workValues, out value);
+            return TryGet(key, _actionValues, out value);
         }
 
-        public bool TryGetPath(T key, out Path value)
-        {
-            return TryGet(key, _pathValues,  out value);
-        }
+        //public bool TryGetWork(T key, out Work value)
+        //{
+        //    return TryGet(key, _workValues, out value);
+        //}
+
+        //public bool TryGetPath(T key, out Path value)
+        //{
+        //    return TryGet(key, _pathValues,  out value);
+        //}
 
         public bool TryGetItem(T key, out Item value)
         {
             return TryGet(key, _itemValues, out value);
         }
 
-        public bool TryGetWorkList(T key, out List<Work> value)
+        public bool TryGetActionList(T key, out List<Action> value)
         {
-            return TryGet(key, _workListValues, out value);
+            return TryGet(key, _actionListValues, out value);
         }
 
-        private bool TryGet<U>(T key, Dictionary<T, U> values, out U value)
+        //public bool TryGetWorkList(T key, out List<Work> value)
+        //{
+        //    return TryGet(key, _workListValues, out value);
+        //}
+
+        private static bool TryGet<U>(T key, Dictionary<T, U> values, out U value)
         {
             return values.TryGetValue(key, out value);
         }

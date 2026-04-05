@@ -1,8 +1,9 @@
+using Catcophony.core.actions;
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.scenes.cats;
-using Catcophony.scenes.common.interfaces;
+using Godot;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,9 +15,9 @@ namespace Catcophony.core.goap.actions
 
         public abstract FastName Name { get; }
 
-        public virtual bool SkipAssign { get => false; }
-
         public abstract int Cost { get; }
+
+        public abstract int Ticks { get; }
 
         protected Blackboard<FastName> _blackboard = new();
 
@@ -27,6 +28,57 @@ namespace Catcophony.core.goap.actions
         protected readonly List<IGoal> _preconditions = [];
 
         protected readonly List<IGoal> _effects = [];
+
+        protected void SetActionType(ActionType actionType)
+        {
+            _blackboard.Set(Constants.Names.ActionType, (int)actionType);
+        }
+
+        public Action GetAction()
+        {
+            if (_blackboard.TryGetAction(Constants.Names.Action, out var action) ||
+               (_child != null && 
+                _child.GetBlackboard().TryGetAction(Constants.Names.Action, out action)))
+            {
+                return action;
+            }
+
+            return null;
+        }
+
+        public ActionType GetActionType()
+        {
+            if (_blackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt) ||
+               (_child != null &&
+                _child.GetBlackboard().TryGetInt(Constants.Names.ActionType, out actionTypeInt)))
+            {
+                return (ActionType)actionTypeInt;
+            }
+
+            return ActionType.NONE;
+        }
+
+        public Vector2? GetLocalPos()
+        {
+            if (_blackboard.TryGetVector2(Constants.Names.LocalPos, out var localPos) ||
+               (_child != null &&
+                _child.GetBlackboard().TryGetVector2(Constants.Names.LocalPos, out localPos)))
+            {
+                return localPos;
+            }
+
+            return null;
+        }
+
+        public Blackboard<FastName> GetParentBlackboard()
+        {
+            if (_parent != null)
+            {
+                return _parent.GetBlackboard();
+            }
+
+            return null;
+        }
 
         public Blackboard<FastName> GetBlackboard()
         {
@@ -41,16 +93,6 @@ namespace Catcophony.core.goap.actions
             {
                 goal.SetActionId(id);
             }
-        }
-
-        public void SetPreconditions(List<IGoal> preconditions)
-        {
-            _preconditions.AddRange(preconditions);
-        }
-
-        public void SetEffects(List<IGoal> effects)
-        {
-            effects.AddRange(effects);
         }
 
         public virtual void LinkParent(IAction parent)
@@ -93,27 +135,6 @@ namespace Catcophony.core.goap.actions
             }
 
             return true;
-        }
-
-        public bool Assign(IWorkSystem workSytem, bool assign = true)
-        {
-            if (_blackboard.TryGetWork(Constants.Names.Work, out var work) || 
-                _child.GetBlackboard().TryGetWork(Constants.Names.Work, out work))
-            {
-                return workSytem.AssignWork(work, assign);
-            }
-
-            return false;
-        }
-
-        public virtual void Execute(Cat cat)
-        {
-            if (_blackboard.TryGetWork(Constants.Names.Work, out var work) ||
-                (_child != null &&
-                _child.GetBlackboard().TryGetWork(Constants.Names.Work, out work)))
-            {
-                cat.SetWork(work);
-            }
         }
     }
 }

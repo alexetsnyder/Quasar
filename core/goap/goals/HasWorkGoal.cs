@@ -1,33 +1,33 @@
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
 
 namespace Catcophony.core.goap.goals
 {
     public partial class HasWorkGoal : GoalBase
     {
-        private readonly WorkType _workType;
+        private readonly ActionType _actionType;
 
-        public HasWorkGoal(WorkType workType, IAction parent)
+        public HasWorkGoal(ActionType actionType, IAction parent)
         {
             _key = new("HasWork");
             _value = true;
 
-            _workType = workType;
+            _actionType = actionType;
             _parentAction = parent;
         }
 
         public override bool Satisify(WorldState worldState, Blackboard<FastName> blackboard)
         {
             var worldStateBlackboard = worldState.GetBlackboard();
-            FastName workTypeFastName = new(_workType.ToString());
+            FastName actionTypeFastName = new(_actionType.ToString());
 
-            if (worldStateBlackboard.TryGetWorkList(workTypeFastName, out var workList))
+            if (worldStateBlackboard.TryGetActionList(actionTypeFastName, out var actionList))
             {
-                if (workList.Count > 0)
+                if (actionList.Count > 0)
                 {
-                    blackboard.Set(Constants.Names.WorkType, (int)_workType);
+                    blackboard.Set(Constants.Names.ActionType, (int)_actionType);
 
                     return true;
                 }

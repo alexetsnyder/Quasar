@@ -1,9 +1,9 @@
-using Godot;
+using Catcophony.core.actions.interfaces;
 using Catcophony.data.enums;
-using Catcophony.scenes.cats;
 using Catcophony.scenes.common.interfaces;
+using Godot;
 
-namespace Catcophony.scenes.systems.work.commands
+namespace Catcophony.core.actions.commands
 {
     public partial class MiningCommand(IWorld world, IItemSystem itemSystem, IPathingSystem pathingSystem,
                                        ISelectionSystem selectionSystem, Vector2 localPos, TileType tileType) : ICommand
@@ -20,7 +20,7 @@ namespace Catcophony.scenes.systems.work.commands
 
         private readonly Vector2 _localPos = localPos;
 
-        public void Execute(Cat cat = null)
+        public void Execute(IActor actor = null)
         {
             var material = _world.Mine(_localPos);
 

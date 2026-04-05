@@ -1,12 +1,16 @@
-using Godot;
+using Catcophony.core.actions.interfaces;
+using Catcophony.core.enums;
+using Catcophony.core.goap.interfaces;
 using Catcophony.data.enums;
+using Catcophony.scenes.cats;
 using Catcophony.scenes.common.interfaces;
 using Catcophony.system;
+using Godot;
 
-namespace Catcophony.scenes.systems.work.commands
+namespace Catcophony.core.actions.commands
 {
     [GlobalClass]
-    public partial class CommandFactory : Node
+    public partial class CommandFactory : Node, ICommandFactory
     {
         [Export]
         public Node WorldNode { get; set; }
@@ -42,27 +46,31 @@ namespace Catcophony.scenes.systems.work.commands
             GlobalSystem.Instance.LoadInterface<ISelectionSystem>(SelectionSystemNode, out _selectionSystem);
         }
 
-        public ICommand BuildCommand(WorkType workType, Vector2 localPos)
+        public ICommand BuildCommand(ActionType actionType, Vector2 localPos)
         {
-            switch (workType)
+            switch (actionType)
             {
-                case WorkType.MINING:
+                case ActionType.MINING:
                     return new MiningCommand(_world, _itemSystem, _pathingSystem, _selectionSystem, localPos, TileType.STONE);
-                case WorkType.BUILDING:
+                case ActionType.BUILDING:
                     return new BuildingCommand(_world, _pathingSystem, _selectionSystem, localPos, _buildingSystem.Current);
-                case WorkType.HAULING:
-                case WorkType.GET_ITEM:
+                case ActionType.HAULING:
+                case ActionType.GET_ITEM:
                     return new HaulingCommand(_world, _itemSystem, _selectionSystem, localPos);
-                case WorkType.WOOD_CUTTING:
+                case ActionType.WOOD_CUTTING:
                     return new CuttingCommand(_world, _itemSystem, _pathingSystem, _selectionSystem, localPos);
-                case WorkType.FARMING:
+                case ActionType.FARMING:
                     return new FarmingCommand(_world, _selectionSystem, localPos);
-                case WorkType.GATHERING:
+                case ActionType.GATHERING:
                     return new GatheringCommand(_world, _selectionSystem, localPos);
-                case WorkType.FISHING:
+                case ActionType.FISHING:
                     return new FishingCommand(_world, _selectionSystem, localPos);
+                case ActionType.DRINKING:
+                    return new DrinkingCommand();
+                case ActionType.MOVE_TO:
+                    return new MoveToCommand(localPos);
                 default:
-                    GD.Print($"Could not create command for WorkType {workType} at {localPos}.");
+                    GD.Print($"Could not create command for action {actionType} at {localPos}.");
                     return null;
             }
         }

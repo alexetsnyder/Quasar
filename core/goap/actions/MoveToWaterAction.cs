@@ -1,9 +1,8 @@
+using Catcophony.core.enums;
 using Catcophony.core.goap.goals;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.scenes.cats;
 using Catcophony.scenes.common.interfaces;
-using Catcophony.scenes.systems.work.commands;
 
 namespace Catcophony.core.goap.actions
 {
@@ -13,7 +12,7 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => 2; }
 
-        public override bool SkipAssign { get => true; }
+        public override int Ticks { get => 0; }
 
         private readonly FastName _name = new("MoveToWaterAction");
 
@@ -23,6 +22,8 @@ namespace Catcophony.core.goap.actions
 
         public MoveToWaterAction(IWorld world, IPathingSystem pathingSystem)
         {
+            SetActionType(ActionType.MOVE_TO_WATER);
+
             _world = world;
             _pathingSystem = pathingSystem;
 
@@ -37,17 +38,6 @@ namespace Catcophony.core.goap.actions
         {
             base.LinkParent(parent);
             _blackboard = parent.GetBlackboard();
-        }
-
-        public override void Execute(Cat cat)
-        {
-            if (_blackboard.TryGetVector2(Constants.Names.GoalPos, out var goalPos))
-            {
-                var path = _pathingSystem.ShortestPath(cat.Position, _world.GetAdjacentTiles(goalPos));
-
-                var command = new MoveToCommand(path);
-                command.Execute(cat);
-            }
         }
     }
 }

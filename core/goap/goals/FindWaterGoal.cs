@@ -27,7 +27,7 @@ namespace Catcophony.core.goap.goals
 
                 if (nearestWater != null)
                 {
-                    blackboard.Set(Constants.Names.GoalPos, nearestWater.Value);
+                    blackboard.Set(Constants.Names.LocalPos, nearestWater.Value);
                     return true;
                 }
             }

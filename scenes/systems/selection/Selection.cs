@@ -1,12 +1,12 @@
+using Catcophony.core.enums;
 using Godot;
-using Catcophony.data.enums;
 using System.Collections.Generic;
 
 namespace Catcophony.scenes.systems.selection
 {
-    public partial class Selection(WorkType workType, List<Vector2> points, Rect2I selectionRect) : Resource
+    public partial class Selection(ActionType actionType, List<Vector2> points, Rect2I selectionRect) : Resource
     {
-        public WorkType WorkType { get; set; } = workType;
+        public ActionType actionType { get; set; } = actionType;
 
         public List<Vector2> Points { get; set; } = points;
 

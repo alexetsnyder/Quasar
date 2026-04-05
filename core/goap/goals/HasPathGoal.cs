@@ -1,23 +1,26 @@
-using Godot;
+using Catcophony.core.actions;
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
-using Catcophony.scenes.systems.work;
+using Godot;
 using System.Collections.Generic;
 
 namespace Catcophony.core.goap.goals
 {
     public partial class HasPathGoal : GoalBase
     {
+        private readonly IWorld _world;
+
         private readonly IPathingSystem _pathingSystem;
 
-        public HasPathGoal(IAction parent, IPathingSystem pathingSystem)
+        public HasPathGoal(IAction parent, IWorld world, IPathingSystem pathingSystem)
         {
             _key = new("HasPath");
             _value = true;
 
+            _world = world;
             _pathingSystem = pathingSystem;
             _parentAction = parent;
         }
@@ -28,23 +31,15 @@ namespace Catcophony.core.goap.goals
 
             if (worldStateBlackboard.TryGetVector2(Constants.Names.AgentPos, out var agentPos))
             {
-                if (blackboard.TryGetBool(Constants.Names.HasPath, out var hasPath))
-                {
-                    return hasPath;
-                }
+                var parentBlackboard = _parentAction.GetParentBlackboard();
 
-                if (blackboard.TryGetWork(Constants.Names.Work, out var work))
+                if (parentBlackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt))
                 {
-                    return HasPath(agentPos, work);
-                }
+                    var actionType = (ActionType)actionTypeInt;
 
-                if (blackboard.TryGetInt(Constants.Names.WorkType, out var workTypeInt))
-                {
-                    var workType = (WorkType)workTypeInt;
-
-                    if (worldStateBlackboard.TryGetWorkList(new(workType.ToString()), out var workList))
+                    if (worldStateBlackboard.TryGetActionList(new(actionType.ToString()), out var actionList))
                     {
-                        return HasPath(agentPos, workList);
+                        return HasPath(agentPos, actionList);
                     }
                 }
             }
@@ -52,15 +47,17 @@ namespace Catcophony.core.goap.goals
             return false;
         }
 
-        private bool HasPath(Vector2 fromPos, List<Work> workList)
+        private bool HasPath(Vector2 fromPos, List<Action> actionList)
         {
             var blackboard = _parentAction.GetBlackboard();
+            var parentBlackboard = _parentAction.GetParentBlackboard();
 
-            foreach (var work in workList)
+            foreach (var action in actionList)
             {
-                if(HasPath(fromPos, work))
+                if(HasPath(fromPos, action))
                 {
-                    blackboard.Set(Constants.Names.Work, work);
+                    parentBlackboard.Set(Constants.Names.Action, action);
+                    blackboard.Set(Constants.Names.LocalPos, action.LocalPos);
                     return true;
                 }
             }
@@ -68,20 +65,17 @@ namespace Catcophony.core.goap.goals
             return false;
         }
 
-        private bool HasPath(Vector2 fromPos, Work work)
+        private bool HasPath(Vector2 fromPos, Action action)
         {
-            if (work.AdjPos != null)
+            var path = _pathingSystem.ShortestPath(fromPos, _world.GetAdjacentTiles(action.LocalPos));
+
+            if (path != null)
             {
-                var path = _pathingSystem.ShortestPath(fromPos, work.AdjPos);
+                _pathingSystem.RemovePath(path.Id);
 
-                if (path != null)
-                {
-                    _pathingSystem.RemovePath(path.Id);
-
-                    return true;
-                }
+                return true;
             }
-            
+
             return false;
         }
     }

@@ -3,13 +3,14 @@ using Catcophony.data;
 using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
 using Catcophony.system;
+using Catcophony.core.enums;
 
 namespace Catcophony.scenes.systems.selection
 {
     public partial class SelectionSystem : Node2D, ISelectionSystem
     {
         [Export]
-        public WorkType WorkType { get; set; } = WorkType.NONE;
+        public ActionType ActionType { get; set; } = ActionType.NONE;
 
         [Export]
         public Color SelectionColor { get; set; } = new Color(1.0f, 0.0f, 0.0f, 1.0f);
@@ -64,7 +65,7 @@ namespace Catcophony.scenes.systems.selection
                 {
                     if (@event.IsPressed())
                     {
-                        if (WorkType == WorkType.NONE)
+                        if (ActionType == ActionType.NONE)
                         {
                             var mousePos = GetGlobalMousePosition();
                             var mouseCoords = _selectedTileMapLayer.LocalToMap(mousePos);
@@ -72,7 +73,7 @@ namespace Catcophony.scenes.systems.selection
 
                             EmitSignal(SignalName.TileSelected, mouseCellPos);
                         }
-                        else if (WorkType != WorkType.NONE)
+                        else if (ActionType != ActionType.NONE)
                         {
                             _isSelecting = true;
                             _selectionStart = GetGlobalMousePosition();
@@ -132,18 +133,18 @@ namespace Catcophony.scenes.systems.selection
 
         private Vector2I? GetAtlasCoordsForSelecting(int i, int j, Rect2I selection)
         {
-            switch(WorkType)
+            switch(ActionType)
             {
-                case WorkType.CANCEL:
+                case ActionType.CANCEL:
                     return AtlasConstants.GetAtlasCoords(TileType.CANCEL);
-                case WorkType.MINING:
-                case WorkType.BUILDING:
-                case WorkType.FARMING:
-                case WorkType.FISHING:
-                case WorkType.WOOD_CUTTING:
-                case WorkType.HAULING:
-                case WorkType.GATHERING:
-                case WorkType.CREATE_REGION:
+                case ActionType.MINING:
+                case ActionType.BUILDING:
+                case ActionType.FARMING:
+                case ActionType.FISHING:
+                case ActionType.WOOD_CUTTING:
+                case ActionType.HAULING:
+                case ActionType.GATHERING:
+                case ActionType.CREATE_REGION:
                     return GetAtlasCoordForSelection(i, j, selection);
                 default:
                     GD.Print("Incorrect SelectionState in GetAtlasCoordsForSelecting.");
@@ -202,18 +203,18 @@ namespace Catcophony.scenes.systems.selection
 
         private Color? GetColorForSelecting()
         {
-            switch (WorkType)
+            switch (ActionType)
             {
-                case WorkType.CANCEL:
+                case core.enums.ActionType.CANCEL:
                     return AtlasConstants.GetColor(TileType.CANCEL);
-                case WorkType.MINING:
-                case WorkType.BUILDING:
-                case WorkType.FARMING:
-                case WorkType.FISHING:
-                case WorkType.WOOD_CUTTING:
-                case WorkType.HAULING:
-                case WorkType.GATHERING:
-                case WorkType.CREATE_REGION:
+                case ActionType.MINING:
+                case ActionType.BUILDING:
+                case ActionType.FARMING:
+                case ActionType.FISHING:
+                case ActionType.WOOD_CUTTING:
+                case ActionType.HAULING:
+                case ActionType.GATHERING:
+                case core.enums.ActionType.CREATE_REGION:
                     return SelectionColor;
                 default:
                     GD.Print("Incorrect SelectionState in GetColorForSelecting.");
@@ -227,29 +228,29 @@ namespace Catcophony.scenes.systems.selection
 
             System.Func<Vector2I, bool> filter;
 
-            switch (WorkType)
+            switch (ActionType)
             {
-                case WorkType.MINING:
+                case ActionType.MINING:
                     filter = (c) => _world.IsMineable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.WOOD_CUTTING:
+                case ActionType.WOOD_CUTTING:
                     filter = (c) => _world.IsTree(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.HAULING:
+                case ActionType.HAULING:
                     filter = (c) => _world.HasItemsToHaul(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.BUILDING:
-                case WorkType.FARMING:
-                case WorkType.CREATE_REGION:
+                case ActionType.BUILDING:
+                case ActionType.FARMING:
+                case core.enums.ActionType.CREATE_REGION:
                     filter = (c) => !_world.IsImpassable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.GATHERING:
+                case ActionType.GATHERING:
                     filter = (c) => _world.IsGatherable(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.FISHING:
+                case ActionType.FISHING:
                     filter = (c) => _world.IsWater(c) && _selectedTileMapLayer.GetCellSourceId(c) == -1;
                     break;
-                case WorkType.CANCEL:
+                case core.enums.ActionType.CANCEL:
                     filter = (c) => _selectedTileMapLayer.GetCellSourceId(c) != -1;
                     break;
                 default:
@@ -258,7 +259,7 @@ namespace Catcophony.scenes.systems.selection
                     break;
             }
 
-            var selection = GetSelection(filter, WorkType != WorkType.CREATE_REGION, WorkType == WorkType.CREATE_REGION);
+            var selection = GetSelection(filter, ActionType != core.enums.ActionType.CREATE_REGION, ActionType == core.enums.ActionType.CREATE_REGION);
 
             if (selection != null)
             {
@@ -270,10 +271,10 @@ namespace Catcophony.scenes.systems.selection
         {
             var mapSelection = GetMapSelection(_selectingTileMapLayer);
 
-            var atlasCoords = (showSelection) ? GetAtlasCoordsForSelected(WorkType) : null;
-            var color = (showSelection) ? GetCellColorForSelected(WorkType) : null;
+            var atlasCoords = (showSelection) ? GetAtlasCoordsForSelected(ActionType) : null;
+            var color = (showSelection) ? GetCellColorForSelected(ActionType) : null;
 
-            Selection selection = new(WorkType, [], mapSelection);
+            Selection selection = new(ActionType, [], mapSelection);
 
             for (int i = mapSelection.Position.X; i < mapSelection.End.X; i++)
             {
@@ -325,25 +326,25 @@ namespace Catcophony.scenes.systems.selection
             }
         }
 
-        private static Vector2I? GetAtlasCoordsForSelected(WorkType workType)
+        private static Vector2I? GetAtlasCoordsForSelected(ActionType workType)
         {
             switch (workType)
             {
-                case WorkType.MINING:
+                case ActionType.MINING:
                     return AtlasConstants.GetAtlasCoords(TileType.MINE);
-                case WorkType.WOOD_CUTTING:
+                case ActionType.WOOD_CUTTING:
                     return AtlasConstants.GetAtlasCoords(TileType.CUT);
-                case WorkType.HAULING:
+                case ActionType.HAULING:
                     return AtlasConstants.GetAtlasCoords(TileType.HAUL);
-                case WorkType.BUILDING:
+                case ActionType.BUILDING:
                     return AtlasConstants.GetAtlasCoords(TileType.BUILD);
-                case WorkType.FARMING:
+                case ActionType.FARMING:
                     return AtlasConstants.GetAtlasCoords(TileType.TILL);
-                case WorkType.GATHERING:
+                case ActionType.GATHERING:
                     return AtlasConstants.GetAtlasCoords(TileType.GATHER);
-                case WorkType.FISHING:
+                case ActionType.FISHING:
                     return AtlasConstants.GetAtlasCoords(TileType.FISH);
-                case WorkType.CANCEL:
+                case core.enums.ActionType.CANCEL:
                     return null;
                 default:
                     GD.Print("Incorrect WorkType in GetAtlasCoords(workType).");
@@ -352,25 +353,25 @@ namespace Catcophony.scenes.systems.selection
             }
         }
 
-        private static Color? GetCellColorForSelected(WorkType workType)
+        private static Color? GetCellColorForSelected(ActionType workType)
         {
             switch (workType)
             {
-                case WorkType.MINING:
+                case ActionType.MINING:
                     return AtlasConstants.GetColor(TileType.MINE);
-                case WorkType.WOOD_CUTTING:
+                case ActionType.WOOD_CUTTING:
                     return AtlasConstants.GetColor(TileType.CUT);
-                case WorkType.HAULING:
+                case ActionType.HAULING:
                     return AtlasConstants.GetColor(TileType.HAUL);
-                case WorkType.BUILDING:
+                case ActionType.BUILDING:
                     return AtlasConstants.GetColor(TileType.BUILD);
-                case WorkType.FARMING:
+                case ActionType.FARMING:
                     return AtlasConstants.GetColor(TileType.TILL);
-                case WorkType.GATHERING:
+                case ActionType.GATHERING:
                     return AtlasConstants.GetColor(TileType.GATHER);
-                case WorkType.FISHING:
+                case ActionType.FISHING:
                     return AtlasConstants.GetColor(TileType.FISH);
-                case WorkType.CANCEL:
+                case core.enums.ActionType.CANCEL:
                     return null;
                 default:
                     GD.Print("Incorrect WorkType in GetCellColor(workType).");

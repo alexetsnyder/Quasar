@@ -11,7 +11,7 @@ namespace Catcophony.scenes.gui.world
 
         private Label _localPosLabelValue;
 
-        private Label _workLabelValue;
+        private Label _actionLabelValue;
 
         private Label _tileTypeLabelValue;
 
@@ -25,7 +25,7 @@ namespace Catcophony.scenes.gui.world
         {
             _coordsLabelValue = GetNode<Label>("%CoordsLabelValue");
             _localPosLabelValue = GetNode<Label>("%LocalPosLabelValue");
-            _workLabelValue = GetNode<Label>("%WorkLabelValue");
+            _actionLabelValue = GetNode<Label>("%ActionLabelValue");
             _tileTypeLabelValue = GetNode<Label>("%TileTypeLabelValue");
             _regionTypeLableValue = GetNode<Label>("%RegionTypeLabelValue");
             _itemsLabelValue = GetNode<Label>("%ItemsLabelValue");
@@ -36,7 +36,7 @@ namespace Catcophony.scenes.gui.world
         {
             _coordsLabelValue.Text = data.Coords.ToString();
             _localPosLabelValue.Text = data.LocalPos.ToString();
-            _workLabelValue.Text = data.WorkType.ToString();
+            _actionLabelValue.Text = data.ActionType.ToString();
             _tileTypeLabelValue.Text = data.TileType.ToString();
             _regionTypeLableValue.Text = data.RegionType.ToString();
 

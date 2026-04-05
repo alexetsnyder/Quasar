@@ -1,7 +1,8 @@
+using Catcophony.core.actions;
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.naming;
-using Catcophony.scenes.cats;
-using Catcophony.scenes.common.interfaces;
+using Godot;
 using System.Collections.Generic;
 
 namespace Catcophony.core.goap.interfaces
@@ -14,15 +15,17 @@ namespace Catcophony.core.goap.interfaces
 
         public int Cost { get; }
 
-        public bool SkipAssign { get; }
+        public Action GetAction();
+
+        public ActionType GetActionType();
+
+        public Vector2? GetLocalPos();
+
+        public Blackboard<FastName> GetParentBlackboard();
 
         public Blackboard<FastName> GetBlackboard();
 
         public void SetId(int id);
-
-        public void SetPreconditions(List<IGoal> preconditions);
-
-        public void SetEffects(List<IGoal> effects);
 
         public void LinkParent(IAction parent);
 
@@ -33,9 +36,5 @@ namespace Catcophony.core.goap.interfaces
         public bool SatisfyGoal(IGoal goal);
 
         public bool SatisfyPreconditions(WorldState worldState);
-
-        public bool Assign(IWorkSystem workSystem, bool assign = true);
-
-        public void Execute(Cat cat);
     }
 }

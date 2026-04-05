@@ -1,9 +1,8 @@
+using Catcophony.core.enums;
 using Catcophony.core.goap.goals;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.scenes.cats;
 using Catcophony.scenes.common.interfaces;
-using Catcophony.scenes.systems.work.commands;
 
 namespace Catcophony.core.goap.actions
 {
@@ -13,38 +12,23 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => 2; }
 
-        public override bool SkipAssign { get => true; }
+        public override int Ticks { get => 0; }
 
         private readonly FastName _name = new("MoveToAction");
 
         private readonly IPathingSystem _pathingSystem;
 
-        public MoveToAction(IPathingSystem pathingSystem)
+        public MoveToAction(IWorld world, IPathingSystem pathingSystem)
         {
+            SetActionType(ActionType.MOVE_TO);
+
             _pathingSystem = pathingSystem;
 
-            AdjToGoal adjToGoal = new(this);
+            AdjToGoal adjToGoal = new(this, world);
             _effects.Add(adjToGoal);
 
-            HasPathGoal hasPathGoal = new(this, _pathingSystem);
+            HasPathGoal hasPathGoal = new(this, world, _pathingSystem);
             _preconditions.Add(hasPathGoal);
-        }
-
-        public override void LinkParent(IAction parent)
-        {
-            base.LinkParent(parent);
-            _blackboard = parent.GetBlackboard();
-        }
-
-        public override void Execute(Cat cat)
-        {
-            if (_blackboard.TryGetWork(Constants.Names.Work, out var work))
-            {
-                var path = _pathingSystem.ShortestPath(cat.Position, work.AdjPos);
-
-                var command = new MoveToCommand(path);
-                command.Execute(cat);
-            }   
         }
     }
 }

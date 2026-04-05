@@ -67,7 +67,7 @@ namespace Catcophony.scenes.gui
             _catDescriptionLabel.Text = _catData.Description;
             _healthLabelValue.Text = _catData.Health.ToString();
             _feelingsLabelValue.Text = _catData.Feelings;
-            _workLabelValue.Text = _catData.WorkType.ToString();
+            _workLabelValue.Text = _catData.ActionType.ToString();
 
             if (_catData.WorkPos != null)
             {

@@ -24,7 +24,7 @@ namespace Catcophony.core.goap.goals
 
             if (worldStateBlackboard.TryGetVector2(Constants.Names.AgentPos, out var agentPos))
             {
-                if (blackboard.TryGetVector2(Constants.Names.GoalPos, out var goalPos))
+                if (blackboard.TryGetVector2(Constants.Names.LocalPos, out var goalPos))
                 {
                     foreach (var adjPos in _world.GetAdjacentTiles(goalPos))
                     {

@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://clc5m506xj8oh"]
 
 [ext_resource type="Script" uid="uid://c7l5pqfwe54us" path="res://scenes/Main.cs" id="1_o5qli"]
-[ext_resource type="Script" uid="uid://c11836ohje6pr" path="res://scenes/systems/work/WorkSystem.cs" id="2_choun"]
 [ext_resource type="PackedScene" uid="uid://ctqci7bute52l" path="res://scenes/world/world.tscn" id="2_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cpp3jevx3bead" path="res://scenes/systems/selection/selection_system.tscn" id="2_tipki"]
+[ext_resource type="Script" uid="uid://c50gbb0kd8kxs" path="res://core/actions/ActionManager.cs" id="3_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://uep13x6deauq" path="res://scenes/map/map.tscn" id="3_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://yv7r6odtc5h" path="res://scenes/camera/map_camera_2d.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://crkmkjor1kvsn" path="res://scenes/systems/items/item_system.tscn" id="5_eb6dy"]
@@ -13,7 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://bkup6f2wl4k50" path="res://scenes/gui/debug/basic_label_display.tscn" id="8_tipki"]
 [ext_resource type="PackedScene" uid="uid://bty07ys7ewke" path="res://scenes/systems/building/building_system.tscn" id="8_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://bcw53ty62uig7" path="res://scenes/gui/toolbar/tool_bar_control.tscn" id="9_85g3d"]
-[ext_resource type="Script" uid="uid://c3jqhc2yy0sqe" path="res://scenes/systems/work/commands/CommandFactory.cs" id="9_trceg"]
+[ext_resource type="Script" uid="uid://c3jqhc2yy0sqe" path="res://core/actions/commands/CommandFactory.cs" id="9_trceg"]
 
 [node name="Main" type="Node2D" unique_id=25718441]
 process_mode = 3
@@ -28,6 +28,7 @@ mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="CommandFactory" type="Node" parent="." unique_id=276563073 node_paths=PackedStringArray("WorldNode", "PathingSystemNode", "ItemSystemNode", "BuildingSystemNode", "SelectionSystemNode")]
+unique_name_in_owner = true
 script = ExtResource("9_trceg")
 WorldNode = NodePath("../PausableNodes/World")
 PathingSystemNode = NodePath("../PathingSystem")
@@ -36,12 +37,11 @@ BuildingSystemNode = NodePath("../BuildingSystem")
 SelectionSystemNode = NodePath("../SelectionSystem")
 metadata/_custom_type_script = "uid://c3jqhc2yy0sqe"
 
-[node name="WorkSystem" type="Node" parent="." unique_id=826126942 node_paths=PackedStringArray("PathingSystemNode", "WorldNode", "CommandFactory")]
-script = ExtResource("2_choun")
-PathingSystemNode = NodePath("../PathingSystem")
-WorldNode = NodePath("../PausableNodes/World")
+[node name="ActionManager" type="Node" parent="." unique_id=156746538 node_paths=PackedStringArray("CommandFactory")]
+unique_name_in_owner = true
+script = ExtResource("3_a8y0u")
 CommandFactory = NodePath("../CommandFactory")
-metadata/_custom_type_script = "uid://c11836ohje6pr"
+metadata/_custom_type_script = "uid://c50gbb0kd8kxs"
 
 [node name="PausableNodes" type="Node2D" parent="." unique_id=1891035213]
 unique_name_in_owner = true

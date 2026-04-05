@@ -1,10 +1,12 @@
-using Godot;
+using Catcophony.core.actions.interfaces;
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.actions;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
+using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,54 +20,41 @@ namespace Catcophony.core.goap
 
         private readonly IWorld _world;
 
-        private readonly IWorkSystem _workSystem;
+        private readonly IActionManager _actionManager;
 
         private readonly IPathingSystem _pathingSystem;
 
         private readonly IItemSystem _itemSystem;
 
-        private readonly List<WorkType> _availableWorkTypes =
+        private readonly List<ActionType> _predefinedActionTypes =
         [
-            WorkType.MINING,
-            WorkType.BUILDING,
-            WorkType.HAULING,
-            WorkType.GET_ITEM,
-            WorkType.WOOD_CUTTING,
-            WorkType.FARMING,
-            WorkType.GATHERING,
-            WorkType.FISHING,
+            ActionType.MINING,
+            ActionType.BUILDING,
+            ActionType.HAULING,
+            ActionType.GET_ITEM,
+            ActionType.WOOD_CUTTING,
+            ActionType.FARMING,
+            ActionType.GATHERING,
+            ActionType.FISHING,
         ];
 
-        public enum Actions
-        {
-            NONE,
+        private readonly List<ActionType> _excludedActionTypes =
+        [
+            ActionType.NONE,
+            ActionType.CANCEL,
+            ActionType.CREATE_REGION,
+        ];
 
-            MINE,
-            CUT,
-            BUILD,
-            FARM,
-            GATHER, 
-            FISH,
-
-            MOVE_TO,
-            MOVE_TO_WATER,
-
-            HAUL,
-            GET_ITEM,
-
-            DRINK,  
-        }
-
-        public WorldState(IAgent agent, IWorld world, IWorkSystem workSystem, IPathingSystem pathingSystem, IItemSystem itemSystem) 
+        public WorldState(IAgent agent, IWorld world, IActionManager actionManager, IPathingSystem pathingSystem, IItemSystem itemSystem) 
         { 
             _agent = agent;
             _world = world;
-            _workSystem = workSystem;
+            _actionManager = actionManager;
             _pathingSystem = pathingSystem;
             _itemSystem = itemSystem;
 
             _blackboard.Set(Constants.Names.AgentPos, _agent.Position);
-            _blackboard.Set(Constants.Names.AgentProf, (int)_agent.WorkType);
+            _blackboard.Set(Constants.Names.AgentProf, (int)_agent.ActionType);
             var item = _itemSystem.GetInventoryItems(_agent.Id).FirstOrDefault();
 
             if (item != null)
@@ -73,53 +62,54 @@ namespace Catcophony.core.goap
                 _blackboard.Set(Constants.Names.AgentItem, item);
             }
             
-            foreach (var workType in _availableWorkTypes)
+            foreach (var actionType in _predefinedActionTypes)
             {
-                var workList = _workSystem.CheckForWork(workType);
-                _blackboard.Set(new(workType.ToString()), workList);
+                var actionList = _actionManager.CheckForWork(actionType);
+                _blackboard.Set(new(actionType.ToString()), actionList);
             }
         }
 
-        public IAction BuildAction(Actions action)
+        public List<ActionType> GetAvailableActionTypes()
         {
-            switch (action)
+            var actionTypeList = new List<ActionType>();
+
+            foreach (ActionType actionType in Enum.GetValues(typeof(ActionType)))
             {
-                case Actions.MINE:
-                case Actions.CUT:
-                case Actions.BUILD:
-                case Actions.FARM:
-                case Actions.GATHER:
-                case Actions.FISH:
-                    var workType = GetWorkType(action);
-                    return new WorkAction(new(workType.ToString()), 1, workType);
-                case Actions.MOVE_TO:
-                    return new MoveToAction(_pathingSystem);
-                case Actions.MOVE_TO_WATER:
+                if (!_excludedActionTypes.Contains(actionType))
+                {
+                   actionTypeList.Add(actionType);
+                }
+            }
+
+            return actionTypeList;
+        }
+
+        public IAction BuildAction(ActionType actionType)
+        {
+            switch (actionType)
+            {
+                case ActionType.MINING:
+                case ActionType.WOOD_CUTTING:
+                case ActionType.BUILDING:
+                case ActionType.FARMING:
+                case ActionType.GATHERING:
+                case ActionType.FISHING:
+                    //var workType = GetWorkType(action);
+                    return new WorkAction(new(actionType.ToString()), 1, actionType, _world);
+                case ActionType.MOVE_TO:
+                    return new MoveToAction(_world, _pathingSystem);
+                case ActionType.MOVE_TO_WATER:
                     return new MoveToWaterAction(_world, _pathingSystem);
-                case Actions.HAUL:
+                case ActionType.HAULING:
                     return new HaulAction();
-                case Actions.GET_ITEM:
-                    return new GetItemAction();
-                case Actions.DRINK:
+                case ActionType.GET_ITEM:
+                    return new GetItemAction(_world);
+                case ActionType.DRINKING:
                     return new DrinkAction(_world);
                 default:
-                    GD.Print($"Action {action} not implimented in BuildAction method.");
+                    GD.Print($"Action {actionType} not implimented in WorldState::BuildAction method.");
                     return null;
             }
-        }
-
-        private WorkType GetWorkType(Actions action)
-        {
-            return action switch
-            {
-                Actions.MINE => WorkType.MINING,
-                Actions.CUT => WorkType.WOOD_CUTTING,
-                Actions.BUILD => WorkType.BUILDING,
-                Actions.FARM => WorkType.FARMING,
-                Actions.GATHER => WorkType.GATHERING,
-                Actions.FISH => WorkType.FISHING,
-                _ => WorkType.NONE,
-            };
         }
 
         public Blackboard<FastName> GetBlackboard()

@@ -1,7 +1,7 @@
 using Catcophony.core.blackboard;
+using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
 
 namespace Catcophony.core.goap.goals
 {
@@ -19,15 +19,15 @@ namespace Catcophony.core.goap.goals
         {
             var worldStateBlackboard = worldState.GetBlackboard();
 
-            if (blackboard.TryGetInt(Constants.Names.WorkType, out var workTypeInt))
+            if (blackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt))
             {
-                var workType = (WorkType)workTypeInt;
+                var actionType = (ActionType)actionTypeInt;
 
                 if (worldStateBlackboard.TryGetInt(Constants.Names.AgentProf, out var agentProfInt))
                 {
-                    var agentProf = (WorkType)agentProfInt;
+                    var agentProf = (ActionType)agentProfInt;
 
-                    if (agentProf == workType)
+                    if (agentProf == actionType)
                     {
                         return true;
                     }

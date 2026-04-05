@@ -2,6 +2,8 @@ using Catcophony.core.goap.interfaces;
 using Catcophony.scenes.common.interfaces;
 using System;
 using System.Collections.Generic;
+using Catcophony.core.actions.interfaces;
+using Catcophony.core.enums;
 
 namespace Catcophony.core.goap
 {
@@ -16,13 +18,13 @@ namespace Catcophony.core.goap
         public bool IsSuccess { get; set; }
     }
 
-    public partial class Planner(IWorld world, IWorkSystem workSystem, IPathingSystem pathingSystem, IItemSystem itemSystem) : IPlanner
+    public partial class Planner(IWorld world, IActionManager actionManager, IPathingSystem pathingSystem, IItemSystem itemSystem) : IPlanner
     {
         private WorldState _worldState = null;
 
         private readonly IWorld _world = world;
 
-        private readonly IWorkSystem _workSystem = workSystem;
+        private readonly IActionManager _actionManager = actionManager;
 
         private readonly IPathingSystem _pathingSystem = pathingSystem;
 
@@ -30,7 +32,7 @@ namespace Catcophony.core.goap
 
         public Plan Plan(IAgent agent, IGoal goal)
         {
-            _worldState = new(agent, _world, _workSystem, _pathingSystem, _itemSystem);
+            _worldState = new(agent, _world, _actionManager, _pathingSystem, _itemSystem);
 
             Leaf root = new()
             {
@@ -76,13 +78,8 @@ namespace Catcophony.core.goap
             bool success = false;
             var goal = goals.Pop();
 
-            foreach (WorldState.Actions actionType in Enum.GetValues(typeof(WorldState.Actions)))
+            foreach (ActionType actionType in _worldState.GetAvailableActionTypes())
             {
-                if (actionType == WorldState.Actions.NONE)
-                {
-                    continue;
-                }
-
                 var action = _worldState.BuildAction(actionType);
 
                 if (action.SatisfyGoal(goal))
@@ -132,30 +129,15 @@ namespace Catcophony.core.goap
             return success;
         }
 
-        private bool AssemblePlan(Leaf leaf, Queue<IAction> plan)
+        private static bool AssemblePlan(Leaf leaf, Queue<IAction> plan)
         {
             while (leaf.Parent != null)
             {
-                if (!leaf.Action.SkipAssign && !leaf.Action.Assign(_workSystem))
-                {
-                    UnAssignOnFailure(plan);
-                    return false;
-                }
-
                 plan.Enqueue(leaf.Action);
                 leaf = leaf.Parent;
             }
 
             return true;
-        }
-
-        private void UnAssignOnFailure(Queue<IAction> plan)
-        {
-            while (plan.Count > 0)
-            {
-                var action = plan.Dequeue();
-                action.Assign(_workSystem, false);  
-            }
         }
     }
 }

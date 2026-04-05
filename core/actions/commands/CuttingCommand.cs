@@ -1,9 +1,9 @@
-using Godot;
+using Catcophony.core.actions.interfaces;
 using Catcophony.data.enums;
-using Catcophony.scenes.cats;
 using Catcophony.scenes.common.interfaces;
+using Godot;
 
-namespace Catcophony.scenes.systems.work.commands
+namespace Catcophony.core.actions.commands
 {
     public partial class CuttingCommand(IWorld world, IItemSystem itemSystem, IPathingSystem pathingSystem,
                                         ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
@@ -18,10 +18,8 @@ namespace Catcophony.scenes.systems.work.commands
 
         private readonly Vector2 _localPos = localPos;
 
-        public void Execute(Cat cat = null)
+        public void Execute(IActor actor = null)
         {
-            var color = _world.GetTileColor(_localPos);
-
             var material = _world.Cut(_localPos);
 
             _itemSystem.CreateItem(TileType.WOOD, _localPos, material);

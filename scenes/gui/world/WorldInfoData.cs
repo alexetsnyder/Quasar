@@ -1,3 +1,4 @@
+using Catcophony.core.enums;
 using Catcophony.data.enums;
 using Catcophony.scenes.systems.items;
 using Godot;
@@ -11,7 +12,7 @@ namespace Catcophony.scenes.gui.world
 
         public Vector2 LocalPos { get; set; }
 
-        public WorkType WorkType { get; set; }
+        public ActionType ActionType { get; set; }
 
         public TileType TileType { get; set; }
 

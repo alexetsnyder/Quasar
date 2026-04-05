@@ -1,26 +1,23 @@
+using Catcophony.core.actions;
+using Catcophony.core.actions.interfaces;
+using Catcophony.core.enums;
 using Catcophony.core.goap;
-using Catcophony.core.goap.goals;
 using Catcophony.core.goap.interfaces;
-using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
 using Catcophony.scenes.systems.items;
 using Catcophony.scenes.systems.pathing;
-using Catcophony.scenes.systems.work;
 using Catcophony.scenes.time;
 using Godot;
 using System.Collections.Generic;
 
 namespace Catcophony.scenes.cats
 {
-    public partial class Cat : Node2D, IGameObject, IAgent
+    public partial class Cat : Node2D, IGameObject, IAgent, IActor
     {
         #region Exports
 
         [Export]
         public int Speed { get; set; } = 10;
-
-        [Export]
-        public int WorkTicks { get; set; } = 10;
 
         #endregion
 
@@ -36,17 +33,19 @@ namespace Catcophony.scenes.cats
         public delegate void PathCompleteEventHandler(Path path);
 
         [Signal]
-        public delegate void CatWorkEventHandler(Cat cat, Work work);
+        public delegate void CatActionEventHandler(Cat cat, int actionId);
 
         #endregion
+
+        #region Public Variables
 
         public int Id { get; set; }
 
         public CatModel CatModel { get; private set; }
 
-        public WorkType WorkType { get => CatModel.WorkType; }
+        public ActionType ActionType { get => CatModel.ActionType; }
 
-        public bool IsWorking { get; private set; } = false;
+        public bool IsActing { get; private set; } = false;
 
         public Item Item { get; set; } = null;
 
@@ -56,11 +55,19 @@ namespace Catcophony.scenes.cats
 
         public IGoal Goal { get; set; }
 
-        private Work _currentWork;
+        #endregion
+
+        #region Private Variables
+
+        private Action _currentAction;
+
+        private IWorld _world;
+
+        private IActionManager _actionManager;
 
         private IPathingSystem _pathingSystem;
 
-        private TextureProgressBar _workProgress;
+        private TextureProgressBar _actionProgress;
 
         private Sprite2D _catSprite;
 
@@ -80,11 +87,13 @@ namespace Catcophony.scenes.cats
 
         private Plan _currentPlan;
 
+        #endregion
+
         public override void _Ready()
         {
-            _catSprite = GetNode<Sprite2D>("CatSprite");
-            _workProgress = GetNode<TextureProgressBar>("WorkProgress");
-            _workProgress.Visible = false;
+            _catSprite = GetNode<Sprite2D>("%CatSprite");
+            _actionProgress = GetNode<TextureProgressBar>("%ActionProgress");
+            _actionProgress.Visible = false;
         }
 
         public override void _Process(double delta)
@@ -100,9 +109,9 @@ namespace Catcophony.scenes.cats
                 _lastPos = Position;
                 _nextPos = new(tileLocalPos.X + Width / 2.0f, tileLocalPos.Y + Height / 2.0f);
             }
-            else if (IsWorking)
+            else if (IsActing)
             {
-                Work(TimeSystem.Instance.TicksPerSecond * delta);
+                Act(TimeSystem.Instance.TicksPerSecond * delta);
             }
             else
             {
@@ -110,8 +119,21 @@ namespace Catcophony.scenes.cats
 
                 if (_currentPlan != null && _currentPlan.Actions.Count > 0)
                 {
-                    var action = _currentPlan.Actions.Dequeue();
-                    action.Execute(this);
+                    var goapAction = _currentPlan.Actions.Dequeue();
+                    var action = goapAction.GetAction();
+                    if (action == null)
+                    {
+                        action = _actionManager.RegisterAction(goapAction);
+                    }
+
+                    if (action == null)
+                    {
+                        _currentPlan = null;
+                    }
+                    else
+                    {
+                        SetAction(action);
+                    }
                 }
             }
         }
@@ -129,34 +151,37 @@ namespace Catcophony.scenes.cats
             CatModel = data;
         }
 
-        public void SetDeps(IPathingSystem pathingSystem, IPlanner planner)
+        public void SetDeps(IWorld world, IActionManager actionManager, IPathingSystem pathingSystem, IPlanner planner)
         {
+            _world = world;
+            _actionManager = actionManager;
             _pathingSystem = pathingSystem;
             _planner = planner;
         }
 
-        public void SetWork(Work work)
+        public bool IsMoving()
         {
-            IsWorking = true;
-            _currentWork = work;
-            CatModel.WorkPos = _currentWork.LocalPos;
-            _workProgress.Value = 0;
-            _workProgress.Visible = true;
+            return (_isMoving || _movePathQueue.Count > 0);
         }
 
-        public void CompleteWork()
+        public void CompleteAction()
         {
-            _workProgress.Visible = false;
+            EmitSignal(SignalName.CatAction, this, _currentAction.Id);
 
-            EmitSignal(SignalName.CatWork, this, _currentWork);
-
-            IsWorking = false;
-            CatModel.WorkPos = null;  
+            _actionProgress.Visible = false;
+            //_currentAction = null;
+            IsActing = false;
+            CatModel.WorkPos = null;
         }
 
-        public void SetPath(Path path)
+        public void Drink()
         {
-            _movePath = path;
+            CatModel.Thirst = 100;
+            GD.Print($"{CatModel.Name} drank water!");
+        }
+
+        private void SetPath(Path path)
+        {
             _movePathQueue.Clear();
 
             foreach (var v in path.Points)
@@ -168,21 +193,6 @@ namespace Catcophony.scenes.cats
             {
                 _pathingSystem.ShowPath(path.Id);
             }
-        }
-
-        public Path GetCurrentPath()
-        {
-            return _movePath; 
-        }
-
-        public bool CanWork()
-        {
-            return !IsWorking;
-        }
-
-        public bool IsMoving()
-        {
-            return (_isMoving || _movePathQueue.Count > 0);
         }
 
         private void Move(double delta)
@@ -200,16 +210,23 @@ namespace Catcophony.scenes.cats
             }
         }
 
-        private void Work(double delta)
+        private void Act(double delta)
         {
             ElapsedWorkTime += delta;
 
-            _workProgress.Value = ElapsedWorkTime * 10;
+            _actionProgress.Value = ElapsedWorkTime * _currentAction.Ticks; // 10;
 
-            if (ElapsedWorkTime >= WorkTicks)
+            if (ElapsedWorkTime >= _currentAction.Ticks)
             {
-                CompleteWork();
-                ElapsedWorkTime %= WorkTicks; 
+                CompleteAction();
+                if (_currentAction.Ticks > 0)
+                {
+                    ElapsedWorkTime %= _currentAction.Ticks;
+                }
+                else
+                {
+                    ElapsedWorkTime = 0;
+                }
             }
         }
 
@@ -224,6 +241,30 @@ namespace Catcophony.scenes.cats
                         EmitSignal(SignalName.CatClickedOn, this);
                     }
                 }
+            }
+        }
+
+        public void SetDestination(Vector2 localPos)
+        {
+            _movePath = _pathingSystem.ShortestPath(Position, _world.GetAdjacentTiles(localPos));
+
+            if (_movePath != null && _movePath.Points.Count > 0)
+            {
+                SetPath(_movePath); 
+            }
+        }
+
+        public void SetAction(Action action)
+        {
+            if (_actionManager.AssignAction(action.Id))
+            {
+                _actionProgress.Visible = true;
+                _currentAction = action;
+                IsActing = true;
+            }
+            else
+            {
+                _currentPlan = null;
             }
         }
     }

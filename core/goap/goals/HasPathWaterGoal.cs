@@ -25,9 +25,11 @@ namespace Catcophony.core.goap.goals
         {
             if (worldState.GetBlackboard().TryGetVector2(Constants.Names.AgentPos, out var agentPos))
             {
-                if (blackboard.TryGetVector2(Constants.Names.GoalPos, out var goalPos))
+                var parentBlackboard = _parentAction.GetBlackboard();
+
+                if (parentBlackboard.TryGetVector2(Constants.Names.LocalPos, out var localPos))
                 {
-                    var path = _pathingSystem.ShortestPath(agentPos, _world.GetAdjacentTiles(goalPos));
+                    var path = _pathingSystem.ShortestPath(agentPos, _world.GetAdjacentTiles(localPos));
 
                     if (path != null)
                     {

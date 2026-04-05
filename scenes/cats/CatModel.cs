@@ -1,5 +1,6 @@
 using Godot;
 using Catcophony.data.enums;
+using Catcophony.core.enums;
 
 namespace Catcophony.scenes.cats
 {
@@ -19,7 +20,7 @@ namespace Catcophony.scenes.cats
 
         public int Thirst { get; set; }
 
-        public WorkType WorkType { get; set; }
+        public ActionType ActionType { get; set; }
 
         public Vector2? WorkPos { get; set; }
     }

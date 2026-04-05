@@ -1,6 +1,7 @@
+using Catcophony.core.enums;
 using Catcophony.core.goap.goals;
 using Catcophony.core.naming;
-using Catcophony.data.enums;
+using Catcophony.scenes.common.interfaces;
 
 namespace Catcophony.core.goap.actions
 {
@@ -10,24 +11,28 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => _cost; }
 
+        public override int Ticks { get => 10; }
+
         public readonly FastName _name;
         
         public readonly int _cost;
 
-        private readonly WorkType _workType;
+        private readonly ActionType _actionType;
 
-        public WorkAction(FastName name, int cost, WorkType workType)
+        public WorkAction(FastName name, int cost, ActionType actionType, IWorld world)
         {
+            SetActionType(actionType);
+
             _name = name;
             _cost = cost;
-            _workType = workType;
+            _actionType = actionType;
 
             WorkGoal workGoal = new();
             _effects.Add(workGoal);
 
-            HasWorkGoal hasWorkGoal = new(_workType, this);
+            HasWorkGoal hasWorkGoal = new(_actionType, this);
             HasProfGoal hasProfGoal = new(this);
-            AdjToGoal adjToGoal = new(this);
+            AdjToGoal adjToGoal = new(this, world);
             _preconditions.Add(hasWorkGoal);
             _preconditions.Add(hasProfGoal);
             _preconditions.Add(adjToGoal);

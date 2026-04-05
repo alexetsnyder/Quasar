@@ -1,3 +1,5 @@
+using Catcophony.core.actions;
+using Catcophony.core.enums;
 using Catcophony.core.goap;
 using Catcophony.core.goap.goals;
 using Catcophony.data;
@@ -15,7 +17,6 @@ using Catcophony.scenes.systems.items;
 using Catcophony.scenes.systems.pathing;
 using Catcophony.scenes.systems.regions;
 using Catcophony.scenes.systems.selection;
-using Catcophony.scenes.systems.work;
 using Catcophony.scenes.world;
 using Catcophony.system;
 using Godot;
@@ -34,13 +35,13 @@ namespace Catcophony.scenes
 
         private MapCamera2d _camera;
 
+        private ActionManager _actionManager;
+
         private SelectionSystem _selectionSystem;
 
         private PathingSystem _pathingSystem;
 
         private BuildingSystem _buildingSystem;
-
-        private WorkSystem _workSystem;
 
         private ItemSystem _itemSystem;
 
@@ -73,16 +74,16 @@ namespace Catcophony.scenes
         private bool _isPaused = false;
 
         private readonly List<CatModel> _catModelList = [
-            BuildCatModel("Fern", "Black Shorthair Cat", "Playful", WorkType.MINING),
-            BuildCatModel("Fig", "Black Shorthair Cat", "Sad", WorkType.BUILDING),
-            BuildCatModel("Pepper", "Longhair Cat", "Wary", WorkType.FARMING),
-            BuildCatModel("New Year", "Russian Blue Cat", "Curious", WorkType.FISHING),
-            BuildCatModel("Maslow", "Orange", "Timid", WorkType.HAULING),
-            BuildCatModel("Millo", "Orange", "Adventurous", WorkType.WOOD_CUTTING),
-            BuildCatModel("Inky", "Black", "Affectionate", WorkType.GATHERING),
+            BuildCatModel("Fern", "Black Shorthair Cat", "Playful", ActionType.MINING),
+            BuildCatModel("Fig", "Black Shorthair Cat", "Sad", ActionType.BUILDING),
+            BuildCatModel("Pepper", "Longhair Cat", "Wary", ActionType.FARMING),
+            BuildCatModel("New Year", "Russian Blue Cat", "Curious", ActionType.FISHING),
+            BuildCatModel("Maslow", "Orange", "Timid", ActionType.HAULING),
+            BuildCatModel("Millo", "Orange", "Adventurous", ActionType.WOOD_CUTTING),
+            BuildCatModel("Inky", "Black", "Affectionate", ActionType.GATHERING),
         ];
 
-        private static CatModel BuildCatModel(string name, string description, string mood, WorkType workType)
+        private static CatModel BuildCatModel(string name, string description, string mood, ActionType actionType)
         {
             return new CatModel()
             {
@@ -93,7 +94,7 @@ namespace Catcophony.scenes
                 Stamina = 100,
                 Hunger = 100,
                 Thirst = 100,
-                WorkType = workType,
+                ActionType = actionType,
             };
         }
 
@@ -104,10 +105,10 @@ namespace Catcophony.scenes
             _pausableNodes = GetNode<Node2D>("%PausableNodes");
             _map = GetNode<Map>("%Map");
             _world = GetNode<World>("%World");
+            _actionManager = GetNode<ActionManager>("%ActionManager");
             _selectionSystem = GetNode<SelectionSystem>("SelectionSystem");
             _pathingSystem = GetNode<PathingSystem>("PathingSystem");
             _buildingSystem = GetNode<BuildingSystem>("BuildingSystem");
-            _workSystem = GetNode<WorkSystem>("WorkSystem");
             _itemSystem = GetNode<ItemSystem>("ItemSystem");
             _regionSystem = GetNode<RegionSystem>("RegionSystem");
             _camera = GetNode<MapCamera2d>("MapCamera2D");
@@ -186,7 +187,7 @@ namespace Catcophony.scenes
             }
             else if (@event.IsActionPressed("SwitchBuildable"))
             {
-                if (_selectionSystem.WorkType == WorkType.BUILDING)
+                if (_selectionSystem.ActionType == ActionType.BUILDING)
                 {
                     _buildingSystem.NextBuildable();
                 }
@@ -289,8 +290,8 @@ namespace Catcophony.scenes
 
                         cat.Id = i;
 
-                        var newPlanner = new Planner(_world, _workSystem, _pathingSystem, _itemSystem);
-                        cat.SetDeps(_pathingSystem, newPlanner);
+                        var newPlanner = new Planner(_world, _actionManager, _pathingSystem, _itemSystem);
+                        cat.SetDeps(_world, _actionManager, _pathingSystem, newPlanner);
 
                         var catPos = spawnPoints[i];
                         cat.Position = catPos;
@@ -314,7 +315,7 @@ namespace Catcophony.scenes
             cat.CatClickedOn += OnCatClickedOn;
             cat.MovedOne += OnCatMovedOne;
             cat.PathComplete += OnCatPathComplete;
-            cat.CatWork += OnCatWork;
+            cat.CatAction += OnCatAction;
         }
 
         private void PlaceCat(Vector2 newPos, Vector2? lastPos = null)
@@ -322,93 +323,88 @@ namespace Catcophony.scenes
             _world.PlaceItem(newPos, lastPos);
         }
 
-        private void RemoveWork(List<Vector2> worldPosList)
-        {
-            _workSystem.RemoveWork(worldPosList);
-        }
-
         private void OnToolBarSelectPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.NONE;
+            _selectionSystem.ActionType = ActionType.NONE;
         }
 
         private void OnToolBarMinePressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.MINING;
+            _selectionSystem.ActionType = ActionType.MINING;
         }
 
         private void OnToolBarCutPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.WOOD_CUTTING;
+            _selectionSystem.ActionType = ActionType.WOOD_CUTTING;
         }
 
         private void OnToolBarHaulPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.HAULING;
+            _selectionSystem.ActionType = ActionType.HAULING;
         }
 
         private void OnToolBarBuildPressed(int tileType)
         {
             _buildingSystem.Clear();
             _buildingSystem.SetCurrent((TileType)tileType);
-            _selectionSystem.WorkType = WorkType.BUILDING;
+            _selectionSystem.ActionType = ActionType.BUILDING;
         }
 
         private void OnToolBarFarmPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.FARMING;
+            _selectionSystem.ActionType = ActionType.FARMING;
         }
 
         private void OnToolBarGatherPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.GATHERING;
+            _selectionSystem.ActionType = ActionType.GATHERING;
         }
 
         private void OnToolBarFishPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.FISHING;
+            _selectionSystem.ActionType = ActionType.FISHING;
         }
 
         private void OnToolBarCreateRegionSelected(int regionType)
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.CREATE_REGION;
+            _selectionSystem.ActionType = ActionType.CREATE_REGION;
             _regionSystem.CurrentRegionType = (RegionType)(regionType);
         }
 
         private void OnToolBarCancelPressed()
         {
             _buildingSystem.Clear();
-            _selectionSystem.WorkType = WorkType.CANCEL;
+            _selectionSystem.ActionType = ActionType.CANCEL;
         }
 
         private void OnSelectionCreated(Selection selection)
         {
-            switch (selection.WorkType)
+            switch (selection.actionType)
             {
-                case WorkType.MINING:
-                case WorkType.WOOD_CUTTING:       
-                case WorkType.BUILDING:
-                case WorkType.FARMING:
-                case WorkType.GATHERING:
-                case WorkType.FISHING:
+                case ActionType.MINING:
+                case ActionType.WOOD_CUTTING:       
+                case ActionType.BUILDING:
+                case ActionType.FARMING:
+                case ActionType.GATHERING:
+                case ActionType.FISHING:
                     CreateWork(selection);
                     break;
-                case WorkType.HAULING:
+                case ActionType.HAULING:
                     CreateHaulingWork(selection);
                     break;
-                case WorkType.CREATE_REGION:
+                case ActionType.CREATE_REGION:
                     CreateRegion(selection);
                     break;
-                case WorkType.CANCEL:
-                    RemoveWork(selection.Points);
+                case ActionType.CANCEL:
+                    _actionManager.RemoveActions(selection.Points);
                     break;
                 default:
                     GD.Print("Incorrect SelectionState in OnSelectionCreated");
@@ -434,8 +430,8 @@ namespace Catcophony.scenes
                         var closestStoragePos = _pathingSystem.ShortestPointWithAdjacent(point, allStorage);
                         if (closestStoragePos != null)
                         {
-                            _workSystem.CreateWork(WorkType.HAULING, closestStoragePos.Value);
-                            _workSystem.CreateWork(WorkType.GET_ITEM, point);
+                            _actionManager.RegisterAction(ActionType.HAULING, closestStoragePos.Value);
+                            _actionManager.RegisterAction(ActionType.GET_ITEM, point);
                         }
                         else
                         {
@@ -456,22 +452,22 @@ namespace Catcophony.scenes
         {
             foreach (var point in selection.Points)
             {
-                _workSystem.CreateWork(selection.WorkType, point);
+                _actionManager.RegisterAction(selection.actionType, point);
             }
 
             //PlanWork();
         }
 
-        private void PlanWork()
-        {
-            foreach (var cat in _cats)
-            {
-                if (cat.CanWork() && !cat.IsMoving())
-                {
-                    cat.Plan();
-                }
-            }
-        }
+        //private void PlanWork()
+        //{
+        //    foreach (var cat in _cats)
+        //    {
+        //        if (cat.CanWork() && !cat.IsMoving())
+        //        {
+        //            cat.Plan();
+        //        }
+        //    }
+        //}
 
         private void OnTileSelected(Vector2 localPos)
         {
@@ -498,7 +494,7 @@ namespace Catcophony.scenes
                 {
                     Coords = _world.GetCoords(localPos),
                     LocalPos = localPos,
-                    WorkType = _workSystem.GetWorkType(localPos),
+                    ActionType = _actionManager.GetActionType(localPos),
                     TileType = _world.GetTileType(localPos),
                     RegionType = _regionSystem.GetRegionType(localPos),
                     Items = _itemSystem.GetItems(localPos),
@@ -526,16 +522,13 @@ namespace Catcophony.scenes
             _pathingSystem.RemovePath(path.Id);
         }
 
-        private void OnCatWork(Cat cat, Work work)
+        private void OnCatAction(Cat cat, int actionId)
         {
-            if (_workSystem.GetWork(work.WorkId) != null)
-            {
-                work.Command.Execute(cat);
+            var action = _actionManager.GetAction(actionId);
 
-                _workSystem.RemoveWork(work);
+            action.Command.Execute(cat);
 
-                _workSystem.UpdateWork();
-            }
+            _actionManager.RemoveAction(actionId);
         }
     }
 }

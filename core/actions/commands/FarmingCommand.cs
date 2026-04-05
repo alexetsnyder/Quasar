@@ -1,10 +1,10 @@
-using Godot;
-using Catcophony.scenes.cats;
+using Catcophony.core.actions.interfaces;
 using Catcophony.scenes.common.interfaces;
+using Godot;
 
-namespace Catcophony.scenes.systems.work.commands
+namespace Catcophony.core.actions.commands
 {
-    public partial class GatheringCommand(IWorld world, ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
+    public partial class FarmingCommand(IWorld world, ISelectionSystem selectionSystem, Vector2 localPos) : ICommand
     {
         private readonly IWorld _world = world;
 
@@ -12,9 +12,9 @@ namespace Catcophony.scenes.systems.work.commands
 
         private readonly Vector2 _localPos = localPos;
 
-        public void Execute(Cat cat = null)
+        public void Execute(IActor actor = null)
         {
-            _world.Gather(_localPos);
+            _world.Till(_localPos);
 
             _selectionSystem.Deselect(_localPos);
         }

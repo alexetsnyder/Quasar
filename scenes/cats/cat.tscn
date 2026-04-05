@@ -13,6 +13,7 @@ size = Vector2(18, 18)
 script = ExtResource("1_3xrku")
 
 [node name="CatSprite" type="Sprite2D" parent="." unique_id=723545853]
+unique_name_in_owner = true
 texture = ExtResource("2_3xrku")
 
 [node name="CatArea" type="Area2D" parent="." unique_id=1913409475]
@@ -21,7 +22,8 @@ process_mode = 3
 [node name="CatAreaCollision" type="CollisionShape2D" parent="CatArea" unique_id=1920732016]
 shape = SubResource("RectangleShape2D_3xrku")
 
-[node name="WorkProgress" type="TextureProgressBar" parent="." unique_id=1646681410]
+[node name="ActionProgress" type="TextureProgressBar" parent="." unique_id=1646681410]
+unique_name_in_owner = true
 offset_left = -9.0
 offset_top = 8.0
 offset_right = 9.0
