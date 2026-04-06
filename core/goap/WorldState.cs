@@ -1,12 +1,14 @@
+using Catcophony.core.actions;
 using Catcophony.core.actions.interfaces;
 using Catcophony.core.blackboard;
 using Catcophony.core.enums;
 using Catcophony.core.goap.actions;
 using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
+using Catcophony.data.enums;
 using Catcophony.scenes.common.interfaces;
+using Catcophony.scenes.systems.items;
 using Godot;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -73,7 +75,7 @@ namespace Catcophony.core.goap
         {
             var actionTypeList = new List<ActionType>();
 
-            foreach (ActionType actionType in Enum.GetValues(typeof(ActionType)))
+            foreach (ActionType actionType in System.Enum.GetValues(typeof(ActionType)))
             {
                 if (!_excludedActionTypes.Contains(actionType))
                 {
@@ -84,7 +86,7 @@ namespace Catcophony.core.goap
             return actionTypeList;
         }
 
-        public IAction BuildAction(ActionType actionType)
+        public IAction BuildAction(Blackboard<FastName> blackboard, ActionType actionType)
         {
             switch (actionType)
             {
@@ -94,27 +96,83 @@ namespace Catcophony.core.goap
                 case ActionType.FARMING:
                 case ActionType.GATHERING:
                 case ActionType.FISHING:
-                    //var workType = GetWorkType(action);
-                    return new WorkAction(new(actionType.ToString()), 1, actionType, _world);
+                    return new WorkAction(blackboard, new FastName(actionType.ToString()), 1, actionType);
                 case ActionType.MOVE_TO:
-                    return new MoveToAction(_world, _pathingSystem);
-                case ActionType.MOVE_TO_WATER:
-                    return new MoveToWaterAction(_world, _pathingSystem);
+                    return new MoveToAction(blackboard);
                 case ActionType.HAULING:
-                    return new HaulAction();
+                    return new HaulAction(blackboard);
                 case ActionType.GET_ITEM:
-                    return new GetItemAction(_world);
+                    return new GetItemAction(blackboard);
                 case ActionType.DRINKING:
-                    return new DrinkAction(_world);
+                    return new DrinkAction(blackboard, _world);
                 default:
                     GD.Print($"Action {actionType} not implimented in WorldState::BuildAction method.");
                     return null;
             }
         }
 
-        public Blackboard<FastName> GetBlackboard()
+        public Vector2? GetAgentPos()
         {
-            return _blackboard; 
+            if (_blackboard.TryGetVector2(Constants.Names.AgentPos, out var agentPos))
+            {
+                return agentPos;
+            }
+
+            return null;
+        }
+
+        public Item GetAgentItem()
+        {
+            if (_blackboard.TryGetItem(Constants.Names.AgentItem, out var item))
+            {
+                return item;
+            }
+
+            return null;
+        }
+
+        public ActionType GetAgentProf()
+        {
+            if (_blackboard.TryGetInt(Constants.Names.AgentProf, out var agentProfInt))
+            {
+                return (ActionType)agentProfInt;
+            }
+
+            return ActionType.NONE;
+        }
+
+        public List<core.actions.Action> GetActions(ActionType actionType)
+        {
+            if (_blackboard.TryGetActionList(new FastName(actionType.ToString()), out var actions))
+            {
+                return actions;
+            }
+
+            return [];
+        }
+
+        public bool HasPath(Vector2 agentPos, Action action)
+        {
+            return HasPath(agentPos, action.LocalPos);
+        }
+
+        public bool HasPath(Vector2 agentPos, Vector2 localPos)
+        {
+            var path = _pathingSystem.ShortestPath(agentPos, _world.GetAdjacentTiles(localPos));
+
+            if (path != null)
+            {
+                _pathingSystem.RemovePath(path.Id);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public Vector2? SearchForNearest(Vector2 agentPos, TileType tileType)
+        {
+            return _world.SearchForNearest(agentPos, tileType);
         }
     }
 }

@@ -85,22 +85,34 @@ namespace Catcophony.core.actions
             }
         }
 
-        public bool AssignAction(int actionId)
+        public bool AssignActions(List<Action> actions)
         {
-            lock(_assignLock)
+            lock (_assignLock)
             {
-                if (_actions.TryGetValue(actionId, out var action))
+                bool success = true;
+                List<Action> actionsToUpdate = [];
+
+                foreach (var action in actions)
                 {
-                    if (!action.IsAssinged)
+                    if (action.IsAssinged)
+                    {
+                        success = false;
+                        break;
+                    }
+
+                    actionsToUpdate.Add(action);
+                }
+
+                if (success)
+                {
+                    foreach (var action in actionsToUpdate)
                     {
                         action.IsAssinged = true;
-
-                        return true;
                     }
                 }
 
-                return false;
-            }
+                return success;
+            } 
         }
 
         public void RemoveActions(List<Vector2> points)
@@ -142,7 +154,6 @@ namespace Catcophony.core.actions
                 case ActionType.GET_ITEM:
                     return 5;
                 case ActionType.MOVE_TO:
-                case ActionType.MOVE_TO_WATER:
                     return 0;
                 default:
                     GD.Print($"Incorrect ActionType {actionType} in ActionManger::GetTicks.");

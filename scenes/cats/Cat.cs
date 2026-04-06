@@ -9,6 +9,7 @@ using Catcophony.scenes.systems.pathing;
 using Catcophony.scenes.time;
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Catcophony.scenes.cats
 {
@@ -143,6 +144,13 @@ namespace Catcophony.scenes.cats
             if (Goal != null && (_currentPlan == null || _currentPlan.Actions.Count == 0))
             {
                 _currentPlan = _planner.Plan(this, Goal);
+                if (_currentPlan != null && _currentPlan.Actions.Count > 0)
+                {
+                    if (!_actionManager.AssignActions([.. _currentPlan.Actions.Select(p => p.GetAction()).Where(p => p != null)]))
+                    {
+                        _currentPlan = null;
+                    }
+                }
             }
         }
 
@@ -256,16 +264,9 @@ namespace Catcophony.scenes.cats
 
         public void SetAction(Action action)
         {
-            if (_actionManager.AssignAction(action.Id))
-            {
-                _actionProgress.Visible = true;
-                _currentAction = action;
-                IsActing = true;
-            }
-            else
-            {
-                _currentPlan = null;
-            }
+            _actionProgress.Visible = true;
+            _currentAction = action;
+            IsActing = true;
         }
     }
 }

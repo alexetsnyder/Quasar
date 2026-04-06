@@ -2,6 +2,7 @@ using Catcophony.core.goap.goals;
 using Catcophony.core.naming;
 using Catcophony.core.enums;
 using Catcophony.scenes.common.interfaces;
+using Catcophony.core.blackboard;
 
 namespace Catcophony.core.goap.actions
 {
@@ -11,19 +12,16 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => 1; }
 
-        public override int Ticks { get => 5; }
-
         private readonly FastName _name = new("GetItemAction");
 
-        public GetItemAction(IWorld world)
+        public GetItemAction(Blackboard<FastName> blackboard)
+            : base(blackboard, ActionType.GET_ITEM)
         {
-            SetActionType(ActionType.GET_ITEM);
-
-            HasItemGoal hasItemGoal = new(this);
+            var hasItemGoal = new HasItemGoal(_blackboard);
             _effects.Add(hasItemGoal);
 
-            HasWorkGoal hasWorkGoal = new(ActionType.GET_ITEM, this);
-            AdjToGoal adjToGoal = new(this, world);
+            var hasWorkGoal = new HasWorkGoal(_blackboard, ActionType.GET_ITEM);
+            var adjToGoal = new AdjToGoal(_blackboard);
             _preconditions.Add(hasWorkGoal);
             _preconditions.Add(adjToGoal);
         }

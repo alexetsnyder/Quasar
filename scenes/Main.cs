@@ -1,7 +1,9 @@
 using Catcophony.core.actions;
+using Catcophony.core.blackboard;
 using Catcophony.core.enums;
 using Catcophony.core.goap;
 using Catcophony.core.goap.goals;
+using Catcophony.core.naming;
 using Catcophony.data;
 using Catcophony.data.enums;
 using Catcophony.scenes.camera;

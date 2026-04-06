@@ -1,6 +1,7 @@
 using Catcophony.core.goap.goals;
 using Catcophony.core.naming;
 using Catcophony.core.enums;
+using Catcophony.core.blackboard;
 
 namespace Catcophony.core.goap.actions
 {
@@ -10,20 +11,17 @@ namespace Catcophony.core.goap.actions
 
         public override int Cost { get => 1; }
 
-        public override int Ticks { get => 5; }
-
         private readonly FastName _name = new("HaulAction");
 
-        public HaulAction() 
+        public HaulAction(Blackboard<FastName> blackboard) 
+            : base(blackboard, ActionType.HAULING)
         {
-            SetActionType(ActionType.HAULING);
-
-            WorkGoal workGoal = new();
+            var workGoal = new WorkGoal();
             _effects.Add(workGoal);
 
-            HasWorkGoal hasWorkGoal = new(ActionType.HAULING, this);
-            FalseAdjToGoal adjToGoal = new(this);
-            HasItemGoal hasItemGoal = new(this);
+            var hasWorkGoal = new HasWorkGoal(_blackboard, ActionType.HAULING);
+            var adjToGoal = new FalseAdjToGoal(_blackboard);
+            var hasItemGoal = new HasItemGoal(_blackboard);
             _preconditions.Add(hasWorkGoal);
             _preconditions.Add(adjToGoal);
             _preconditions.Add(hasItemGoal);

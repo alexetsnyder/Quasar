@@ -11,46 +11,55 @@ namespace Catcophony.core.goap.actions
 {
     public abstract partial class ActionBase : IAction
     {
-        public int Id { get; private set; }
-
         public abstract FastName Name { get; }
 
         public abstract int Cost { get; }
 
-        public abstract int Ticks { get; }
-
-        protected Blackboard<FastName> _blackboard = new();
-
-        protected IAction _parent;
-
-        protected IAction _child;
+        protected Blackboard<FastName> _blackboard;
 
         protected readonly List<IGoal> _preconditions = [];
 
         protected readonly List<IGoal> _effects = [];
 
-        protected void SetActionType(ActionType actionType)
+        protected ActionType _actionType;
+
+        public ActionBase(Blackboard<FastName> blackboard, ActionType actionType)
+        {
+            CopyBlackboard(blackboard);
+            SetActionType(actionType);
+        }
+
+        private void CopyBlackboard(Blackboard<FastName> blackboard)
+        {
+            _blackboard = new Blackboard<FastName>(blackboard);
+        }
+
+        private void SetActionType(ActionType actionType)
         {
             _blackboard.Set(Constants.Names.ActionType, (int)actionType);
+            _actionType = actionType;
         }
 
         public Action GetAction()
         {
-            if (_blackboard.TryGetAction(Constants.Names.Action, out var action) ||
-               (_child != null && 
-                _child.GetBlackboard().TryGetAction(Constants.Names.Action, out action)))
+            switch (_actionType)
             {
-                return action;
+                case ActionType.MOVE_TO:
+                    return null;
+                default:
+                    if (_blackboard.TryGetAction(Constants.Names.Action, out var action))
+                    {
+                        return action;
+                    }
+                    break;
             }
-
+            
             return null;
         }
 
         public ActionType GetActionType()
         {
-            if (_blackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt) ||
-               (_child != null &&
-                _child.GetBlackboard().TryGetInt(Constants.Names.ActionType, out actionTypeInt)))
+            if (_blackboard.TryGetInt(Constants.Names.ActionType, out var actionTypeInt))
             {
                 return (ActionType)actionTypeInt;
             }
@@ -60,21 +69,9 @@ namespace Catcophony.core.goap.actions
 
         public Vector2? GetLocalPos()
         {
-            if (_blackboard.TryGetVector2(Constants.Names.LocalPos, out var localPos) ||
-               (_child != null &&
-                _child.GetBlackboard().TryGetVector2(Constants.Names.LocalPos, out localPos)))
+            if (_blackboard.TryGetVector2(Constants.Names.LocalPos, out var localPos))
             {
                 return localPos;
-            }
-
-            return null;
-        }
-
-        public Blackboard<FastName> GetParentBlackboard()
-        {
-            if (_parent != null)
-            {
-                return _parent.GetBlackboard();
             }
 
             return null;
@@ -85,33 +82,9 @@ namespace Catcophony.core.goap.actions
             return _blackboard;
         }
 
-        public void SetId(int id)
-        {
-            Id = id;
-
-            foreach (var goal in _preconditions)
-            {
-                goal.SetActionId(id);
-            }
-        }
-
-        public virtual void LinkParent(IAction parent)
-        {
-            _parent = parent;
-            if (_parent != null)
-            {
-                _parent.LinkChild(this);
-            }    
-        }
-
-        public void LinkChild(IAction child)
-        {
-            _child = child;
-        }
-
         public List<IGoal> GetUnsatisfiedPreconditions(WorldState worldState)
         {
-            return [.. _preconditions.Where(g => !g.Satisify(worldState, _blackboard))];
+            return [.. _preconditions.Where(g => !g.Satisify(worldState))];
         }
 
         public bool SatisfyGoal(IGoal goal)
@@ -128,7 +101,7 @@ namespace Catcophony.core.goap.actions
         {
             foreach (var cond in _preconditions)
             {
-                if (!cond.Satisify(worldState, _blackboard))
+                if (!cond.Satisify(worldState))
                 {
                     return false;
                 }

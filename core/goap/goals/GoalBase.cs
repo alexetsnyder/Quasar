@@ -6,8 +6,6 @@ namespace Catcophony.core.goap.goals
 {
     public abstract partial class GoalBase: IGoal
     {
-        public int ActionId { get; private set; }
-
         public FastName Key { get => _key; }
 
         public bool Value { get => _value; }
@@ -16,11 +14,11 @@ namespace Catcophony.core.goap.goals
 
         protected bool _value;
 
-        protected IAction _parentAction;
+        protected readonly Blackboard<FastName> _blackboard;
 
-        public void SetActionId(int actionId)
+        public GoalBase(Blackboard<FastName> blackboard)
         {
-            ActionId = actionId;
+            _blackboard = blackboard;
         }
 
         public bool Satisify(IGoal goal)
@@ -28,6 +26,6 @@ namespace Catcophony.core.goap.goals
             return(Key == goal.Key && Value == goal.Value);
         }
 
-        public abstract bool Satisify(WorldState worldState, Blackboard<FastName> blackboard);
+        public abstract bool Satisify(WorldState worldState);
     }
 }

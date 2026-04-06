@@ -1,6 +1,5 @@
 using Catcophony.core.blackboard;
 using Catcophony.core.enums;
-using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
 
 namespace Catcophony.core.goap.goals
@@ -9,27 +8,31 @@ namespace Catcophony.core.goap.goals
     {
         private readonly ActionType _actionType;
 
-        public HasWorkGoal(ActionType actionType, IAction parent)
+        public HasWorkGoal(Blackboard<FastName> blackboard, ActionType actionType)
+            : base(blackboard)
         {
             _key = new("HasWork");
             _value = true;
 
             _actionType = actionType;
-            _parentAction = parent;
         }
 
-        public override bool Satisify(WorldState worldState, Blackboard<FastName> blackboard)
+        public override bool Satisify(WorldState worldState)
         {
-            var worldStateBlackboard = worldState.GetBlackboard();
-            FastName actionTypeFastName = new(_actionType.ToString());
+            var agentPos = worldState.GetAgentPos();
+            var actions = worldState.GetActions(_actionType);
 
-            if (worldStateBlackboard.TryGetActionList(actionTypeFastName, out var actionList))
+            if (agentPos != null && actions.Count > 0)
             {
-                if (actionList.Count > 0)
+                foreach (var action in actions)
                 {
-                    blackboard.Set(Constants.Names.ActionType, (int)_actionType);
+                    if (worldState.HasPath(agentPos.Value, action))
+                    {
+                        _blackboard.Set(Constants.Names.Action, action);
+                        _blackboard.Set(Constants.Names.LocalPos, action.LocalPos);
 
-                    return true;
+                        return true;
+                    }
                 }
             }
 

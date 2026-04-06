@@ -17,7 +17,7 @@ namespace Catcophony.core.actions.interfaces
 
         public Action RegisterAction(ActionType actionType, Vector2 localPos);
 
-        public bool AssignAction(int actionId);
+        public bool AssignActions(List<Action> actions);
 
         public void RemoveActions(List<Vector2> points);
 

@@ -1,9 +1,10 @@
-using Catcophony.core.goap.interfaces;
-using Catcophony.scenes.common.interfaces;
-using System;
-using System.Collections.Generic;
 using Catcophony.core.actions.interfaces;
+using Catcophony.core.blackboard;
 using Catcophony.core.enums;
+using Catcophony.core.goap.interfaces;
+using Catcophony.core.naming;
+using Catcophony.scenes.common.interfaces;
+using System.Collections.Generic;
 
 namespace Catcophony.core.goap
 {
@@ -14,7 +15,7 @@ namespace Catcophony.core.goap
         public int CumulativeCost { get; set; }
 
         public IAction Action { get; set; }
-
+        
         public bool IsSuccess { get; set; }
     }
 
@@ -46,7 +47,7 @@ namespace Catcophony.core.goap
             Stack<IGoal> goals = [];
             goals.Push(goal);
 
-            if (BuildPlanRec(root, leaves, goals, nextActionId: 0))
+            if (BuildPlanRec(new Blackboard<FastName>(), root, leaves, goals, nextActionId: 0))
             {
                 int minCost = int.MaxValue;
                 Leaf minLeaf = null;
@@ -73,20 +74,17 @@ namespace Catcophony.core.goap
             return null;
         }
 
-        private bool BuildPlanRec(Leaf current, List<Leaf> leaves, Stack<IGoal> goals, int nextActionId)
+        private bool BuildPlanRec(Blackboard<FastName> blackboard, Leaf current, List<Leaf> leaves, Stack<IGoal> goals, int nextActionId)
         {
             bool success = false;
             var goal = goals.Pop();
 
             foreach (ActionType actionType in _worldState.GetAvailableActionTypes())
             {
-                var action = _worldState.BuildAction(actionType);
+                var action = _worldState.BuildAction(blackboard, actionType);
 
                 if (action.SatisfyGoal(goal))
                 {
-                    action.SetId(nextActionId++);
-                    action.LinkParent(current.Action);
-
                     Leaf leaf = new()
                     {
                         Parent = current,
@@ -121,7 +119,7 @@ namespace Catcophony.core.goap
 
                     if (newGoals.Count > 0)
                     {
-                        success = success || BuildPlanRec(leaf, leaves, newGoals, nextActionId);
+                        success = success || BuildPlanRec(action.GetBlackboard(), leaf, leaves, newGoals, nextActionId);
                     }
                 }
             }

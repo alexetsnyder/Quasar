@@ -12,7 +12,6 @@ namespace Catcophony.core.enums
         FISHING,
 
         MOVE_TO,
-        MOVE_TO_WATER,
 
         HAULING,
         GET_ITEM,

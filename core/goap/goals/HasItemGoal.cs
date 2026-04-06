@@ -1,29 +1,24 @@
 using Catcophony.core.blackboard;
-using Catcophony.core.goap.interfaces;
 using Catcophony.core.naming;
 
 namespace Catcophony.core.goap.goals
 {
     public partial class HasItemGoal : GoalBase
     {
-        public HasItemGoal(IAction parent) 
+        public HasItemGoal(Blackboard<FastName> blackboard) 
+            : base(blackboard)
         {
             _key = new("HasItem");
             _value = true;
-
-            _parentAction = parent;
         }
 
-        public override bool Satisify(WorldState worldState, Blackboard<FastName> blackboard)
+        public override bool Satisify(WorldState worldState)
         {
-            var worldStateBlackboard = worldState.GetBlackboard();
+            var item = worldState.GetAgentItem();
 
-            if (worldStateBlackboard.TryGetItem(Constants.Names.AgentItem, out var item))
+            if (item != null)
             {
-                if (item != null)
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;

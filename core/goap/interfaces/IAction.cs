@@ -9,8 +9,6 @@ namespace Catcophony.core.goap.interfaces
 {
     public interface IAction
     {
-        public int Id { get; }
-
         public FastName Name { get; }
 
         public int Cost { get; }
@@ -21,15 +19,7 @@ namespace Catcophony.core.goap.interfaces
 
         public Vector2? GetLocalPos();
 
-        public Blackboard<FastName> GetParentBlackboard();
-
         public Blackboard<FastName> GetBlackboard();
-
-        public void SetId(int id);
-
-        public void LinkParent(IAction parent);
-
-        public void LinkChild(IAction child);
 
         public List<IGoal> GetUnsatisfiedPreconditions(WorldState worldState);
 
