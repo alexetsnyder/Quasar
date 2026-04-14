@@ -175,9 +175,9 @@ namespace Catcophony.scenes
             }
             else if (@event.IsActionPressed("Test"))
             {
-                var cat = _cats.First(c => c.CatModel.Name == "Maslow");
+                //var cat = _cats.First(c => c.CatModel.Name == "Maslow");
 
-                cat.Goal = new WaterGoal();
+                //cat.Goal = new WaterGoal();
             }
             else if (@event.IsActionPressed("Map"))
             {
@@ -300,7 +300,6 @@ namespace Catcophony.scenes
                         PlaceCat(catPos);
 
                         var catData = _catModelList[i];
-                        cat.Goal = new WorkGoal();
                         cat.Speed = 8;
                         cat.SetCatModel(catData);
                         WireCatEvents(cat);

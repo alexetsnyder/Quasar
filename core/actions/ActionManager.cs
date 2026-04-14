@@ -5,6 +5,7 @@ using Catcophony.core.enums;
 using Catcophony.core.goap.interfaces;
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Catcophony.core.actions
 {
@@ -44,7 +45,7 @@ namespace Catcophony.core.actions
         {
             List<Action> actions = [];
 
-            foreach (var action in _actions.Values)
+            foreach (var action in _actions.Values.Where(a => !a.IsAssinged))
             {
                 if (action.ActionType == actionType)
                 {

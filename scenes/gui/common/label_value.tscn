@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://dftwicyw0hb4p"]
+
+[ext_resource type="Script" uid="uid://dupl8ar668vka" path="res://scenes/gui/common/LabelValue.cs" id="1_jn2nb"]
+
+[node name="LabelValue" type="Control" unique_id=1123967678]
+custom_minimum_size = Vector2(24, 14)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jn2nb")
+
+[node name="LabelValueMarginContainer" type="MarginContainer" parent="." unique_id=211664715]
+layout_mode = 0
+offset_right = 98.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 4
+
+[node name="LabelValueHBoxContainer" type="HBoxContainer" parent="LabelValueMarginContainer" unique_id=215536706]
+layout_mode = 2
+
+[node name="LabelTitle" type="Label" parent="LabelValueMarginContainer/LabelValueHBoxContainer" unique_id=1708848238]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Health: "
+
+[node name="LabelValue" type="Label" parent="LabelValueMarginContainer/LabelValueHBoxContainer" unique_id=1006344468]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 14)
+layout_mode = 2
+text = "100"

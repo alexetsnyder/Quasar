@@ -54,11 +54,11 @@ namespace Catcophony.scenes.cats
 
         public float Height { get => _catSprite.GetRect().Size.Y; }
 
-        public IGoal Goal { get; set; }
-
         #endregion
 
         #region Private Variables
+
+        private IGoal _currentGoal;
 
         private Action _currentAction;
 
@@ -122,18 +122,15 @@ namespace Catcophony.scenes.cats
                 {
                     var goapAction = _currentPlan.Actions.Dequeue();
                     var action = goapAction.GetAction();
-                    if (action == null)
-                    {
-                        action = _actionManager.RegisterAction(goapAction);
-                    }
+                    action ??= _actionManager.RegisterAction(goapAction);
 
-                    if (action == null)
+                    if (action != null)
                     {
-                        _currentPlan = null;
+                        SetAction(action);
                     }
                     else
                     {
-                        SetAction(action);
+                        _currentPlan = null;
                     }
                 }
             }
@@ -141,9 +138,11 @@ namespace Catcophony.scenes.cats
 
         public void Plan()
         {
-            if (Goal != null && (_currentPlan == null || _currentPlan.Actions.Count == 0))
+            _currentGoal = CatBrain.EvaluateGoal(CatModel);
+
+            if (_currentGoal != null && (_currentPlan == null || _currentPlan.Actions.Count == 0))
             {
-                _currentPlan = _planner.Plan(this, Goal);
+                _currentPlan = _planner.Plan(this, _currentGoal);
                 if (_currentPlan != null && _currentPlan.Actions.Count > 0)
                 {
                     if (!_actionManager.AssignActions([.. _currentPlan.Actions.Select(p => p.GetAction()).Where(p => p != null)]))
@@ -174,10 +173,11 @@ namespace Catcophony.scenes.cats
 
         public void CompleteAction()
         {
+            CatModel.Thirst -= 10;
+
             EmitSignal(SignalName.CatAction, this, _currentAction.Id);
 
             _actionProgress.Visible = false;
-            //_currentAction = null;
             IsActing = false;
             CatModel.WorkPos = null;
         }

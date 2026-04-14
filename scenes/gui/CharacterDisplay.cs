@@ -1,5 +1,11 @@
-using Godot;
+using Catcophony.core.reflection.attributes;
 using Catcophony.scenes.cats;
+using Catcophony.scenes.gui.common;
+using Catcophony.system;
+using Godot;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Catcophony.scenes.gui
 {
@@ -7,7 +13,7 @@ namespace Catcophony.scenes.gui
     {
         private VBoxContainer _nameTab;
 
-        private VBoxContainer _statusTab;
+        private VBoxContainer _characterStatusTab;
 
         private VBoxContainer _inventoryTab;
 
@@ -15,34 +21,21 @@ namespace Catcophony.scenes.gui
 
         private Label _catDescriptionLabel;
 
-        private Label _healthLabelValue;
-
-        private Label _feelingsLabelValue;
-
-        private Label _workLabelValue;
-
-        private Label _workPosLabel;
-
-        private Label _workPosLabelValue;
-
         private bool _isMoving = false;
 
         private Vector2 _prevMousePos;
 
         private CatModel _catData;
 
+        private List<LabelValue> _labelValues = new();
+
         public override void _Ready()
         {
             _nameTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/NameTab");
-            _statusTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/StatusTab");
+            _characterStatusTab = GetNode<VBoxContainer>("%CharacterStatusTab");
             _inventoryTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/InventoryTab");
             _catNameLabel = GetNode<Label>("TabsAndContent/PanelContainer/NameTab/Name");
             _catDescriptionLabel = GetNode<Label>("TabsAndContent/PanelContainer/NameTab/Description");
-            _healthLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/HealthLabelValue");
-            _feelingsLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/FeelingsLabelValue");
-            _workLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkLabelValue");
-            _workPosLabel = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkPosLabel");
-            _workPosLabelValue = GetNode<Label>("TabsAndContent/PanelContainer/StatusTab/WorkPosLabelValue");
         }
 
         public override void _Process(double delta)
@@ -65,40 +58,62 @@ namespace Catcophony.scenes.gui
 
             _catNameLabel.Text = _catData.Name;
             _catDescriptionLabel.Text = _catData.Description;
-            _healthLabelValue.Text = _catData.Health.ToString();
-            _feelingsLabelValue.Text = _catData.Feelings;
-            _workLabelValue.Text = _catData.ActionType.ToString();
 
-            if (_catData.WorkPos != null)
+            FillStatusUI();
+        }
+
+        private void FillStatusUI()
+        {
+            ClearStatusList();
+
+            var type = typeof(CatModel);
+            var membersWithStatus = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                        .Where(m => m.GetCustomAttributes(typeof(StatusAttribute), false).Length > 0);
+
+            foreach ( var member in membersWithStatus )
             {
-                _workPosLabel.Visible = true;
-                _workPosLabelValue.Text = _catData.WorkPos.Value.ToString();
+                var labelValue = GlobalSystem.Instance.InstantiateScene<LabelValue>("res://scenes/gui/common/label_value.tscn");
+                if ( labelValue != null )
+                {
+                    _labelValues.Add(labelValue);
+                    _characterStatusTab.AddChild(labelValue);
+
+                    labelValue.SetTitle($"{member.Name}: ");
+
+                    var value = member.GetValue(_catData);
+                    labelValue.SetValue(value?.ToString() ?? "Null");
+                }
             }
-            else
+        }
+
+        private void ClearStatusList()
+        {
+            foreach (var label in _labelValues)
             {
-                _workPosLabel.Visible = false;
-                _workPosLabelValue.Text = "";
+                label.QueueFree();
             }
+
+            _labelValues.Clear();
         }
 
         public void OnNameTabButtonPressed()
         {
             _nameTab.Visible = true;
-            _statusTab.Visible = false;
+            _characterStatusTab.Visible = false;
             _inventoryTab.Visible = false;
         }
 
         public void OnStatusTabButtonPressed()
         {
             _nameTab.Visible = false;
-            _statusTab.Visible = true;
+            _characterStatusTab.Visible = true;
             _inventoryTab.Visible = false;
         }
 
         public void OnInventoryTabButtonPressed()
         {
             _nameTab.Visible = false;
-            _statusTab.Visible = false;
+            _characterStatusTab.Visible = false;
             _inventoryTab.Visible = true;
         }
 
