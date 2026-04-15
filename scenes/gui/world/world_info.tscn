@@ -6,13 +6,13 @@
 [ext_resource type="Texture2D" uid="uid://bnpbq5ghbj0w2" path="res://assets/textures/X.png" id="4_m0dah"]
 
 [node name="WorldInfo" type="Control" unique_id=632777191]
-custom_minimum_size = Vector2(196, 141)
+custom_minimum_size = Vector2(196, 175)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -444.0
-offset_bottom = -219.0
+offset_bottom = -184.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_lq6h8")
@@ -22,6 +22,7 @@ custom_minimum_size = Vector2(196, 141)
 layout_mode = 0
 offset_right = 148.0
 offset_bottom = 40.0
+mouse_filter = 1
 
 [node name="WorldInfoBackground" type="NinePatchRect" parent="PanelContainer" unique_id=672831016]
 layout_mode = 2
@@ -44,6 +45,7 @@ layout_mode = 2
 [node name="TitleControl" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=232459053]
 custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
+mouse_filter = 1
 
 [node name="TitleLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/TitleControl" unique_id=574495177]
 layout_mode = 1
@@ -156,4 +158,5 @@ theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 2
 columns = 6
 
+[connection signal="gui_input" from="." to="." method="OnGUIInput"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TitleControl/CloseButton" to="." method="OnCloseButtonPressed"]

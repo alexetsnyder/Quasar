@@ -31,11 +31,11 @@ namespace Catcophony.scenes.gui.character
 
         public override void _Ready()
         {
-            _nameTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/NameTab");
+            _nameTab = GetNode<VBoxContainer>("%CharacterNameTab");
             _characterStatusTab = GetNode<VBoxContainer>("%CharacterStatusTab");
-            _inventoryTab = GetNode<VBoxContainer>("TabsAndContent/PanelContainer/InventoryTab");
-            _catNameLabel = GetNode<Label>("TabsAndContent/PanelContainer/NameTab/Name");
-            _catDescriptionLabel = GetNode<Label>("TabsAndContent/PanelContainer/NameTab/Description");
+            _inventoryTab = GetNode<VBoxContainer>("%CharacterInventoryTab");
+            _catNameLabel = GetNode<Label>("%CharacterName");
+            _catDescriptionLabel = GetNode<Label>("%CharacterDescription");
         }
 
         public override void _Process(double delta)

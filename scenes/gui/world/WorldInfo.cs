@@ -21,6 +21,10 @@ namespace Catcophony.scenes.gui.world
 
         private GridContainer _itemsGridContainer;
 
+        private bool _isMoving = false;
+
+        private Vector2 _prevMousePos;
+
         public override void _Ready()
         {
             _coordsLabelValue = GetNode<Label>("%CoordsLabelValue");
@@ -30,6 +34,14 @@ namespace Catcophony.scenes.gui.world
             _regionTypeLableValue = GetNode<Label>("%RegionTypeLabelValue");
             _itemsLabelValue = GetNode<Label>("%ItemsLabelValue");
             _itemsGridContainer = GetNode<GridContainer>("%ItemsGridContainer");
+        }
+
+        public override void _Process(double delta)
+        {
+            if (!Input.IsMouseButtonPressed(MouseButton.Left) && _isMoving)
+            {
+                _isMoving = false;
+            }
         }
 
         public void SetInfo(WorldInfoData data)
@@ -77,6 +89,33 @@ namespace Catcophony.scenes.gui.world
         {
             ClearItems();
             this.Visible = false;
+        }
+
+        public void OnGUIInput(InputEvent @event)
+        {
+            if (@event is InputEventMouseButton inputEventMouseButton)
+            {
+                if (inputEventMouseButton.ButtonIndex == MouseButton.Left)
+                {
+                    if (@event.IsPressed())
+                    {
+                        _isMoving = true;
+                        _prevMousePos = inputEventMouseButton.Position;
+                    }
+                    else
+                    {
+                        _isMoving = false;
+                    }
+                }
+            }
+            else if (@event is InputEventMouseMotion mouseEventMouseMotion)
+            {
+                if (_isMoving)
+                {
+                    var dv = mouseEventMouseMotion.Position - _prevMousePos;
+                    Position += dv;
+                }
+            }
         }
     }
 }

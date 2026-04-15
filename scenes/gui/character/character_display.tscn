@@ -51,32 +51,40 @@ button_group = ExtResource("2_q3qj7")
 icon = ExtResource("2_mvmpi")
 icon_alignment = 1
 
-[node name="PanelContainer" type="PanelContainer" parent="TabsAndContent" unique_id=870183116]
+[node name="PanelMarginContainer" type="MarginContainer" parent="TabsAndContent" unique_id=1394131451]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="TabsAndContent/PanelMarginContainer" unique_id=870183116]
 custom_minimum_size = Vector2(214, 150)
 layout_mode = 2
 mouse_filter = 1
 
-[node name="NameTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=1034173757]
+[node name="CharacterNameTab" type="VBoxContainer" parent="TabsAndContent/PanelMarginContainer/PanelContainer" unique_id=1034173757]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Name" type="Label" parent="TabsAndContent/PanelContainer/NameTab" unique_id=716566575]
+[node name="CharacterName" type="Label" parent="TabsAndContent/PanelMarginContainer/PanelContainer/CharacterNameTab" unique_id=716566575]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Cat 01"
 
-[node name="Description" type="Label" parent="TabsAndContent/PanelContainer/NameTab" unique_id=1014945685]
+[node name="CharacterDescription" type="Label" parent="TabsAndContent/PanelMarginContainer/PanelContainer/CharacterNameTab" unique_id=1014945685]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Cat Description"
 
-[node name="CharacterStatusTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=1841052410]
+[node name="CharacterStatusTab" type="VBoxContainer" parent="TabsAndContent/PanelMarginContainer/PanelContainer" unique_id=1841052410]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="InventoryTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=871570406]
+[node name="CharacterInventoryTab" type="VBoxContainer" parent="TabsAndContent/PanelMarginContainer/PanelContainer" unique_id=871570406]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="InventoryLabel" type="Label" parent="TabsAndContent/PanelContainer/InventoryTab" unique_id=448165581]
+[node name="InventoryLabel" type="Label" parent="TabsAndContent/PanelMarginContainer/PanelContainer/CharacterInventoryTab" unique_id=448165581]
 layout_mode = 2
 text = "Nothing Here Yet!"
 
