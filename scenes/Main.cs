@@ -1,14 +1,11 @@
 using Catcophony.core.actions;
-using Catcophony.core.blackboard;
 using Catcophony.core.enums;
 using Catcophony.core.goap;
-using Catcophony.core.goap.goals;
-using Catcophony.core.naming;
 using Catcophony.data;
 using Catcophony.data.enums;
 using Catcophony.scenes.camera;
 using Catcophony.scenes.cats;
-using Catcophony.scenes.gui;
+using Catcophony.scenes.gui.character;
 using Catcophony.scenes.gui.debug;
 using Catcophony.scenes.gui.items;
 using Catcophony.scenes.gui.toolbar;
@@ -118,7 +115,7 @@ namespace Catcophony.scenes
             _tileColorDisplay = GetNode<BasicLabelDisplay>("DebugGUI/TileColorDisplay");
             _toolBarControl = GetNode<ToolBarControl>("GUI/ToolBar");
 
-            _characterDisplay = GlobalSystem.Instance.InstantiateScene<CharacterDisplay>("res://scenes/gui/character_display.tscn");
+            _characterDisplay = GlobalSystem.Instance.InstantiateScene<CharacterDisplay>("res://scenes/gui/character/character_display.tscn");
             if (_characterDisplay != null)
             {
                 _gui.AddChild(_characterDisplay);

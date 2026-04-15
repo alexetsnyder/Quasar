@@ -179,7 +179,7 @@ namespace Catcophony.scenes.cats
 
             _actionProgress.Visible = false;
             IsActing = false;
-            CatModel.WorkPos = null;
+            CatModel.ActionPos = null;
         }
 
         public void Drink()
@@ -264,6 +264,7 @@ namespace Catcophony.scenes.cats
 
         public void SetAction(Action action)
         {
+            CatModel.ActionPos = action.LocalPos;
             _actionProgress.Visible = true;
             _currentAction = action;
             IsActing = true;

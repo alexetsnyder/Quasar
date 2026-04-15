@@ -1,17 +1,18 @@
 [gd_scene format=3 uid="uid://2yjo51yl8e3h"]
 
-[ext_resource type="Script" uid="uid://bq80yjv72e5g3" path="res://scenes/gui/CharacterDisplay.cs" id="1_vp8an"]
+[ext_resource type="Script" uid="uid://bq80yjv72e5g3" path="res://scenes/gui/character/CharacterDisplay.cs" id="1_vp8an"]
 [ext_resource type="Texture2D" uid="uid://bnpbq5ghbj0w2" path="res://assets/textures/X.png" id="2_mvmpi"]
 [ext_resource type="ButtonGroup" uid="uid://rqvv3mjs5uek" path="res://data/resources/character_display_button_group.tres" id="2_q3qj7"]
 
 [node name="CharacterDisplay" type="MarginContainer" unique_id=719971143]
 offset_right = 214.0
-offset_bottom = 232.0
+offset_bottom = 176.0
 mouse_filter = 0
 script = ExtResource("1_vp8an")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1164512395]
 layout_mode = 2
+mouse_filter = 1
 color = Color(0.18039216, 0.18431373, 0.19607843, 1)
 
 [node name="TabsAndContent" type="VBoxContainer" parent="." unique_id=30743202]
@@ -51,12 +52,11 @@ icon = ExtResource("2_mvmpi")
 icon_alignment = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="TabsAndContent" unique_id=870183116]
-custom_minimum_size = Vector2(214, 232)
+custom_minimum_size = Vector2(214, 150)
 layout_mode = 2
 mouse_filter = 1
 
 [node name="NameTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=1034173757]
-visible = false
 layout_mode = 2
 
 [node name="Name" type="Label" parent="TabsAndContent/PanelContainer/NameTab" unique_id=716566575]
@@ -69,6 +69,7 @@ text = "Cat Description"
 
 [node name="CharacterStatusTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=1841052410]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="InventoryTab" type="VBoxContainer" parent="TabsAndContent/PanelContainer" unique_id=871570406]

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Catcophony.scenes.gui
+namespace Catcophony.scenes.gui.character
 {
     public partial class CharacterDisplay : MarginContainer
     {
@@ -27,7 +27,7 @@ namespace Catcophony.scenes.gui
 
         private CatModel _catData;
 
-        private List<LabelValue> _labelValues = new();
+        private readonly List<LabelValue> _labelValues = new();
 
         public override void _Ready()
         {
@@ -40,29 +40,37 @@ namespace Catcophony.scenes.gui
 
         public override void _Process(double delta)
         {
-            FillUI();
+            if (!Input.IsMouseButtonPressed(MouseButton.Left) && _isMoving)
+            {
+                _isMoving = false;
+            }
+
+            if(_catData != null && _catData.IsDirty)
+            {
+                FillUI(_catData.GetCopy());
+            } 
         }
 
         public void SetCatData(CatModel catData)
         {
             _catData = catData;
-            FillUI();
+            FillUI(_catData.GetCopy());
         }
 
-        public void FillUI()
+        public void FillUI(CatModel catModel)
         {
-            if (_catData == null)
+            if (catModel == null)
             {
                 return;
             }
 
-            _catNameLabel.Text = _catData.Name;
-            _catDescriptionLabel.Text = _catData.Description;
+            _catNameLabel.Text = catModel.Name;
+            _catDescriptionLabel.Text = catModel.Description;
 
-            FillStatusUI();
+            FillStatusUI(catModel);
         }
 
-        private void FillStatusUI()
+        private void FillStatusUI(CatModel catModel)
         {
             ClearStatusList();
 
@@ -80,7 +88,7 @@ namespace Catcophony.scenes.gui
 
                     labelValue.SetTitle($"{member.Name}: ");
 
-                    var value = member.GetValue(_catData);
+                    var value = member.GetValue(catModel);
                     labelValue.SetValue(value?.ToString() ?? "Null");
                 }
             }
