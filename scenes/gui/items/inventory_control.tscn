@@ -11,6 +11,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 122.0
 offset_bottom = 62.0
+mouse_filter = 1
 script = ExtResource("1_7hg4f")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=2139527620]
@@ -18,6 +19,7 @@ custom_minimum_size = Vector2(122, 62)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 1
 
 [node name="NinePatchRect" type="NinePatchRect" parent="PanelContainer" unique_id=1920729731]
 layout_mode = 2
@@ -59,21 +61,24 @@ theme_override_styles/normal = ExtResource("3_vsiep")
 icon = ExtResource("4_qw1tt")
 icon_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer" unique_id=1735327111]
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer" unique_id=2008159943]
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 13
-theme_override_constants/margin_bottom = 13
 
-[node name="InventoryGridContainer" type="GridContainer" parent="PanelContainer/VBoxContainer/MarginContainer" unique_id=1164207149]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/CenterContainer" unique_id=1735327111]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="InventoryGridContainer" type="GridContainer" parent="PanelContainer/VBoxContainer/CenterContainer/MarginContainer" unique_id=1164207149]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
-theme_override_constants/h_separation = 11
-theme_override_constants/v_separation = 11
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
 columns = 4
 
 [connection signal="pressed" from="PanelContainer/VBoxContainer/InventoryTopMargin/HBoxContainer/CloseButtonMargin/InventoryCloseButton" to="." method="OnInventoryButtonClosePressed"]

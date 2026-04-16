@@ -27,7 +27,7 @@ namespace Catcophony.scenes.gui.character
 
         private CatModel _catData;
 
-        private readonly List<LabelValue> _labelValues = new();
+        private readonly List<LabelValue> _labelValues = [];
 
         public override void _Ready()
         {

@@ -1,15 +1,18 @@
 using Godot;
 using Catcophony.scenes.systems.items;
 using Catcophony.system;
+using Catcophony.scenes.gui.common;
 
 namespace Catcophony.scenes.gui.items
 {
-    public partial class InventoryControl : Control
+    public partial class InventoryControl : MovableControl
     {
         private GridContainer _grid;
 
         public override void _Ready()
         {
+            base._Ready();
+
             _grid = GetNode<GridContainer>("%InventoryGridContainer");
         }
 
