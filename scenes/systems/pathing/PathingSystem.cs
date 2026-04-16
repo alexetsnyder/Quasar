@@ -19,13 +19,13 @@ namespace Catcophony.scenes.systems.pathing
 
         private IMultiColorTileMapLayer _pathingTileMapLayer;
 
-        private Dictionary<int, Path> _paths = [];
+        private readonly Dictionary<int, Path> _paths = [];
 
         private AStarGrid2D _aStarGrid2d = new();
 
         private Vector2I _atlasCoords = Vector2I.Zero;
 
-        private Dictionary<Vector2I, int> _pathReferences = [];
+        private readonly Dictionary<Vector2I, int> _pathReferences = [];
 
         public override void _Ready()
         {
@@ -36,14 +36,24 @@ namespace Catcophony.scenes.systems.pathing
             SetUpAStar();
         }
 
-        public Path CreateEmptyPath()
+        public bool HasPath(Vector2 fromPos, Vector2 toPos)
         {
-            int pathId = AddPath([]);
+            if (fromPos.IsEqualApprox(toPos))
+            {
+                return true;
+            }
 
-            return _paths[pathId];
+            var pathQueue = FindPath(fromPos, toPos);
+
+            if (pathQueue != null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
-        public Vector2? ShortestPointWithAdjacent(Vector2 fromPos, List<Vector2> toPosList)
+        public Vector2? NearestAdjacentPoint(Vector2 fromPos, List<Vector2> toPosList)
         {
             Vector2? minPoint = null;
             int minPathCount = int.MaxValue;
@@ -55,42 +65,19 @@ namespace Catcophony.scenes.systems.pathing
                     return toPos;
                 }
 
-                if (_world.IsImpassable(_pathingTileMapLayer.LocalToMap(toPos)))
+                foreach (var adjPos in _world.GetAdjacentTiles(toPos))
                 {
-                    foreach (var adjPos in _world.GetAdjacentTiles(toPos))
+                    if (fromPos.IsEqualApprox(adjPos))
                     {
-                        if (fromPos.IsEqualApprox(adjPos))
-                        {
-                            return toPos;
-                        }
-
-                        var path = FindPath(fromPos, adjPos);
-
-                        if (path != null && path.Points.Count < minPathCount)
-                        {
-                            minPathCount = path.Points.Count;
-                            minPoint = toPos;
-                        }
-
-                        if (path != null)
-                        {
-                            RemovePath(path.Id);
-                        }
+                        return toPos;
                     }
-                }
-                else
-                {
-                    var path = FindPath(fromPos, toPos);
 
-                    if (path != null && path.Points.Count < minPathCount)
+                    var path = FindPath(fromPos, adjPos);
+
+                    if (path != null && path.Count < minPathCount)
                     {
-                        minPathCount = path.Points.Count;
+                        minPathCount = path.Count;
                         minPoint = toPos;
-                    }
-
-                    if (path != null)
-                    {
-                        RemovePath(path.Id);
                     }
                 }
             }
@@ -100,60 +87,52 @@ namespace Catcophony.scenes.systems.pathing
 
         public Path ShortestPath(Vector2 startPos, List<Vector2> toPosList)
         {
-            Path shortestPath = null;
+            Queue<Vector2> points = null;
             int minPathCount = int.MaxValue;
 
             foreach (var toPos in toPosList)
             {
                 if (startPos.IsEqualApprox(toPos))
                 {
-                    return new(-1, []);
+                    return new Path(-1, []);
                 }
 
                 var path = FindPath(startPos, toPos);
 
-                if (path == null)
+                if (path != null && path.Count < minPathCount)
                 {
-                    continue;
-                }
-                else if (path.Points.Count < minPathCount)
-                {
-                    if (shortestPath != null)
-                    {
-                        RemovePath(shortestPath.Id);
-                    }
-
-                    shortestPath = path;
-                    minPathCount = path.Points.Count;
-                }
-                else
-                {
-                    RemovePath(path.Id);
+                    points = path;
+                    minPathCount = path.Count;
                 }
             }
 
-            return shortestPath;
+            if (points != null)
+            {
+                var id = AddPath(points);
+
+                return _paths[id];
+            }
+
+            return null;
         }
 
-        public Path FindPath(Vector2 startPos, Vector2 endPos)
+        private Queue<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
         {
             var start = _pathingTileMapLayer.LocalToMap(startPos);
             var end = _pathingTileMapLayer.LocalToMap(endPos);
 
             var points = _aStarGrid2d.GetPointPath(start, end);
 
-            Queue<Vector2> pointQueue = [];
-
-            foreach ( var point in points )
+            if (points.Length > 0)
             {
-                pointQueue.Enqueue(point);
-            }
+                Queue<Vector2> pointQueue = [];
 
-            if (pointQueue.Count > 0)
-            {
-                int pathId = AddPath(pointQueue);
+                foreach (var point in points)
+                {
+                    pointQueue.Enqueue(point);
+                }
 
-                return _paths[pathId];
+                return pointQueue;
             }
 
             return null;
@@ -163,8 +142,10 @@ namespace Catcophony.scenes.systems.pathing
         {
             if (_paths.TryGetValue(id, out Path path))
             {
+                path.IsShown = true;
                 foreach (var point in path.Points)
                 {
+                    AddPathReference(point);
                     SelectCell(point, _atlasCoords, PathColor);
                 }
             } 
@@ -172,11 +153,6 @@ namespace Catcophony.scenes.systems.pathing
 
         public int AddPath(Queue<Vector2> pointQueue)
         {
-            foreach (var point in pointQueue)
-            {
-                AddPathReference(point);
-            }
-
             _paths.Add(_nextId, new Path(_nextId, pointQueue));
 
             return _nextId++;
@@ -188,7 +164,10 @@ namespace Catcophony.scenes.systems.pathing
             {
                 foreach (var point in path.Points)
                 {
-                    RemovePathReference(point);
+                    if (path.IsShown)
+                    {
+                        RemovePathReference(point);
+                    }                
 
                     if (IsTileSelected(point))
                     {    

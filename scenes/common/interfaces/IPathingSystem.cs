@@ -6,11 +6,11 @@ namespace Catcophony.scenes.common.interfaces
 {
     public interface IPathingSystem
     {
-        public Path CreateEmptyPath();
+        public bool HasPath(Vector2 fromPos, Vector2 toPos);
+
+        public Vector2? NearestAdjacentPoint(Vector2 fromPos, List<Vector2> toPosList);
 
         public Path ShortestPath(Vector2 startPos, List<Vector2> toPosList);
-
-        public Path FindPath(Vector2 startPos, Vector2 endPos);
 
         public void ShowPath(int id);
 

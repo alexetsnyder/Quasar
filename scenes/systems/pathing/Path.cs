@@ -9,6 +9,8 @@ namespace Catcophony.scenes.systems.pathing
 
         public Queue<Vector2> Points { get; set; } = points;
 
+        public bool IsShown { get; set; } = false;
+
         public bool IsEmpty()
         {
             return Points.Count == 0; 

@@ -158,13 +158,14 @@ namespace Catcophony.core.goap
 
         public bool HasPath(Vector2 agentPos, Vector2 localPos)
         {
-            var path = _pathingSystem.ShortestPath(agentPos, _world.GetAdjacentTiles(localPos));
+            var adjPosList = _world.GetAdjacentTiles(localPos);
 
-            if (path != null)
+            foreach (var adjPos in adjPosList)
             {
-                _pathingSystem.RemovePath(path.Id);
-
-                return true;
+                if (_pathingSystem.HasPath(agentPos, adjPos))
+                {
+                    return true;
+                }
             }
 
             return false;

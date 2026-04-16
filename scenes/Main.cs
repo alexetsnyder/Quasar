@@ -425,7 +425,7 @@ namespace Catcophony.scenes
                     var items = _itemSystem.GetItems(point);
                     for (int i = 0; i < items.Count; i++)
                     {
-                        var closestStoragePos = _pathingSystem.ShortestPointWithAdjacent(point, allStorage);
+                        var closestStoragePos = _pathingSystem.NearestAdjacentPoint(point, allStorage);
                         if (closestStoragePos != null)
                         {
                             _actionManager.RegisterAction(ActionType.HAULING, closestStoragePos.Value);
