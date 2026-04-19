@@ -293,7 +293,7 @@ namespace Catcophony.scenes
                         cat.SetDeps(_world, _actionManager, _pathingSystem, newPlanner);
 
                         var catPos = spawnPoints[i];
-                        cat.Position = catPos;
+                        cat.SetSpawn(catPos);
                         PlaceCat(catPos);
 
                         var catData = _catModelList[i];

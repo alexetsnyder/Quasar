@@ -20,7 +20,7 @@ namespace Catcophony.core.goap.goals
             {
                 if (_blackboard.TryGetVector2(Constants.Names.LocalPos, out var localPos))
                 {
-                    if (localPos.IsEqualApprox(agentPos.Value))
+                    if (worldState.AdjToPos(agentPos.Value, localPos))
                     {
                         return true;
                     }

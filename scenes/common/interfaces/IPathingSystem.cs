@@ -12,6 +12,8 @@ namespace Catcophony.scenes.common.interfaces
 
         public Path ShortestPath(Vector2 startPos, List<Vector2> toPosList);
 
+        public Path FindPath(Vector2 fromPos, Vector2 toPos);
+
         public void ShowPath(int id);
 
         public void RemovePath(int id);

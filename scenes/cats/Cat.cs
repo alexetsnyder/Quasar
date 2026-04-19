@@ -88,7 +88,17 @@ namespace Catcophony.scenes.cats
 
         private Plan _currentPlan;
 
+        private Vector2 _spawnPoint;
+
+        private RandomNumberGenerator _rng = new();
+
+        private double _idleCount = 0;
+
+        private readonly int _idleTicks = 20;
+
         #endregion
+
+        #region Public Methods
 
         public override void _Ready()
         {
@@ -133,6 +143,32 @@ namespace Catcophony.scenes.cats
                         _currentPlan = null;
                     }
                 }
+                else
+                {
+                    _idleCount += TimeSystem.Instance.TicksPerSecond * delta;
+
+                    if ((int)_idleCount >= _idleTicks)
+                    {
+                        _idleCount = 0;
+
+                        var idleType = CatBrain.EvaulateIdle(_rng);
+
+                        switch (idleType)
+                        {
+                            case IdleType.WANDER:
+                                Wander();
+                                break;
+                            case IdleType.RETURN:
+                                ReturnToSpawn();
+                                break;
+                            case IdleType.IDLE:
+                                break;
+                            default:
+                                GD.Print($"Incorrect IdleType in Cat::_Process.");
+                                break;
+                        }
+                    }  
+                }
             }
         }
 
@@ -156,6 +192,12 @@ namespace Catcophony.scenes.cats
         public void SetCatModel(CatModel data)
         {
             CatModel = data;
+        }
+
+        public void SetSpawn(Vector2 spawn)
+        {
+            _spawnPoint = spawn;
+            Position = spawn;
         }
 
         public void SetDeps(IWorld world, IActionManager actionManager, IPathingSystem pathingSystem, IPlanner planner)
@@ -188,8 +230,60 @@ namespace Catcophony.scenes.cats
             GD.Print($"{CatModel.Name} drank water!");
         }
 
+        public void SetDestination(Vector2 localPos)
+        {
+            var path = _pathingSystem.ShortestPath(Position, _world.GetAdjacentTiles(localPos));
+
+            if (path != null && path.Points.Count > 0)
+            {
+                SetPath(path);
+            }
+        }
+
+        public void SetAction(Action action)
+        {
+            CatModel.ActionPos = action.LocalPos;
+            _actionProgress.Visible = true;
+            _currentAction = action;
+            IsActing = true;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void Wander()
+        {
+            var point = _world.TryGetWanderingPoint(tries: 10);
+
+            if (point != null && !Position.IsEqualApprox(point.Value))
+            {
+                var path = _pathingSystem.FindPath(Position, point.Value);
+
+                if (path != null)
+                {
+                    SetPath(path);
+                }
+            }
+        }
+
+        private void ReturnToSpawn()
+        {
+            if (!Position.IsEqualApprox(_spawnPoint))
+            {
+                var path = _pathingSystem.FindPath(Position, _spawnPoint);
+
+                if (path != null)
+                {
+                    SetPath(path);
+                }
+            }
+        }
+
         private void SetPath(Path path)
         {
+            _movePath = path;
+
             _movePathQueue.Clear();
 
             foreach (var v in path.Points)
@@ -252,22 +346,6 @@ namespace Catcophony.scenes.cats
             }
         }
 
-        public void SetDestination(Vector2 localPos)
-        {
-            _movePath = _pathingSystem.ShortestPath(Position, _world.GetAdjacentTiles(localPos));
-
-            if (_movePath != null && _movePath.Points.Count > 0)
-            {
-                SetPath(_movePath); 
-            }
-        }
-
-        public void SetAction(Action action)
-        {
-            CatModel.ActionPos = action.LocalPos;
-            _actionProgress.Visible = true;
-            _currentAction = action;
-            IsActing = true;
-        }
+        #endregion
     }
 }

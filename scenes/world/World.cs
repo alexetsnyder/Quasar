@@ -169,6 +169,28 @@ namespace Catcophony.scenes.world
             return null;
         }
 
+        public Vector2? TryGetWanderingPoint(int tries)
+        {
+            Vector2? randomPoint = null;
+            bool isFound = false;
+
+            while (!isFound && tries-- > 0)
+            {
+                int x = _rng.RandiRange(0, 18 * Cols);
+                int y = _rng.RandiRange(0, 18 * Rows);
+
+                var tempPoint = new Vector2(x, y);
+
+                if (!IsSolid(tempPoint))
+                {
+                    isFound = true;
+                    randomPoint = tempPoint;
+                }
+            }
+
+            return randomPoint;
+        }
+
         /// <summary>
         /// Get spawn points in the largest connected area and closest to point.
         /// </summary>

@@ -43,7 +43,7 @@ namespace Catcophony.scenes.systems.pathing
                 return true;
             }
 
-            var pathQueue = FindPath(fromPos, toPos);
+            var pathQueue = FindPathInternal(fromPos, toPos);
 
             if (pathQueue != null)
             {
@@ -72,7 +72,7 @@ namespace Catcophony.scenes.systems.pathing
                         return toPos;
                     }
 
-                    var path = FindPath(fromPos, adjPos);
+                    var path = FindPathInternal(fromPos, adjPos);
 
                     if (path != null && path.Count < minPathCount)
                     {
@@ -97,7 +97,7 @@ namespace Catcophony.scenes.systems.pathing
                     return new Path(-1, []);
                 }
 
-                var path = FindPath(startPos, toPos);
+                var path = FindPathInternal(startPos, toPos);
 
                 if (path != null && path.Count < minPathCount)
                 {
@@ -116,7 +116,21 @@ namespace Catcophony.scenes.systems.pathing
             return null;
         }
 
-        private Queue<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
+        public Path FindPath(Vector2 fromPos, Vector2 toPos)
+        {
+            var points = FindPathInternal(fromPos, toPos);
+
+            if (points != null)
+            {
+                int id = AddPath(points);
+
+                return _paths[id];
+            }
+
+            return null;
+        }
+
+        private Queue<Vector2> FindPathInternal(Vector2 startPos, Vector2 endPos)
         {
             var start = _pathingTileMapLayer.LocalToMap(startPos);
             var end = _pathingTileMapLayer.LocalToMap(endPos);

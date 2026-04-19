@@ -58,18 +58,15 @@ namespace Catcophony.core.actions
 
         public Action RegisterAction(IAction goapAction)
         {
-            lock (_lock)
+            var actionType = goapAction.GetActionType();
+            var localPos = goapAction.GetLocalPos();
+
+            if (actionType != ActionType.NONE && localPos != null)
             {
-                var actionType = goapAction.GetActionType();
-                var localPos = goapAction.GetLocalPos();
-
-                if (actionType != ActionType.NONE && localPos != null)
-                {
-                    return RegisterAction(actionType, localPos.Value);
-                }
-
-                return null;
+                return RegisterAction(actionType, localPos.Value);
             }
+
+            return null;
         }
 
         public Action RegisterAction(ActionType actionType, Vector2 localPos)

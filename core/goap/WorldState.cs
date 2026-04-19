@@ -151,6 +151,21 @@ namespace Catcophony.core.goap
             return [];
         }
 
+        public bool AdjToPos(Vector2 agentPos, Vector2 localPos)
+        {
+            var adjPosList = _world.GetAdjacentTiles(localPos);
+
+            foreach(var adjPos in adjPosList)
+            {
+                if (agentPos.IsEqualApprox(adjPos))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool HasPath(Vector2 agentPos, Action action)
         {
             return HasPath(agentPos, action.LocalPos);
